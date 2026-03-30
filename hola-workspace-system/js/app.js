@@ -155,6 +155,39 @@ function startTimer() {
 }
 window._startTimer = startTimer;
 
+// ─── Public Capacity Auto-Updater (تم إصلاح القطع هنا!) ────────────────────────────────
+setInterval(() => {
+    const statusText = document.getElementById('publicStatusText');
+    const gauge = document.getElementById('capacityGauge');
+    
+    if (statusText && gauge && sysSettings && Object.keys(sysSettings).length > 0) {
+        const activeCount = Object.values(_sessions || {}).filter(s => s.status === 'active').length;
+        const maxCap = parseInt(sysSettings.maxCapacity) || 50;
+        let percentage = (activeCount / maxCap) * 100;
+        if (percentage > 100) percentage = 100;
+        
+        gauge.style.width = `${percentage}%`;
+        
+        if (activeCount === 0) {
+            statusText.innerText = `المكان هادي ومناسب جداً الآن (0 عملاء)`;
+            statusText.className = 'text-sm font-bold text-green-600';
+            gauge.className = 'h-full bg-gradient-to-l from-green-400 to-green-500 transition-all duration-1000 relative';
+        } else if (percentage <= 50) {
+            statusText.innerText = `هادي ومناسب للتركيز (${activeCount} عميل)`;
+            statusText.className = 'text-sm font-bold text-green-600';
+            gauge.className = 'h-full bg-gradient-to-l from-green-400 to-green-500 transition-all duration-1000 relative';
+        } else if (percentage <= 80) {
+            statusText.innerText = `متوسط الازدحام (${activeCount} عميل)`;
+            statusText.className = 'text-sm font-bold text-yellow-600';
+            gauge.className = 'h-full bg-gradient-to-l from-yellow-400 to-orange-500 transition-all duration-1000 relative';
+        } else {
+            statusText.innerText = `مزدحم جداً (${activeCount} عميل)`;
+            statusText.className = 'text-sm font-bold text-red-600 animate-pulse';
+            gauge.className = 'h-full bg-gradient-to-l from-red-500 to-red-600 transition-all duration-1000 relative';
+        }
+    }
+}, 2500);
+
 // ─── Session Items ────────────────────────────────────────────────────────────
 window.renderSessionItemsList = () => {
     const div = document.getElementById('activeSessionItemsDiv');
