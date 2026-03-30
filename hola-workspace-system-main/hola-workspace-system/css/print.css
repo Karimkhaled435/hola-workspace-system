@@ -1,0 +1,62 @@
+/* =====================================================
+   css/print.css — Print Styles
+   ===================================================== */
+
+@media print {
+    body {
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+        background-color: white !important;
+    }
+
+    .no-print {
+        display: none !important;
+    }
+
+    /* Logic for printing Client Invoice */
+    body.printing-invoice * {
+        visibility: hidden !important;
+    }
+    body.printing-invoice #invoicePrintArea,
+    body.printing-invoice #invoicePrintArea * {
+        visibility: visible !important;
+        display: block !important;
+    }
+    body.printing-invoice #invoicePrintArea {
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 100%;
+        border: none !important;
+        box-shadow: none !important;
+        padding: 20px;
+        margin: 0;
+        background: white !important;
+    }
+
+    /* Logic for printing End Day Report */
+    body.printing-report * {
+        visibility: hidden !important;
+    }
+    body.printing-report #endDayModal,
+    body.printing-report #endDayModal * {
+        visibility: visible !important;
+        display: block !important;
+    }
+    body.printing-report #endDayModal {
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 100%;
+        display: block !important;
+        box-shadow: none !important;
+        background: white !important;
+        padding: 20px;
+        margin: 0;
+        border: none !important;
+    }
+    body.printing-report #endDayModal .fa-xmark,
+    body.printing-report #endDayModal button {
+        display: none !important;
+    }
+}
