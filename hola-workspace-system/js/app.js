@@ -2,6 +2,19 @@
 // js/app.js — Main Entry Point, Timer, Session Logic
 // =====================================================
 
+// ─── GLOBAL UI CSS FIX FOR OVERLAPPING (إصلاح تداخل الأقسام) ────────────
+if (typeof document !== 'undefined' && !document.getElementById('hola-global-fixes')) {
+    const style = document.createElement('style');
+    style.id = 'hola-global-fixes';
+    style.innerHTML = `
+        .hidden { display: none !important; }
+        .client-tab-content.hidden { display: none !important; }
+        .admin-tab-content.hidden { display: none !important; }
+        section.hidden { display: none !important; }
+    `;
+    document.head.appendChild(style);
+}
+
 import { collection, addDoc, updateDoc, doc, deleteDoc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 import { initFirebase, db, appId } from "./firebase.js";
 import {
@@ -104,9 +117,9 @@ function calculateTimeCost(diffMs) {
     if (diffMs <= 0) return 0;
     const hours = Math.ceil(diffMs / 3600000);
     let cost = 0;
-    if (hours >= 1) cost += sysSettings.pricingTier1;
-    if (hours >= 2) cost += sysSettings.pricingTier2;
-    if (hours >= 3) cost += sysSettings.pricingTier3;
+    if (hours >= 1) cost += (sysSettings && sysSettings.pricingTier1) ? sysSettings.pricingTier1 : 25;
+    if (hours >= 2) cost += (sysSettings && sysSettings.pricingTier2) ? sysSettings.pricingTier2 : 15;
+    if (hours >= 3) cost += (sysSettings && sysSettings.pricingTier3) ? sysSettings.pricingTier3 : 10;
     return cost;
 }
 
@@ -155,36 +168,44 @@ function startTimer() {
 }
 window._startTimer = startTimer;
 
-// ─── Public Capacity Auto-Updater (تم إصلاح القطع هنا!) ────────────────────────────────
+// ─── Public Capacity Auto-Updater (تم التعديل وحذف الأرقام) ──────────────────────
 setInterval(() => {
-    const statusText = document.getElementById('publicStatusText');
-    const gauge = document.getElementById('capacityGauge');
-    
-    if (statusText && gauge && sysSettings && Object.keys(sysSettings).length > 0) {
-        const activeCount = Object.values(_sessions || {}).filter(s => s.status === 'active').length;
-        const maxCap = parseInt(sysSettings.maxCapacity) || 50;
-        let percentage = (activeCount / maxCap) * 100;
-        if (percentage > 100) percentage = 100;
+    try {
+        const statusText = document.getElementById('publicStatusText');
+        const gauge = document.getElementById('capacityGauge');
         
-        gauge.style.width = `${percentage}%`;
-        
-        if (activeCount === 0) {
-            statusText.innerText = `المكان هادي ومناسب جداً الآن (0 عملاء)`;
-            statusText.className = 'text-sm font-bold text-green-600';
-            gauge.className = 'h-full bg-gradient-to-l from-green-400 to-green-500 transition-all duration-1000 relative';
-        } else if (percentage <= 50) {
-            statusText.innerText = `هادي ومناسب للتركيز (${activeCount} عميل)`;
-            statusText.className = 'text-sm font-bold text-green-600';
-            gauge.className = 'h-full bg-gradient-to-l from-green-400 to-green-500 transition-all duration-1000 relative';
-        } else if (percentage <= 80) {
-            statusText.innerText = `متوسط الازدحام (${activeCount} عميل)`;
-            statusText.className = 'text-sm font-bold text-yellow-600';
-            gauge.className = 'h-full bg-gradient-to-l from-yellow-400 to-orange-500 transition-all duration-1000 relative';
-        } else {
-            statusText.innerText = `مزدحم جداً (${activeCount} عميل)`;
-            statusText.className = 'text-sm font-bold text-red-600 animate-pulse';
-            gauge.className = 'h-full bg-gradient-to-l from-red-500 to-red-600 transition-all duration-1000 relative';
+        if (statusText && gauge) {
+            const sessionsObj = (typeof _sessions !== 'undefined' && _sessions) ? _sessions : {};
+            const activeCount = Object.values(sessionsObj).filter(s => s && s.status === 'active').length;
+            
+            const maxCap = (typeof sysSettings !== 'undefined' && sysSettings && sysSettings.maxCapacity) ? parseInt(sysSettings.maxCapacity) : 50;
+            
+            let percentage = (activeCount / maxCap) * 100;
+            if (percentage > 100) percentage = 100;
+            if (isNaN(percentage)) percentage = 0;
+            
+            gauge.style.width = `${percentage}%`;
+            
+            if (activeCount === 0) {
+                statusText.innerText = `المكان هادي ومناسب جداً الآن`;
+                statusText.className = 'text-sm font-bold text-green-600';
+                gauge.className = 'h-full bg-gradient-to-l from-green-400 to-green-500 transition-all duration-1000 relative';
+            } else if (percentage <= 50) {
+                statusText.innerText = `هادي ومناسب للتركيز`;
+                statusText.className = 'text-sm font-bold text-green-600';
+                gauge.className = 'h-full bg-gradient-to-l from-green-400 to-green-500 transition-all duration-1000 relative';
+            } else if (percentage <= 80) {
+                statusText.innerText = `متوسط الازدحام`;
+                statusText.className = 'text-sm font-bold text-yellow-600';
+                gauge.className = 'h-full bg-gradient-to-l from-yellow-400 to-orange-500 transition-all duration-1000 relative';
+            } else {
+                statusText.innerText = `مزدحم جداً`;
+                statusText.className = 'text-sm font-bold text-red-600 animate-pulse';
+                gauge.className = 'h-full bg-gradient-to-l from-red-500 to-red-600 transition-all duration-1000 relative';
+            }
         }
+    } catch(e) {
+        // Silent catch to prevent breaking the app if data is still loading
     }
 }, 2500);
 
@@ -288,7 +309,8 @@ window.recalcTotal = () => {
     let sub = tC + iC - appliedDiscountVal; if (sub < 0) sub = 0;
     safeSet('modalSubTotal', 'innerText', `${sub} ج`);
     const wIn = document.getElementById('walletDeductInput'); let mDed = wIn ? (parseInt(wIn.value) || 0) : 0;
-    const uPhone = myProfile?.phone || (_sessions[activeSessionId]?.phone); const prof = _profiles[uPhone];
+    const uPhone = (typeof myProfile !== 'undefined' && myProfile) ? myProfile.phone : (_sessions[activeSessionId]?.phone); 
+    const prof = uPhone ? _profiles[uPhone] : null;
     const maxW = prof?.walletBalance || 0;
     if (mDed > maxW) mDed = maxW; if (mDed > sub) mDed = sub;
     const reqEl = document.getElementById('modalFinalRequired');
@@ -305,7 +327,8 @@ window.showCheckoutModal = () => {
     setAppliedDiscountVal(0);
     const dIn = document.getElementById('discountCode'); if (dIn) dIn.value = '';
     const dMsg = document.getElementById('discountMsg'); if (dMsg) dMsg.classList.add('hidden');
-    const uPhone = myProfile?.phone || (_sessions[activeSessionId]?.phone); const prof = _profiles[uPhone];
+    const uPhone = (typeof myProfile !== 'undefined' && myProfile) ? myProfile.phone : (_sessions[activeSessionId]?.phone); 
+    const prof = uPhone ? _profiles[uPhone] : null;
     const wallet = prof?.walletBalance || 0;
     const wIn = document.getElementById('walletDeductInput'); if (wIn) { wIn.value = 0; wIn.max = wallet; }
     const wDiv = document.getElementById('manualWalletDiv'); if (wDiv) { if (wallet > 0) wDiv.classList.remove('hidden'); else wDiv.classList.add('hidden'); }
@@ -315,7 +338,8 @@ window.showCheckoutModal = () => {
 window.closeCheckoutModal = () => { const m = document.getElementById('checkoutModal'); if (m) m.classList.add('hidden'); };
 
 window.handleWalletInput = (el) => {
-    const uPhone = myProfile?.phone || (_sessions[activeSessionId]?.phone); const prof = _profiles[uPhone];
+    const uPhone = (typeof myProfile !== 'undefined' && myProfile) ? myProfile.phone : (_sessions[activeSessionId]?.phone); 
+    const prof = uPhone ? _profiles[uPhone] : null;
     const maxW = prof?.walletBalance || 0; let val = parseInt(el.value) || 0;
     const sub = parseInt(document.getElementById('modalSubTotal')?.innerText) || 0;
     const err = document.getElementById('walletError');
@@ -380,7 +404,7 @@ window.confirmCheckout = async () => {
 
 window.deductSubscriptionDay = async (phone) => {
     if (!db) return;
-    const activeSub = Object.values(_subscriptions).find(s => s.phone === phone && s.status === 'active' && s.daysLeft > 0);
+    const activeSub = Object.values(_subscriptions || {}).find(s => s.phone === phone && s.status === 'active' && s.daysLeft > 0);
     if (!activeSub) return;
     const today = new Date().toLocaleDateString('ar-EG');
     if (activeSub.lastUsedDate === today) return; 
@@ -400,7 +424,7 @@ window.toggleVfPay = () => {
     }
 };
 window.openInstapay = () => {
-    if (sysSettings.instapayLink) window.location.href = sysSettings.instapayLink;
+    if (sysSettings && sysSettings.instapayLink) window.location.href = sysSettings.instapayLink;
     else showMsg("رابط إنستا باي غير متوفر حالياً", "error");
 };
 window.closeReceiptModal = () => {
@@ -525,7 +549,7 @@ window.switchEventSlot = (slot) => {
         }
     } catch(e) {}
     const chk = document.getElementById('setEvActive');
-    if (chk) chk.checked = sysSettings[key('evActive')] || false;
+    if (chk) chk.checked = !!sysSettings[key('evActive')];
 };
 
 window.saveEventSettings = async () => {
@@ -823,7 +847,7 @@ window.showSubscriptionModal = () => {
 function renderPublicPlans() {
     const list = document.getElementById('subscriptionPlansList');
     if (!list) return;
-    const plans = Object.values(_plans).filter(p => p.active !== false);
+    const plans = Object.values(_plans || {}).filter(p => p.active !== false);
     if (plans.length === 0) {
         list.innerHTML = `<div class="text-center py-6"><p class="text-gray-400">لا توجد باقات متاحة حالياً</p><p class="text-sm text-gray-400 mt-1">سيتم إضافة الباقات قريباً</p></div>`;
         return;
@@ -854,7 +878,7 @@ window.selectPlan = (planId, planName) => {
         formDiv.classList.remove('hidden');
         formDiv.scrollIntoView({ behavior: 'smooth' });
         // If logged in, hide inputs and use myProfile
-        if (myProfile) {
+        if (typeof myProfile !== 'undefined' && myProfile) {
             const nEl = document.getElementById('subName');
             const pEl = document.getElementById('subPhone');
             if (nEl && nEl.parentElement) nEl.parentElement.classList.add('hidden');
@@ -877,7 +901,7 @@ window.submitSubscription = async () => {
     if (!name || !phone || phone.length < 10) return showMsg("برجاء إدخال الاسم ورقم الهاتف بشكل صحيح", "error");
     if (!planId) return showMsg("اختر باقة أولاً", "error");
 
-    const mySubs = Object.values(_subscriptions).filter(s => s.phone === phone);
+    const mySubs = Object.values(_subscriptions || {}).filter(s => s.phone === phone);
     
     // Check if there is already a pending subscription
     if (mySubs.some(s => s.status === 'pending')) {
