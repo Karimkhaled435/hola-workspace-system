@@ -2,7 +2,7 @@
 // js/app.js — Main Entry Point, Timer, Session Logic
 // =====================================================
 
-// ─── GLOBAL UI CSS FIX FOR OVERLAPPING (إصلاح تداخل الأقسام) ────────────
+// ─── GLOBAL UI CSS FIX FOR OVERLAPPING & INVOICE DESIGN ────────────
 if (typeof document !== 'undefined' && !document.getElementById('hola-global-fixes')) {
     const style = document.createElement('style');
     style.id = 'hola-global-fixes';
@@ -11,6 +11,16 @@ if (typeof document !== 'undefined' && !document.getElementById('hola-global-fix
         .client-tab-content.hidden { display: none !important; }
         .admin-tab-content.hidden { display: none !important; }
         section.hidden { display: none !important; }
+        
+        /* Improve Invoice Typography and Layout */
+        @media print {
+            #invoicePrintArea { font-family: 'Cairo', sans-serif !important; direction: rtl; }
+            #invoicePrintArea h1 { font-size: 28pt !important; color: #000 !important; }
+            #invoicePrintArea p, #invoicePrintArea td, #invoicePrintArea th { color: #333 !important; font-size: 14pt !important; }
+            #invoicePrintArea .border-hola-purple { border-color: #333 !important; }
+            #invoicePrintArea .bg-hola-purple { background-color: #eee !important; color: #000 !important; }
+            #invoicePrintArea .bg-gray-50 { background-color: #f9f9f9 !important; }
+        }
     `;
     document.head.appendChild(style);
 }
@@ -96,6 +106,15 @@ window.currentPaymentSessionId = null;
 window.currentPaymentType = null;
 window._currentShiftAdmin = currentShiftAdmin;
 window._currentEvSlot = 1;
+window._isRemoteMode = false; // Flag for remote profile access
+
+// ─── UTILITY: Mask Name (Karim Mohamed Ali -> Karim M*** A**) ────────────────
+window.maskName = (name) => {
+    if (!name) return "عميل";
+    const parts = name.split(" ");
+    if (parts.length === 1) return parts[0];
+    return parts.map((p, i) => i === 0 ? p : p[0] + "****").join(" ");
+};
 
 // ─── Sound Alerts ─────────────────────────────────────────────────────────────
 export function playAlertSound(type = 'normal') {
@@ -168,7 +187,7 @@ function startTimer() {
 }
 window._startTimer = startTimer;
 
-// ─── Public Capacity Auto-Updater (تم التعديل وحذف الأرقام) ──────────────────────
+// ─── Public Capacity Auto-Updater ─────────────────────────────────────────────
 setInterval(() => {
     try {
         const statusText = document.getElementById('publicStatusText');
@@ -204,10 +223,199 @@ setInterval(() => {
                 gauge.className = 'h-full bg-gradient-to-l from-red-500 to-red-600 transition-all duration-1000 relative';
             }
         }
-    } catch(e) {
-        // Silent catch to prevent breaking the app if data is still loading
-    }
+    } catch(e) {}
 }, 2500);
+
+// ─── AUTH & REMOTE LOGIN LOGIC ────────────────────────────────────────────────
+function calculateDistance(lat1, lon1, lat2, lon2) {
+    const R = 6371e3;
+    const p1 = lat1 * Math.PI/180;
+    const p2 = lat2 * Math.PI/180;
+    const dp = (lat2-lat1) * Math.PI/180;
+    const dl = (lon2-lon1) * Math.PI/180;
+    const a = Math.sin(dp/2) * Math.sin(dp/2) + Math.cos(p1) * Math.cos(p2) * Math.sin(dl/2) * Math.sin(dl/2);
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+    return R * c;
+}
+
+window.checkLocationForLogin = () => {
+    const checkState = document.getElementById('locationCheckState');
+    const loginForm = document.getElementById('loginForm');
+    
+    if (!navigator.geolocation) {
+        showMsg("متصفحك لا يدعم تحديد الموقع", "error");
+        return;
+    }
+
+    navigator.geolocation.getCurrentPosition(
+        (position) => {
+            const userLat = position.coords.latitude;
+            const userLng = position.coords.longitude;
+            const workLat = sysSettings.workspaceLat || 26.5590;
+            const workLng = sysSettings.workspaceLng || 31.6957;
+            const maxRadius = sysSettings.workspaceRadius || 500;
+
+            const dist = calculateDistance(userLat, userLng, workLat, workLng);
+            
+            if (checkState) checkState.classList.add('hidden');
+            if (loginForm) loginForm.classList.remove('hidden');
+
+            if (dist <= maxRadius) {
+                window._isRemoteMode = false;
+                const header = loginForm.querySelector('.bg-gradient-to-br');
+                if(header) {
+                    header.className = 'bg-gradient-to-br from-green-600 to-green-700 p-4 text-white text-center';
+                    header.innerHTML = '<div class="flex items-center justify-center gap-2 font-black"><i class="fa-solid fa-circle-check text-xl"></i> تم تأكيد موقعك داخل المكان</div>';
+                }
+            } else {
+                window._isRemoteMode = true;
+                const header = loginForm.querySelector('.bg-gradient-to-br');
+                if(header) {
+                    header.className = 'bg-gradient-to-br from-gray-600 to-gray-800 p-4 text-white text-center';
+                    header.innerHTML = '<div class="flex items-center justify-center gap-2 font-black"><i class="fa-solid fa-user-clock text-xl"></i> أنت خارج نطاق المكان (عن بُعد)</div><p class="text-xs mt-1">يُسمح بدخول العملاء المسجلين مسبقاً فقط للاستعلام</p>';
+                }
+            }
+        },
+        (error) => {
+            showMsg("برجاء تفعيل صلاحية الموقع (Location) لنتمكن من تسجيل دخولك", "error");
+        },
+        { enableHighAccuracy: true }
+    );
+};
+
+window.checkNewUser = (phone) => {
+    const nameField = document.getElementById('nameField');
+    if (!nameField) return;
+    if (phone.length >= 10) {
+        if (_profiles && _profiles[phone]) {
+            nameField.classList.add('hidden');
+        } else {
+            // New User: Cannot register if outside (Remote Mode)
+            if (window._isRemoteMode) {
+                nameField.classList.add('hidden');
+                showMsg("لا يمكنك التسجيل لأول مرة وأنت خارج نطاق المكان", "error");
+            } else {
+                nameField.classList.remove('hidden');
+            }
+        }
+    } else {
+        nameField.classList.add('hidden');
+    }
+};
+
+window.handleLogin = async () => {
+    const phoneEl = document.getElementById('loginPhone');
+    const nameEl = document.getElementById('loginName');
+    if (!phoneEl) return;
+    
+    const phone = phoneEl.value.trim();
+    const name = nameEl && !nameEl.parentElement.classList.contains('hidden') ? nameEl.value.trim() : "";
+    
+    if (!phone || phone.length < 10) return showMsg("برجاء إدخال رقم هاتف صحيح", "error");
+
+    const userExists = _profiles && _profiles[phone];
+
+    // Remote Mode Restriction
+    if (window._isRemoteMode) {
+        if (!userExists) {
+            showMsg("عذراً، أنت خارج المكان. يجب الحضور لمساحة العمل أول مرة لتفعيل حسابك.", "error");
+            return;
+        }
+        // Render Remote Profile
+        setMyProfile(userExists);
+        window.renderRemoteProfileData(phone);
+        document.getElementById('remoteProfileModal')?.classList.remove('hidden');
+        return;
+    }
+
+    // Normal Login (Inside Workspace)
+    if (!userExists && !name) {
+        showMsg("برجاء إدخال اسمك الثنائي لتسجيلك لأول مرة", "error");
+        if (nameEl) nameEl.focus();
+        return;
+    }
+
+    try {
+        if (!userExists) {
+            await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'profiles', phone), {
+                name, phone, walletBalance: 0, stamps: 0, createdAt: Date.now()
+            });
+            setMyProfile({ name, phone, walletBalance: 0, stamps: 0 });
+        } else {
+            setMyProfile(userExists);
+        }
+
+        const activeSession = Object.values(window._sessions || {}).find(s => s.phone === phone && s.status === 'active');
+        if (activeSession) {
+            window.setActiveSessionId(activeSession.id);
+            window.setSessionStartTime(activeSession.startTime);
+            window.setSessionItems(activeSession.items || []);
+        } else {
+            const subCode = document.getElementById('loginSubCode')?.value.trim();
+            const newSessRef = await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'sessions'), {
+                phone, name: userExists ? userExists.name : name, startTime: Date.now(), status: 'active', items: [], subCodeUsed: subCode || ""
+            });
+            window.setActiveSessionId(newSessRef.id);
+            window.setSessionStartTime(Date.now());
+            window.setSessionItems([]);
+        }
+        
+        switchView('client');
+        showMsg("تم تسجيل الدخول بنجاح!", "success");
+        
+        phoneEl.value = "";
+        if (nameEl) nameEl.value = "";
+        document.getElementById('locationCheckState')?.classList.remove('hidden');
+        document.getElementById('loginForm')?.classList.add('hidden');
+
+    } catch (error) {
+        showMsg("حدث خطأ أثناء تسجيل الدخول", "error");
+    }
+};
+
+window.renderRemoteProfileData = (phone) => {
+    const prof = _profiles[phone];
+    const content = document.getElementById('remoteProfileContent');
+    if (!prof || !content) return;
+    
+    // Find active subscriptions
+    const mySubs = Object.values(_subscriptions || {}).filter(s => s.phone === phone && s.status === 'active' && s.daysLeft > 0);
+    const subHtml = mySubs.length > 0 
+        ? mySubs.map(s => `<div class="bg-orange-50 text-hola-orange p-2 rounded text-sm font-bold border border-orange-100 mb-1">${s.planName} (متبقي ${s.daysLeft} يوم)</div>`).join('') 
+        : '<p class="text-xs text-gray-400 text-center">لا توجد اشتراكات نشطة</p>';
+
+    content.innerHTML = `
+        <div class="text-center border-b pb-4">
+            <h4 class="font-black text-lg text-hola-purple">${prof.name}</h4>
+            <p class="text-xs text-gray-500 font-mono mt-1">${prof.phone}</p>
+        </div>
+        <div class="grid grid-cols-2 gap-3 mb-2">
+            <div class="bg-gray-50 p-3 rounded-xl text-center border">
+                <p class="text-xs text-gray-500 mb-1">المحفظة</p>
+                <p class="font-black text-green-600 text-lg">${prof.walletBalance || 0} ج.م</p>
+            </div>
+            <div class="bg-gray-50 p-3 rounded-xl text-center border">
+                <p class="text-xs text-gray-500 mb-1">الأختام</p>
+                <p class="font-black text-hola-orange text-lg">${prof.stamps || 0}</p>
+            </div>
+        </div>
+        <div>
+            <h5 class="font-bold text-sm text-gray-700 mb-2 mt-4"><i class="fa-solid fa-crown text-hola-orange ml-1"></i> اشتراكاتك الحالية:</h5>
+            ${subHtml}
+        </div>
+    `;
+};
+
+// ─── CHAT AUTO SCROLL HELPER ──────────────────────────────────────────────────
+export function scrollToBottom(elementId) {
+    const el = document.getElementById(elementId);
+    if (el) {
+        setTimeout(() => {
+            el.scrollTop = el.scrollHeight;
+        }, 150);
+    }
+}
+window.scrollToBottom = scrollToBottom;
 
 // ─── Session Items ────────────────────────────────────────────────────────────
 window.renderSessionItemsList = () => {
@@ -883,6 +1091,8 @@ window.selectPlan = (planId, planName) => {
             const pEl = document.getElementById('subPhone');
             if (nEl && nEl.parentElement) nEl.parentElement.classList.add('hidden');
             if (pEl && pEl.parentElement) pEl.parentElement.classList.add('hidden');
+            if (nEl) nEl.value = myProfile.name || "";
+            if (pEl) pEl.value = myProfile.phone || "";
         }
     }
 };
@@ -893,8 +1103,8 @@ window.submitSubscription = async () => {
     const nameEl = document.getElementById('subName');
     const phoneEl = document.getElementById('subPhone');
     
-    const name = myProfile ? myProfile.name : (nameEl ? nameEl.value.trim() : '');
-    const phone = myProfile ? myProfile.phone : (phoneEl ? phoneEl.value.trim() : '');
+    const name = (typeof myProfile !== 'undefined' && myProfile) ? myProfile.name : (nameEl ? nameEl.value.trim() : '');
+    const phone = (typeof myProfile !== 'undefined' && myProfile) ? myProfile.phone : (phoneEl ? phoneEl.value.trim() : '');
     const planIdEl = document.getElementById('subPlanId');
     const planId = planIdEl ? planIdEl.value : null;
 
@@ -903,13 +1113,13 @@ window.submitSubscription = async () => {
 
     const mySubs = Object.values(_subscriptions || {}).filter(s => s.phone === phone);
     
-    // Check if there is already a pending subscription
+    // 1. Prevent multiple pending subscriptions
     if (mySubs.some(s => s.status === 'pending')) {
         return showMsg("لديك طلب اشتراك معلق بالفعل، يرجى انتظار الموافقة", "error");
     }
 
-    // Check if subscribed within 48 hours and not cancelled or expired
-    const recent = mySubs.find(s => (Date.now() - s.createdAt < 48 * 3600000) && s.status !== 'cancelled' && s.status !== 'expired');
+    // 2. Prevent subscribing more than once every 2 days (unless rejected/cancelled/expired)
+    const recent = mySubs.find(s => (Date.now() - s.createdAt < 48 * 3600000) && s.status !== 'cancelled' && s.status !== 'expired' && s.status !== 'rejected');
     if (recent) {
          return showMsg("لا يمكنك تقديم طلب جديد حالياً. الرجاء الانتظار.", "error");
     }
@@ -920,7 +1130,8 @@ window.submitSubscription = async () => {
             name, phone,
             planId, planName: plan.name,
             status: 'pending',
-            createdAt: Date.now()
+            createdAt: Date.now(),
+            code: "" // Prevents weird tracking value like "ر"
         });
         showMsg("تم إرسال طلب اشتراكك بنجاح! سيتم التواصل معك قريباً", "success");
         document.getElementById('subscriptionModal')?.classList.add('hidden');
