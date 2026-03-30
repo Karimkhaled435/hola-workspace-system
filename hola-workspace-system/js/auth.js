@@ -2,16 +2,15 @@
 // js/auth.js — Location Check, Login & Admin Auth
 // =====================================================
 
-import { collection, addDoc, updateDoc, doc, setDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
-import { showMsg, switchView, switchClientTab, updateClientHeaderUI } from "./ui.js";
+import { collection, addDoc, doc, setDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+import { db, appId } from "./firebase.js";
+import { showMsg, switchView, switchClientTab, updateClientHeaderUI, renderClientLoyalty, renderClientHistory } from "./ui.js";
 import {
     sysSettings, _profiles, _sessions, _discounts,
-    myProfile, activeSessionId, sessionItems,
-    setMyProfile, setActiveSessionId, setSessionStartTime, setSessionItems,
-    setCurrentShiftAdmin, currentShiftAdmin
+    myProfile, activeSessionId, currentShiftAdmin,
+    setMyProfile, setActiveSessionId, setSessionStartTime, setSessionItems, setCurrentShiftAdmin
 } from "./sessions.js";
 import { playAlertSound, logOperation } from "./app.js";
-import { renderClientLoyalty, renderClientHistory, renderShiftManagers } from "./ui.js";
 
 // ─── Location Helpers ─────────────────────────────────────────────────────────
 function getDistanceFromLatLonInM(lat1, lon1, lat2, lon2) {
@@ -26,30 +25,47 @@ function getDistanceFromLatLonInM(lat1, lon1, lat2, lon2) {
 }
 
 export function checkLocationForLogin() {
-    if (!navigator.geolocation) { showPreBookingFallback("متصفحك لا يدعم تحديد الموقع، يرجى الحجز المسبق."); return; }
+    const checkState = document.getElementById('locationCheckState');
+    const loginForm = document.getElementById('loginForm');
+
+    if (!navigator.geolocation) {
+        showPreBookingFallback("متصفحك لا يدعم تحديد الموقع، يرجى الحجز المسبق.");
+        return;
+    }
     showMsg("جاري التحقق من موقعك الفعلي بدقة...", "info");
     navigator.geolocation.getCurrentPosition(
         (position) => {
-            const lat = position.coords.latitude; const lng = position.coords.longitude; const acc = position.coords.accuracy;
-            if (acc > 500) { showPreBookingFallback("إشارة الـ GPS غير دقيقة (تلاعب محتمل). استخدم الحجز المسبق."); return; }
-            const now = Date.now(); const lastLocStr = localStorage.getItem('hola_last_loc');
-            if (lastLocStr) {
-                const lastLoc = JSON.parse(lastLocStr); const timeDiffSecs = (now - lastLoc.time) / 1000;
-                if (timeDiffSecs > 0 && timeDiffSecs < 600) {
-                    const distJump = getDistanceFromLatLonInM(lat, lng, lastLoc.lat, lastLoc.lng); const speed = distJump / timeDiffSecs;
-                    if (speed > 30) { showPreBookingFallback("تم رصد تغيير غير منطقي في موقعك. متاح الحجز المسبق فقط."); return; }
+            const userLat = position.coords.latitude;
+            const userLng = position.coords.longitude;
+            const workLat = (sysSettings && sysSettings.workspaceLat) ? sysSettings.workspaceLat : 26.5590;
+            const workLng = (sysSettings && sysSettings.workspaceLng) ? sysSettings.workspaceLng : 31.6957;
+            const maxRadius = (sysSettings && sysSettings.workspaceRadius) ? sysSettings.workspaceRadius : 500;
+
+            const dist = getDistanceFromLatLonInM(userLat, userLng, workLat, workLng);
+
+            if (checkState) checkState.classList.add('hidden');
+            if (loginForm) loginForm.classList.remove('hidden');
+
+            if (dist <= maxRadius) {
+                window._isRemoteMode = false;
+                const header = loginForm.querySelector('.bg-gradient-to-br');
+                if(header) {
+                    header.className = 'bg-gradient-to-br from-green-600 to-green-700 p-4 text-white text-center';
+                    header.innerHTML = '<div class="flex items-center justify-center gap-2 font-black"><i class="fa-solid fa-circle-check text-xl" aria-hidden="true"></i> تم تأكيد موقعك داخل المكان</div>';
+                }
+                showMsg("تم التأكد من موقعك بنجاح! تفضل بتسجيل الدخول.", "success");
+            } else {
+                window._isRemoteMode = true;
+                const header = loginForm.querySelector('.bg-gradient-to-br');
+                if(header) {
+                    header.className = 'bg-gradient-to-br from-gray-600 to-gray-800 p-4 text-white text-center';
+                    header.innerHTML = '<div class="flex items-center justify-center gap-2 font-black"><i class="fa-solid fa-user-clock text-xl" aria-hidden="true"></i> أنت خارج نطاق المكان (عن بُعد)</div><p class="text-xs mt-1">يُسمح بدخول العملاء المسجلين مسبقاً فقط للاستعلام</p>';
                 }
             }
-            localStorage.setItem('hola_last_loc', JSON.stringify({ lat, lng, time: now }));
-            const targetLat = parseFloat(sysSettings.workspaceLat); const targetLng = parseFloat(sysSettings.workspaceLng); const radius = parseFloat(sysSettings.workspaceRadius);
-            const dist = getDistanceFromLatLonInM(lat, lng, targetLat, targetLng);
-            if (dist <= radius) {
-                document.getElementById('locationCheckState')?.classList.add('hidden');
-                document.getElementById('loginForm')?.classList.remove('hidden');
-                showMsg("تم التأكد من موقعك بنجاح! تفضل بتسجيل الدخول.", "success");
-            } else { showPreBookingFallback(`أنت تبعد ${Math.round(dist)} متر عن المكان. متاح الحجز المسبق فقط.`); }
         },
-        () => { showPreBookingFallback("تعذر الوصول لموقعك الجغرافي. تأكد من تفعيل الـ GPS بدقة عالية."); },
+        (error) => {
+            showPreBookingFallback("تعذر الوصول لموقعك الجغرافي. تأكد من تفعيل الـ GPS بدقة عالية.");
+        },
         { enableHighAccuracy: true, timeout: 15000, maximumAge: 0 }
     );
 }
@@ -67,38 +83,43 @@ export function resetLocationCheck() {
     document.getElementById('locationCheckState')?.classList.remove('hidden');
 }
 
-export function checkNewUser(val, _profiles) {
+export function checkNewUser(val) {
+    if (!val) return;
     const p = val.trim();
     const nField = document.getElementById('nameField');
-    if (nField) {
-        if (p.length >= 10 && !_profiles[p]) nField.classList.remove('hidden');
-        else if (p.length >= 10 && _profiles[p]) nField.classList.add('hidden');
+    if (!nField) return;
+    if (p.length >= 10) {
+        if (_profiles && _profiles[p]) {
+            nField.classList.add('hidden');
+        } else {
+            if (window._isRemoteMode) {
+                nField.classList.add('hidden');
+                showMsg("لا يمكنك التسجيل لأول مرة وأنت خارج نطاق المكان", "error");
+            } else {
+                nField.classList.remove('hidden');
+            }
+        }
+    } else {
+        nField.classList.add('hidden');
     }
 }
 
-// ─── Pre-booking ──────────────────────────────────────────────────────────────
-export async function submitPreBooking(db, appId) {
+// ─── Pre-booking & Quick Booking ──────────────────────────────────────────────
+export async function submitPreBooking() {
     if (!db) return showMsg("غير متصل بقاعدة البيانات", "error");
     const name = document.getElementById('pbName')?.value.trim();
     const phone = document.getElementById('pbPhone')?.value.trim();
     const time = document.getElementById('pbTime')?.value;
     if (!name || !phone || !time) return showMsg("برجاء إكمال بيانات الحجز", "error");
-    if (typeof window.grecaptcha === 'undefined') return showMsg("تعذر تحميل نظام الحماية، حدث الصفحة.", "error");
-    let responseToken = '';
-    if (document.getElementById('recaptcha-prebook')) {
-        const iframes = document.querySelectorAll('iframe[title="reCAPTCHA"]');
-        if (iframes.length > 1) responseToken = window.grecaptcha.getResponse(1);
-        else responseToken = window.grecaptcha.getResponse();
-    } else { responseToken = window.grecaptcha.getResponse(); }
-    if (responseToken.length === 0) return showMsg("برجاء تأكيد أنك لست روبوت (reCAPTCHA)", "error");
+    
     try {
         await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'prebookings'), { name, phone, expectedTime: time, status: 'pending', createdAt: Date.now() });
-        document.getElementById('preBookingForm').innerHTML = `<div class="text-center py-6"><div class="w-20 h-20 bg-green-100 text-green-600 rounded-full flex items-center justify-center text-4xl mx-auto mb-4"><i class="fa-solid fa-check-double"></i></div><h3 class="text-xl font-black text-hola-purple mb-2">تم استلام حجزك بنجاح!</h3><p class="text-gray-600 font-bold leading-relaxed">سوف نقوم بالتواصل معك خلال ساعه من الان.</p><button onclick="location.reload()" class="mt-6 text-hola-orange font-bold text-sm hover:underline">العودة للرئيسية</button></div>`;
-        playAlertSound('congrats'); window.grecaptcha.reset();
+        document.getElementById('preBookingForm').innerHTML = `<div class="text-center py-6"><div class="w-20 h-20 bg-green-100 text-green-600 rounded-full flex items-center justify-center text-4xl mx-auto mb-4"><i class="fa-solid fa-check-double" aria-hidden="true"></i></div><h3 class="text-xl font-black text-hola-purple mb-2">تم استلام حجزك بنجاح!</h3><p class="text-gray-600 font-bold leading-relaxed">سوف نقوم بالتواصل معك لتأكيد الحجز.</p><button data-action="reset-location-check" class="mt-6 text-hola-orange font-bold text-sm hover:underline">العودة للرئيسية</button></div>`;
+        playAlertSound('congrats');
     } catch (e) { console.error(e); showMsg("حدث خطأ أثناء الحجز", "error"); }
 }
 
-export async function submitInternalPreBooking(type, db, appId, myProfile) {
+export async function submitInternalPreBooking(type) {
     if (!db || !myProfile) return;
     const time = document.getElementById('internalPbTime')?.value;
     if (type === 'seat' && !time) return showMsg("اختر موعد الحجز", "error");
@@ -107,93 +128,139 @@ export async function submitInternalPreBooking(type, db, appId, myProfile) {
         const eTime = type === 'room' ? 'سيتم التنسيق' : time;
         await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'prebookings'), { name: `${myProfile.name} (${reqType})`, phone: myProfile.phone, expectedTime: eTime, status: 'pending', createdAt: Date.now() });
         showMsg("تم إرسال طلب الحجز بنجاح، سنتواصل معك للتأكيد!", "success");
-        document.getElementById('internalPbTime').value = '';
+        const tEl = document.getElementById('internalPbTime'); if(tEl) tEl.value = '';
     } catch (e) { showMsg("حدث خطأ", "error"); }
 }
 
+export function showQuickBookModal() {
+    const today = new Date().toLocaleDateString('ar-EG');
+    const key = `hola_quickbook_${today}`;
+    const count = parseInt(localStorage.getItem(key) || '0');
+    if (count >= 2) {
+        showMsg("لقد استخدمت هذا الخيار مرتين اليوم. حاول غداً أو استخدم الحجز المسبق.", "error");
+        return;
+    }
+    document.getElementById('quickBookModal')?.classList.remove('hidden');
+}
+
+export async function submitQuickBook() {
+    if (!db) return showMsg("غير متصل بقاعدة البيانات", "error");
+    const phone = document.getElementById('quickBookPhone')?.value.trim();
+    const type = document.getElementById('quickBookType')?.value;
+    const note = document.getElementById('quickBookNote')?.value.trim() || '';
+    if (!phone || phone.length < 10) return showMsg("أدخل رقم هاتف صحيح", "error");
+    const today = new Date().toLocaleDateString('ar-EG');
+    const key = `hola_quickbook_${today}`;
+    const count = parseInt(localStorage.getItem(key) || '0');
+    if (count >= 2) return showMsg("وصلت للحد الأقصى (2 مرات يومياً)", "error");
+    try {
+        const typeLabel = type === 'room' ? 'حجز غرفة خاصة' : 'حجز مقعد عادي';
+        await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'prebookings'), {
+            name: `حجز سريع (${phone})`, phone, type: typeLabel, note,
+            expectedTime: 'سيتم التنسيق', status: 'pending', isQuickBook: true, createdAt: Date.now()
+        });
+        localStorage.setItem(key, String(count + 1));
+        document.getElementById('quickBookModal').innerHTML = `
+            <div class="bg-white rounded-3xl shadow-2xl w-full max-w-sm p-8 text-center border-t-8 border-green-500">
+                <div class="w-20 h-20 bg-green-100 text-green-600 rounded-full flex items-center justify-center text-4xl mx-auto mb-4"><i class="fa-solid fa-check-double" aria-hidden="true"></i></div>
+                <h3 class="text-xl font-black text-hola-purple mb-3">تم استلام حجزك!</h3>
+                <p class="text-gray-600 font-bold leading-relaxed text-sm">سنقوم بالتواصل معك على رقم <span class="text-hola-purple font-black">${phone}</span> قريباً لتأكيد الحجز.</p>
+                <p class="text-[10px] text-gray-400 mt-2">متبقي لك ${1 - count} حجز سريع اليوم</p>
+                <button data-action="close-quick-book-reload" class="mt-6 text-hola-orange font-bold text-sm hover:underline">إغلاق</button>
+            </div>`;
+        playAlertSound('congrats');
+    } catch (e) { showMsg("حدث خطأ أثناء الحجز", "error"); }
+}
+
 // ─── Login ────────────────────────────────────────────────────────────────────
-export async function handleLogin(db, appId, _profiles, _sessions, sysSettings) {
+export async function handleLogin() {
     if (!db) return showMsg("غير متصل بقاعدة البيانات", "error");
     const p = document.getElementById('loginPhone')?.value.trim();
     const n = document.getElementById('loginName')?.value.trim();
+    const nameEl = document.getElementById('loginName');
+    const nameField = document.getElementById('nameField');
+    
     if (!p || p.length < 10) return showMsg("برجاء إدخال رقم موبايل صحيح", "error");
     if (window._bannedPhones && window._bannedPhones[p]) { playAlertSound('high'); return showMsg("تم حظر هذا الرقم أمنياً. راجع الإدارة.", "error"); }
-    if (typeof window.grecaptcha === 'undefined') return showMsg("تعذر تحميل نظام الحماية، يرجى إيقاف AdBlocker.", "error");
-    let recaptchaResponse = window.grecaptcha.getResponse(0);
-    if (recaptchaResponse.length === 0) recaptchaResponse = window.grecaptcha.getResponse();
-    let isError = false; let errorMsg = "";
-    if (recaptchaResponse.length === 0) { isError = true; errorMsg = "برجاء تأكيد أنك لست روبوت (reCAPTCHA)"; }
-    else if (!_profiles[p] && !n) { document.getElementById('nameField')?.classList.remove('hidden'); isError = true; errorMsg = "برجاء إدخال اسمك الثنائي للتسجيل"; }
-    if (isError) {
-        window._loginAttempts[p] = (window._loginAttempts[p] || 0) + 1; showMsg(errorMsg, "error");
-        if (window._loginAttempts[p] >= 3) {
-            await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'banned_phones', p), { phone: p, timestamp: Date.now(), reason: "تجاوز الحد المسموح من محاولات الدخول الخاطئة (Spam)" });
-            await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'notifications'), { phone: 'admin', msg: `تم حظر الرقم ${p} أمنياً!`, type: "high", isRead: false, timestamp: Date.now() });
-            showMsg("تم حظر الرقم. راجع الإدارة.", "error"); window.grecaptcha.reset();
+
+    const userExists = _profiles && _profiles[p];
+
+    // Remote Mode Restrictions
+    if (window._isRemoteMode) {
+        if (!userExists) {
+            showMsg("عذراً، أنت خارج المكان. يجب الحضور لمساحة العمل أول مرة لتفعيل حسابك.", "error");
+            return;
         }
+        // User exists, allow remote viewing
+        setMyProfile(userExists);
+        if(window.renderRemoteProfileData) window.renderRemoteProfileData(p);
+        document.getElementById('remoteProfileModal')?.classList.remove('hidden');
         return;
     }
+
+    // Normal Login
+    if (!userExists && (!n || n.trim() === "")) {
+        if(nameField) nameField.classList.remove('hidden');
+        showMsg("برجاء إدخال اسمك الثنائي للتسجيل", "error");
+        if (nameEl) nameEl.focus();
+        return;
+    }
+
     try {
         let prof;
-        if (!_profiles[p]) {
+        if (!userExists) {
             const newProfile = { name: n, phone: p, walletBalance: 0, stamps: [], joinedAt: Date.now() };
             await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'profiles', p), newProfile);
             prof = newProfile; _profiles[p] = newProfile; showMsg("تم إنشاء حسابك بنجاح!", "success");
         } else {
-            prof = _profiles[p]; showMsg(`أهلاً بك مجدداً يا ${prof.name}!`, "success");
+            prof = _profiles[p]; showMsg(`أهلاً بك مجدداً يا ${window.maskName(prof.name)}!`, "success");
         }
         setMyProfile(prof);
-        delete window._loginAttempts[p]; window.grecaptcha.reset();
+
         const exist = Object.values(_sessions).find(s => s.phone === prof.phone && s.status === 'active');
         if (exist) {
             setActiveSessionId(exist.id); setSessionStartTime(exist.startTime); setSessionItems(exist.items || []);
             document.getElementById('navPublic')?.classList.add('hidden'); document.getElementById('navClient')?.classList.remove('hidden');
             switchClientTab('session'); switchView('client'); updateClientHeaderUI(prof, _profiles, sysSettings); window._startTimer(); window.renderSessionItemsList();
-            const eBanner = document.getElementById('eventBanner'); if (eBanner && sysSettings.evActive) eBanner.classList.remove('hidden');
+            const eBanner = document.getElementById('eventBanner'); if (eBanner && sysSettings && sysSettings.evActive) eBanner.classList.remove('hidden');
             showMsg("تم استعادة جلستك النشطة", "info"); return;
         }
+
         const todayStr = new Date().toLocaleDateString('ar-EG'); let userStamps = prof.stamps || [];
         let lastStampDate = userStamps.length > 0 ? new Date(userStamps[userStamps.length - 1]).toLocaleDateString('ar-EG') : null;
         if (lastStampDate !== todayStr) {
             userStamps.push(Date.now());
-            if (userStamps.length >= sysSettings.stampsRequired) {
+            if (userStamps.length >= (sysSettings?.stampsRequired || 7)) {
                 const code = "RWD" + Math.random().toString(36).substring(2, 6).toUpperCase();
                 await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'discounts'), { code, value: 100, isPercentage: true, assignedTo: prof.phone, title: "مكافأة الختم", isUsed: false, createdAt: Date.now() });
-                await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'notifications'), { phone: prof.phone, msg: `أكملت ${sysSettings.stampsRequired} زيارات وحصلت على خصم %100 🎁 راجع أكوادك!`, type: "congrats", discountCode: code, isRead: false, timestamp: Date.now() });
                 userStamps = [];
             }
-            await updateDoc(doc(db, 'artifacts', appId, 'public', 'data', 'profiles', prof.phone), { stamps: userStamps }); prof.stamps = userStamps;
+            await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'profiles', prof.phone), { ...prof, stamps: userStamps }); 
+            prof.stamps = userStamps;
         }
-        // Check subscription code
-        const subCodeInput = document.getElementById('loginSubCode');
-        const subCode = subCodeInput?.value?.trim()?.toUpperCase();
-        if (subCode) {
-            // Validate and apply subscription code
-            import("https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js").then(async ({collection: col, query, where, getDocs}) => {
-                try {
-                    const q = query(col(db, 'artifacts', appId, 'public', 'data', 'subscriptions'), where('code', '==', subCode), where('phone', '==', p), where('status', '==', 'active'));
-                    const snap = await getDocs(q);
-                    if (!snap.empty) showMsg('✅ كود الاشتراك تم التحقق منه! اليوم سيُخصم من اشتراكك.', 'success');
-                    else showMsg('⚠️ كود الاشتراك غير صحيح أو غير مرتبط بهذا الرقم', 'error');
-                } catch(e) {}
-            }).catch(() => {});
-            if (subCodeInput) subCodeInput.value = '';
-        }
+
         const docRef = await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'sessions'), { phone: prof.phone, name: prof.name, startTime: Date.now(), status: 'active', items: [] });
         setActiveSessionId(docRef.id); setSessionStartTime(Date.now()); setSessionItems([]);
+        
         document.getElementById('navPublic')?.classList.add('hidden'); document.getElementById('navClient')?.classList.remove('hidden');
         switchClientTab('session'); switchView('client'); updateClientHeaderUI(prof, _profiles, sysSettings);
-        renderClientLoyalty(prof, _profiles, {}, sysSettings); renderClientHistory(prof, _sessions); window._startTimer(); window.renderSessionItemsList();
+        renderClientLoyalty(prof, _profiles, _discounts, sysSettings); renderClientHistory(prof, _sessions); window._startTimer(); window.renderSessionItemsList();
+        
+        document.getElementById('loginPhone').value = "";
+        if (nameEl) nameEl.value = "";
+        document.getElementById('locationCheckState')?.classList.remove('hidden');
+        document.getElementById('loginForm')?.classList.add('hidden');
     } catch (e) { console.error(e); showMsg("خطأ", "error"); }
 }
 
 // ─── Admin Auth ───────────────────────────────────────────────────────────────
 export function showAdminLoginModal() { document.getElementById('adminLoginModal')?.classList.remove('hidden'); }
 
-export function verifyAdminPin(db, appId, sysSettings, activeSessionId) {
+export function verifyAdminPin() {
     const pass = document.getElementById('adminPinInput')?.value;
     const sName = document.getElementById('adminShiftName')?.value || "مدير النظام";
-    if (pass === sysSettings.adminPin) {
+    
+    if (sysSettings && pass === sysSettings.adminPin) {
         setCurrentShiftAdmin(sName);
         document.getElementById('currentAdminNameLabel') && (document.getElementById('currentAdminNameLabel').innerText = sName);
         logOperation(db, appId, sName, 'تسجيل دخول/شفت', `استلام شفت: ${sName}`);
@@ -203,10 +270,13 @@ export function verifyAdminPin(db, appId, sysSettings, activeSessionId) {
         document.getElementById('adminLoginModal')?.classList.add('hidden');
         switchView('admin'); window.switchAdminTab('live'); playAlertSound('normal');
         showMsg("تم استلام الشفت", "success");
-    } else showMsg("كلمة مرور غير صحيحة", "error");
+        if(document.getElementById('adminPinInput')) document.getElementById('adminPinInput').value = '';
+    } else {
+        showMsg("كلمة مرور غير صحيحة", "error");
+    }
 }
 
-export function logoutAdmin(activeSessionId, currentShiftAdmin, db, appId) {
+export function logoutAdmin() {
     logOperation(db, appId, currentShiftAdmin, 'تسجيل خروج/شفت', `تسليم شفت: ${currentShiftAdmin}`);
     document.getElementById('navAdminBtn')?.classList.remove('hidden');
     document.getElementById('navAdminActiveBtn')?.classList.add('hidden');
