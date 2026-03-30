@@ -1,11 +1,7 @@
-// =====================================================
-// js/event-delegation.js — Global Event Handling
-// =====================================================
-
 document.addEventListener('DOMContentLoaded', () => {
-    // 1. Centralized Click Delegation
+
     document.addEventListener('click', (e) => {
-        // Handle closing modals when clicking the backdrop
+
         if (e.target.classList.contains('fixed') && e.target.classList.contains('inset-0')) {
             e.target.classList.add('hidden');
             return;
@@ -18,148 +14,118 @@ document.addEventListener('DOMContentLoaded', () => {
         const ds = btn.dataset;
 
         switch (action) {
-            case 'switchView': window.switchView(ds.view); break;
-            case 'switchClientTab': window.switchClientTab(ds.tab); break;
-            case 'switchAdminTab': window.switchAdminTab(ds.tab); break;
-            case 'showAdminLoginModal': window.showAdminLoginModal(); break;
-            case 'showSubscriptionModal': window.showSubscriptionModal(); break;
-            case 'checkLocationForLogin': window.checkLocationForLogin(); break;
-            case 'showPreBookingFallback': window.showPreBookingFallback(ds.type); break;
-            case 'showQuickBookModal': window.showQuickBookModal(); break;
-            case 'showEventIntentFromLogin': window.showEventIntentFromLogin(); break;
-            case 'handleLogin': window.handleLogin(); break;
-            case 'resetLocationCheck': window.resetLocationCheck(); break;
-            case 'submitPreBooking': window.submitPreBooking(); break;
-            case 'openEventDetails': window.openEventDetails(); break;
-            case 'attendEvent': window.attendEvent(ds.slot ? parseInt(ds.slot) : (window._currentPublicEvSlot || 1)); break;
-            case 'voteMusic': window.voteMusic(ds.vote); break;
-            case 'suggestSong': window.suggestSong(); break;
-            case 'showCheckoutModal': window.showCheckoutModal(); break;
-            case 'openBarSelfService': window.openBarSelfService(); break;
-            case 'refreshNotifications': window.refreshNotifications(); break;
-            case 'submitRoomBooking': window.submitRoomBooking(); break;
-            case 'submitRoomWaitlist': window.submitRoomWaitlist(); break;
-            case 'submitInternalPreBooking': window.submitInternalPreBooking(ds.type); break;
-            case 'openClientChat': window.openClientChat(); break;
-            case 'resetMusicVotes': window.resetMusicVotes(); break;
-            case 'showEndDaySummary': window.showEndDaySummary(); break;
-            case 'logoutAdmin': window.logoutAdmin(); break;
-            case 'sendAdminMessage': window.sendAdminMessage(); break;
-            case 'switchEventSlot': window.switchEventSlot(parseInt(ds.slot)); break;
-            case 'shareEventLink': window.shareEventLink(); break;
-            case 'copyEventLink': window.copyEventLink(); break;
-            case 'shareEventWhatsapp': window.shareEventWhatsapp(); break;
-            case 'saveEventSettings': window.saveEventSettings(); break;
-            case 'exportTableToCSV': window.exportTableToCSV(ds.table, ds.filename); break;
-            case 'clearEventAttendees': window.clearEventAttendees(); break;
-            case 'showMenuModal': window.showMenuModal(); break;
-            case 'showDiscountModal': window.showDiscountModal(); break;
-            case 'deleteAllHistory': window.deleteAllHistory(); break;
-            case 'deleteAllArchivedBookings': window.deleteAllArchivedBookings(); break;
-            case 'showAddPlanModal': window.showAddPlanModal(); break;
-            case 'saveSystemSettings': window.saveSystemSettings(); break;
-            case 'addShiftManager': window.addShiftManager(); break;
-            case 'closeClientChat': window.closeClientChat(); break;
-            case 'sendClientMessage': window.sendClientMessage(); break;
-            case 'shareClientEvent': window.shareClientEvent(ds.slot ? parseInt(ds.slot) : (window._currentPublicEvSlot || 1)); break;
-            case 'setPayment': window.setPayment(ds.type); break;
-            case 'confirmPaymentMethod': window.confirmPaymentMethod(); break;
-            case 'closeEndDaySummary': window.closeEndDaySummary(); break;
-            case 'printEndDaySummary': window.printEndDaySummary(); break;
-            case 'closeCheckoutModal': window.closeCheckoutModal(); break;
-            case 'applyDiscountCode': window.applyDiscountCode(); break;
-            case 'confirmCheckout': window.confirmCheckout(); break;
-            case 'toggleVfPay': window.toggleVfPay(); break;
-            case 'openInstapay': window.openInstapay(); break;
-            case 'printInvoice':
+
+            case 'switch-view': window.switchView(ds.view); break;
+            case 'switch-client-tab': window.switchClientTab(ds.tab); break;
+            case 'switch-admin-tab': window.switchAdminTab(ds.tab); break;
+            case 'show-admin-login-modal': window.showAdminLoginModal(); break;
+            case 'show-subscription-modal': window.showSubscriptionModal(); break;
+            case 'check-location-for-login': window.checkLocationForLogin(); break;
+            case 'show-pre-booking-fallback': window.showPreBookingFallback(ds.type); break;
+            case 'show-quick-book-modal': window.showQuickBookModal(); break;
+            case 'show-event-intent-from-login': window.showEventIntentFromLogin(); break;
+            case 'handle-login': window.handleLogin(); break;
+            case 'reset-location-check': window.resetLocationCheck(); break;
+            case 'submit-pre-booking': window.submitPreBooking(); break;
+            case 'open-event-details': window.openEventDetails(); break;
+
+            case 'attend-event':
+                window.attendEvent(ds.slot ? parseInt(ds.slot) : (window._currentPublicEvSlot || 1));
+                break;
+
+            case 'vote-music': window.voteMusic(ds.vote); break;
+            case 'suggest-song': window.suggestSong(); break;
+            case 'show-checkout-modal': window.showCheckoutModal(); break;
+            case 'open-bar-self-service': window.openBarSelfService(); break;
+            case 'refresh-notifications': window.refreshNotifications?.(); break;
+            case 'submit-room-booking': window.submitRoomBooking(); break;
+            case 'submit-room-waitlist': window.submitRoomWaitlist(); break;
+            case 'submit-internal-pre-booking': window.submitInternalPreBooking(ds.type); break;
+            case 'open-client-chat': window.openClientChat(); break;
+            case 'reset-music-votes': window.resetMusicVotes(); break;
+            case 'show-end-day-summary': window.showEndDaySummary(); break;
+            case 'logout-admin': window.logoutAdmin(); break;
+            case 'send-admin-message': window.sendAdminMessage(); break;
+
+            case 'switch-event-slot':
+                window.switchEventSlot(parseInt(ds.slot));
+                break;
+
+            case 'share-event-link': window.shareEventLink(); break;
+            case 'copy-event-link': window.copyEventLink(); break;
+            case 'share-event-whatsapp': window.shareEventWhatsapp(); break;
+            case 'save-event-settings': window.saveEventSettings(); break;
+            case 'export-table-to-csv': window.exportTableToCSV(ds.table, ds.filename); break;
+            case 'clear-event-attendees': window.clearEventAttendees(); break;
+            case 'show-menu-modal': window.showMenuModal(); break;
+            case 'show-discount-modal': window.showDiscountModal(); break;
+            case 'delete-all-history': window.deleteAllHistory(); break;
+            case 'delete-all-archived-bookings': window.deleteAllArchivedBookings(); break;
+            case 'show-add-plan-modal': window.showAddPlanModal(); break;
+            case 'save-system-settings': window.saveSystemSettings(); break;
+            case 'add-shift-manager': window.addShiftManager(); break;
+            case 'close-client-chat': window.closeClientChat(); break;
+            case 'send-client-message': window.sendClientMessage(); break;
+
+            case 'share-client-event':
+                window.shareClientEvent(ds.slot ? parseInt(ds.slot) : (window._currentPublicEvSlot || 1));
+                break;
+
+            case 'set-payment': window.setPayment(ds.type); break;
+            case 'confirm-payment-method': window.confirmPaymentMethod(); break;
+            case 'close-end-day-summary': window.closeEndDaySummary(); break;
+            case 'print-end-day-summary': window.printEndDaySummary(); break;
+            case 'close-checkout-modal': window.closeCheckoutModal(); break;
+            case 'apply-discount-code': window.applyDiscountCode(); break;
+            case 'confirm-checkout': window.confirmCheckout(); break;
+            case 'toggle-vf-pay': window.toggleVfPay(); break;
+            case 'open-instapay': window.openInstapay(); break;
+
+            case 'print-invoice':
                 const sid = ds.session === 'lastCompleted' ? window.lastCompletedSessionId :
                             ds.session === 'lastAdmin' ? window.lastAdminCompletedSessionId :
                             ds.session;
-                window.printInvoice(sid); break;
-            case 'closeReceiptModal': window.closeReceiptModal(); break;
-            case 'openUserDetails':
+                window.printInvoice(sid);
+                break;
+
+            case 'close-receipt-modal': window.closeReceiptModal(); break;
+
+            case 'open-user-details':
                 const phone = ds.phone || document.getElementById('liveSesPhone')?.innerText;
+                if (!phone) return;
                 window.openUserDetails(phone);
                 break;
-            case 'saveUserWallet': window.saveUserWallet(); break;
-            case 'sendUserMsgOnly': window.sendUserMsgOnly(); break;
-            case 'sendUserDiscountOnly': window.sendUserDiscountOnly(); break;
-            case 'closeClientNotif': window.closeClientNotif(); break;
-            case 'verifyAdminPin': window.verifyAdminPin(); break;
-            case 'saveMenuItem': window.saveMenuItem(); break;
-            case 'saveDiscount': window.saveDiscount(); break;
-            case 'doShareWhatsapp': window.doShareWhatsapp(); break;
-            case 'copyShareLink': window.copyShareLink(); break;
-            case 'submitSubscription': window.submitSubscription(); break;
-            case 'printSubCard': window.printSubCard(); break;
-            case 'confirmBarSelfService': window.confirmBarSelfService(); break;
-            case 'previewEmbed': window.previewEmbed(); break;
-            case 'applyEmbed': window.applyEmbed(); break;
-            case 'savePlan': window.savePlan(); break;
-            case 'submitLandingAttend': window.submitLandingAttend(); break;
-            case 'toggleLandingEmbed': window.toggleLandingEmbed(); break;
 
-            // DOM UI Actions
-            case 'closeModal':
+            case 'save-user-wallet': window.saveUserWallet(); break;
+            case 'send-user-msg-only': window.sendUserMsgOnly(); break;
+            case 'send-user-discount-only': window.sendUserDiscountOnly(); break;
+            case 'close-client-notif': window.closeClientNotif(); break;
+            case 'verify-admin-pin': window.verifyAdminPin(); break;
+            case 'save-menu-item': window.saveMenuItem(); break;
+            case 'save-discount': window.saveDiscount(); break;
+            case 'do-share-whatsapp': window.doShareWhatsapp(); break;
+            case 'copy-share-link': window.copyShareLink(); break;
+            case 'submit-subscription': window.submitSubscription(); break;
+            case 'print-sub-card': window.printSubCard(); break;
+            case 'confirm-bar-self-service': window.confirmBarSelfService(); break;
+            case 'preview-embed': window.previewEmbed(); break;
+            case 'apply-embed': window.applyEmbed(); break;
+            case 'save-plan': window.savePlan(); break;
+            case 'submit-landing-attend': window.submitLandingAttend(); break;
+            case 'toggle-landing-embed': window.toggleLandingEmbed(); break;
+
+            // UI helpers
+            case 'close-modal':
                 const modalId = ds.modal;
                 if (modalId) document.getElementById(modalId)?.classList.add('hidden');
                 else btn.closest('.fixed')?.classList.add('hidden');
                 break;
-            case 'copyToClipboard':
-                let textToCopy = '';
-                if (ds.copyTarget === 'self') {
-                    textToCopy = btn.innerText;
-                } else {
-                    const el = document.getElementById(ds.copyTarget);
-                    textToCopy = ds.copyType === 'value' ? el?.value : el?.innerText;
-                }
-                window.copyToClipboard(textToCopy);
+
+            case 'copy-to-clipboard':
+                const el = document.getElementById(ds.copyTarget);
+                window.copyToClipboard(el?.innerText || '');
                 break;
-            case 'openNotifFullImg':
-                const srcToOpen = ds.srcTarget === 'self' ? btn.src : '';
-                window.openNotifFullImg(srcToOpen);
-                break;
-            case 'selectText':
-                btn.select();
-                break;
-            case 'closeQuickBookReload':
-                document.getElementById('quickBookModal')?.classList.add('hidden');
-                location.reload();
-                break;
-                
-            // App.js Dynamic Render Bindings
-            case 'addToBarCart': window.addToBarCart(ds.menuid); break;
-            case 'removeFromBarCart': window.removeFromBarCart(parseInt(ds.idx)); break;
-            case 'removeSessionItem': window.removeSessionItem(ds.sid, parseInt(ds.idx)); break;
-            case 'selectPlan': window.selectPlan(ds.planid, ds.planname); break;
-            case 'endAdminLiveSession': window.adminEndSession(ds.sid); break;
         }
     });
 
-    // 2. Centralized Input Delegation
-    document.addEventListener('input', (e) => {
-        if (e.target.dataset.inputAction === 'checkNewUser') {
-            window.checkNewUser(e.target.value);
-        } else if (e.target.dataset.inputAction === 'handleWalletInput') {
-            window.handleWalletInput(e.target);
-        }
-    });
-
-    // 3. Keyboard Accessibility for custom elements acting as buttons
-    document.addEventListener('keydown', (e) => {
-        if (e.key === 'Enter' || e.key === ' ') {
-            const btn = e.target.closest('[data-action]');
-            if (btn && btn.tagName !== 'BUTTON' && btn.tagName !== 'A' && btn.tagName !== 'INPUT') {
-                e.preventDefault();
-                btn.click();
-            }
-        }
-    });
-
-    // 4. Image Error Handling (replaces inline onerror)
-    document.addEventListener('error', (e) => {
-        if (e.target.tagName && e.target.tagName.toLowerCase() === 'img' && e.target.dataset.fallback === 'hide') {
-            e.target.style.display = 'none';
-        }
-    }, true);
 });
