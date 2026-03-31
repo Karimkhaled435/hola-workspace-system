@@ -218,6 +218,12 @@ export function setupListeners(db, appId) {
             } else {
                 const cur = _sessions[activeSessionId];
                 if (cur && cur.status === 'completed' && window.forceShowClientReceipt) window.forceShowClientReceipt(cur);
+                if (cur) {
+                    sessionStartTime = cur.startTime || sessionStartTime;
+                    sessionItems = cur.items || [];
+                    window.renderSessionItemsList && window.renderSessionItemsList();
+                    window._updateDashboardNumbers && window._updateDashboardNumbers();
+                }
             }
         }
     });

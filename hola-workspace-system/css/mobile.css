@@ -98,6 +98,32 @@ select {
 
 /* ── Cards and glass cards — full width on small screens */
 @media (max-width: 640px) {
+    #clientHeaderCard {
+        padding: 0.75rem;
+    }
+
+    #clientHeaderCard .flex.items-center.gap-4 {
+        width: 100%;
+    }
+
+    #clientHeaderCard > div:last-child {
+        display: grid;
+        grid-template-columns: 1fr 1fr auto;
+        width: 100%;
+        gap: 0.5rem;
+        align-items: stretch;
+    }
+
+    #clientHeaderCard > div:last-child > * {
+        width: 100%;
+    }
+
+    #clientHeaderCard #clientLogoutBtn {
+        width: 100%;
+        height: auto;
+        border-radius: 0.75rem;
+    }
+
     .glass-card {
         border-radius: 1rem;
     }
@@ -226,6 +252,32 @@ select {
 
 /* ── Admin tab panel — better mobile layout ─────────── */
 @media (max-width: 640px) {
+    #viewClient .client-tab-content {
+        padding: 1rem;
+    }
+
+    #viewClient .client-tab-content > .glass-card {
+        padding: 1rem;
+    }
+
+    #viewClient .flex.justify-between.items-center {
+        gap: 0.5rem;
+        flex-wrap: wrap;
+    }
+
+    #viewClient h3 {
+        font-size: 1rem;
+    }
+
+    #viewClient .grid.grid-cols-2.md\:grid-cols-3 {
+        grid-template-columns: 1fr 1fr;
+        gap: 0.75rem;
+    }
+
+    #viewClient #dynamicMenuGrid button {
+        padding: 0.75rem;
+    }
+
     #admin-cards .grid-cols-2.md\:grid-cols-4 {
         grid-template-columns: repeat(2, 1fr);
     }
