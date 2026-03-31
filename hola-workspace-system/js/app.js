@@ -113,6 +113,8 @@ function startTimer() {
     if (timerInterval) clearInterval(timerInterval);
     updateDashboardNumbers();
     setTimerInterval(setInterval(updateDashboardNumbers, 1000));
+    // Expose session start time for cards-controller (My Package session panel)
+    window._activeSessionStartTime = sessionStartTime;
 }
 window._startTimer = startTimer;
 
@@ -1789,6 +1791,7 @@ window.clientLogout = () => {
     setActiveSessionId(null);
     setSessionItems([]);
     setMyProfile(null);
+    window._activeSessionStartTime = null;
     window._currentUserIsRemote = false;
     // Reset header
     document.getElementById('navPublic')?.classList.remove('hidden');
