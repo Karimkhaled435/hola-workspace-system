@@ -38,7 +38,10 @@ const cardsCol = () => db.collection('artifacts').doc(APP_ID).collection('public
 
 // ─── Middleware ────────────────────────────────────────────────────────────────
 app.use(cors({
-    origin: process.env.CORS_ORIGIN || '*',
+    // Restrict to the explicitly configured origin.
+    // If CORS_ORIGIN is not set the server refuses cross-origin requests rather
+    // than defaulting to the permissive wildcard '*'.
+    origin: process.env.CORS_ORIGIN || false,
     methods: ['GET', 'POST', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'x-admin-secret']
 }));

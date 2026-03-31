@@ -19,18 +19,24 @@ require('dotenv').config();
 
 const axios = require('axios');
 
-const ROUTER_HOST     = process.env.ROUTER_HOST     || '192.168.1.1';
-const ROUTER_USERNAME = process.env.ROUTER_USERNAME  || 'admin';
-const ROUTER_PASSWORD = process.env.ROUTER_PASSWORD  || 'admin';
+const ROUTER_HOST     = process.env.ROUTER_HOST || '192.168.1.1';
+const ROUTER_USERNAME = process.env.ROUTER_USERNAME || 'admin';
+const ROUTER_PASSWORD = process.env.ROUTER_PASSWORD || 'admin';
 const BASE_URL        = `http://${ROUTER_HOST}`;
+
+// Allow disabling TLS verification only when explicitly opted-in via env var.
+// Needed for routers that present a self-signed HTTPS certificate on the LAN.
+// Do NOT set this to true in production environments exposed to the internet.
+const ALLOW_SELF_SIGNED_TLS = process.env.ROUTER_ALLOW_SELF_SIGNED === 'true';
 
 // Shared axios instance — preserves cookies for the session.
 const client = axios.create({
-    baseURL:        BASE_URL,
-    timeout:        10000,
-    // The router uses self-signed HTTPS on some models; disable TLS verification.
-    httpsAgent:     new (require('https').Agent)({ rejectUnauthorized: false }),
-    maxRedirects:   5,
+    baseURL:         BASE_URL,
+    timeout:         10000,
+    // TLS verification is only disabled when ROUTER_ALLOW_SELF_SIGNED=true in .env.
+    // Required only if the router uses a self-signed HTTPS certificate on the LAN.
+    httpsAgent:      new (require('https').Agent)({ rejectUnauthorized: !ALLOW_SELF_SIGNED_TLS }),
+    maxRedirects:    5,
     withCredentials: true
 });
 
@@ -46,7 +52,7 @@ let sessionCookie = null;
 //
 // Returns true on success, throws on failure.
 async function login() {
-    console.log(`[Router] Logging in to ${BASE_URL} as ${ROUTER_USERNAME} ...`);
+    console.log(`[Router] Logging in to ${BASE_URL} ...`);
     try {
         const params = new URLSearchParams();
         params.append('username', ROUTER_USERNAME);
