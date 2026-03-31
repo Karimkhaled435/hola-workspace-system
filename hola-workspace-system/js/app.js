@@ -1,7 +1,3 @@
-// =====================================================
-// js/app.js — Main Entry Point, Timer, Session Logic
-// =====================================================
-
 if (typeof document !== 'undefined' && !document.getElementById('hola-global-fixes')) {
     const style = document.createElement('style');
     style.id = 'hola-global-fixes';
@@ -109,8 +105,8 @@ window._currentEvSlot = 1;
 window._isRemoteMode = false;
 window._currentManageUserPhone = null;
 
-if (db && appId) {
-    if (typeof setupListeners === 'function') setupListeners(db, appId); 
+if (db && appId && typeof setupListeners === 'function') {
+    setupListeners(db, appId); 
 }
 
 window.addEventListener('DOMContentLoaded', () => {
@@ -337,9 +333,7 @@ setInterval(() => {
 
 export function scrollToBottom(elementId) {
     const el = document.getElementById(elementId);
-    if (el) {
-        setTimeout(() => { el.scrollTop = el.scrollHeight; }, 150);
-    }
+    if (el) setTimeout(() => { el.scrollTop = el.scrollHeight; }, 150);
 }
 window.scrollToBottom = scrollToBottom;
 
@@ -494,7 +488,7 @@ function populateDetailedReceipt(prefix, sessionData) {
     const itemsList = document.getElementById(`${prefix}ItemsList`);
     if (itemsList) {
         if (sessionData.items && sessionData.items.length > 0)
-            itemsList.innerHTML = sessionData.items.map(i => `<div class="flex justify-between"><span>${i.name}</span><span class="text-hola-orange">${i.price} ج</span></div>`).join('');
+            itemsList.innerHTML = sessionData.items.map(i => `<div class="flex justify-between"><span>${window.maskName(i.name)}</span><span class="text-hola-orange">${i.price} ج</span></div>`).join('');
         else itemsList.innerHTML = '<span class="text-gray-400">لا يوجد طلبات</span>';
     }
 }
@@ -567,7 +561,7 @@ window.closeReceiptModal = () => {
 // ─── Admin Session Management ─────────────────────────────────────────────────
 window.openAdminLiveSession = (id) => {
     const s = _sessions[id]; if (!s) return;
-    safeSet('liveSesName', 'innerText', s.name); safeSet('liveSesPhone', 'innerText', s.phone);
+    safeSet('liveSesName', 'innerText', window.maskName(s.name)); safeSet('liveSesPhone', 'innerText', s.phone);
     const el = document.getElementById('liveSesElapsed'); if (el) el.dataset.start = s.startTime;
     const l = document.getElementById('liveSesItemsList');
     if (l) {
@@ -609,7 +603,7 @@ window.adminEndSession = async (sid) => {
     await window.deductSubscriptionDay(s.phone);
     logOperation(db, appId, currentShiftAdmin, 'إنهاء جلسة (إدارة)', `الإدارة أنهت جلسة ${s.phone} بصافي ${fin}ج`);
     document.getElementById('adminLiveSessionModal')?.classList.add('hidden');
-    safeSet('adminRecName', 'innerText', s.name || s.phone);
+    safeSet('adminRecName', 'innerText', window.maskName(s.name) || s.phone);
     safeSet('adminRecStart', 'innerText', new Date(s.startTime).toLocaleTimeString('ar-EG', { hour: '2-digit', minute: '2-digit' }));
     safeSet('adminRecEnd', 'innerText', new Date().toLocaleTimeString('ar-EG', { hour: '2-digit', minute: '2-digit' }));
     safeSet('adminRecDuration', 'innerText', `${Math.floor(dMs / 3600000)}س و ${Math.floor((dMs % 3600000) / 60000)}د`);
@@ -718,4 +712,228 @@ window.shareEventLink = () => {
     const key = (k) => slot === 1 ? k : `ev${slot}_${k}`;
     const title = sysSettings[key('evTitle')] || 'فعالية Hola Workspace';
     const desc = sysSettings[key('evDesc')] || '';
-    const time = sysSettings[key('ev
+    const time = sysSettings[key('evTime')] || '';
+    const fbPage = sysSettings.fbPageLink || 'https://www.facebook.com/HolaWorkspace';
+    const waNum = sysSettings.whatsappNum || '';
+    
+    const baseUrl = window.location.href.split('?')[0];
+    const eventUrl = `${baseUrl}?ev=${slot}`;
+    const shareText = `🎉 ${title}\n📅 ${time}\n\n${desc}\n\n📍 Hola Workspace\n🔗 ${eventUrl}${waNum ? `\n📱 واتساب: wa.me/${waNum}` : ''}`;
+    
+    const shareModalTitle = document.getElementById('shareModalTitle');
+    const shareModalDesc = document.getElementById('shareModalDesc');
+    const shareEventUrl = document.getElementById('shareEventUrl');
+    
+    if (shareModalTitle) shareModalTitle.innerText = title;
+    if (shareModalDesc) shareModalDesc.innerText = time;
+    if (shareEventUrl) shareEventUrl.innerText = eventUrl;
+    
+    const fbShareUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(eventUrl)}&quote=${encodeURIComponent(shareText)}`;
+    const shareFbBtn = document.getElementById('shareFbBtn');
+    if (shareFbBtn) {
+        shareFbBtn.onclick = null; 
+        shareFbBtn.addEventListener('click', () => window.open(fbShareUrl, '_blank'), {once: true});
+    }
+    window._shareEventText = shareText;
+    document.getElementById('eventShareModal')?.classList.remove('hidden');
+};
+
+window.copyEventLink = () => {
+    const slot = window._currentEvSlot || 1;
+    const key = (k) => slot === 1 ? k : `ev${slot}_${k}`;
+    const title = sysSettings[key('evTitle')] || 'فعالية Hola Workspace';
+    const time = sysSettings[key('evTime')] || '';
+    const fbPage = sysSettings.fbPageLink || 'https://www.facebook.com/HolaWorkspace';
+    const waNum = sysSettings.whatsappNum || '';
+    const eventUrl = window.location.href.split('?')[0];
+    const text = `🎉 ${title}\n📅 ${time}\n📍 Hola Workspace\n🔗 ${fbPage}${waNum ? `\n📱 واتساب: wa.me/${waNum}` : ''}\n\n${eventUrl}?ev=${slot}`;
+    copyToClipboard(text);
+};
+
+window.shareEventWhatsapp = () => {
+    window.shareEventLink();
+    setTimeout(() => window.doShareWhatsapp(), 200);
+};
+
+window.doShareWhatsapp = () => {
+    const text = window._shareEventText || 'تفقد فعالية Hola Workspace!';
+    window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank');
+};
+
+window.copyShareLink = () => { copyToClipboard(window._shareEventText || window.location.href); };
+
+window.shareClientEvent = (slot = 1) => {
+    window._currentEvSlot = slot;
+    window.shareEventLink();
+};
+
+window.showEventIntentFromLogin = () => {
+    document.getElementById('locationCheckState')?.classList.add('hidden');
+    document.getElementById('loginForm')?.classList.remove('hidden');
+    showMsg("سجل دخولك الآن لتأكيد حضورك للفعالية", "normal");
+};
+
+window.openEventLandingPage = (slot = 1) => {
+    const key = (k) => slot === 1 ? k : `ev${slot}_${k}`;
+    if (!sysSettings) return; 
+    const title = sysSettings[key('evTitle')] || 'فعالية Hola Workspace';
+    const desc = sysSettings[key('evDesc')] || '';
+    const time = sysSettings[key('evTime')] || '';
+    const img = sysSettings[key('evImg')] || '';
+
+    safeSet('landingEvTitle', 'innerText', title);
+    safeSet('landingEvDesc', 'innerText', desc);
+    safeSet('landingEvTime', 'innerHTML', `<i class="fa-regular fa-clock text-lg" aria-hidden="true"></i> <span>${time}</span>`);
+
+    const imgEl = document.getElementById('landingEvImg');
+    if (imgEl) {
+        imgEl.src = img || 'https://i.postimg.cc/rsLC5pbm/hola.png';
+    }
+
+    const waNum = sysSettings.whatsappNum || '';
+    const waBtn = document.getElementById('landingWaBtn');
+    if(waBtn) {
+        waBtn.href = waNum ? `https://wa.me/${waNum}?text=${encodeURIComponent('أريد الاستفسار عن فعالية: ' + title)}` : '#';
+    }
+    const fbBtn = document.getElementById('landingFbBtn');
+    if(fbBtn) {
+        fbBtn.href = sysSettings.fbPageLink || '#';
+    }
+
+    window._currentPublicEvSlot = slot;
+    document.getElementById('eventLandingModal')?.classList.remove('hidden');
+};
+
+window.toggleLandingEmbed = () => {
+    const div = document.getElementById('landingEmbedDiv');
+    if (div) div.classList.toggle('hidden');
+};
+
+window.submitLandingAttend = async () => {
+    if (!db) return showMsg("غير متصل بقاعدة البيانات", "error");
+    const name = document.getElementById('landingName')?.value.trim();
+    const phone = document.getElementById('landingPhone')?.value.trim();
+    if (!name || !phone || phone.length < 10) return showMsg("برجاء إدخال الاسم ورقم الموبايل بشكل صحيح", "error");
+    
+    try {
+        await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'event_attendees'), {
+            name, phone, timestamp: Date.now(), 
+            slot: window._currentPublicEvSlot || 1, 
+            evTitle: document.getElementById('landingEvTitle')?.innerText || 'فعالية'
+        });
+        const registerDiv = document.getElementById('landingRegisterDiv');
+        if (registerDiv) {
+            registerDiv.innerHTML = '<div class="text-center p-4 bg-green-50 text-green-700 rounded-xl font-bold">تم تسجيل حضورك بنجاح! ننتظرك 🎉</div>';
+        }
+        playAlertSound('congrats');
+    } catch (e) {
+        showMsg("حدث خطأ أثناء التسجيل", "error");
+    }
+};
+
+if (!window.openNotifFullImg) window.openNotifFullImg = (src) => { 
+    const m = document.getElementById('fullImgModal'); 
+    const i = document.getElementById('fullImgContent');
+    if(m && i) { i.src = src; m.classList.remove('hidden'); }
+};
+if (!window.closeClientNotif) window.closeClientNotif = () => document.getElementById('clientNotifModal')?.classList.add('hidden');
+
+window.togglePlanActive = async (planId) => {
+    if (!db) return;
+    const plan = _plans[planId]; if(!plan) return;
+    try {
+        await updateDoc(doc(db, 'artifacts', appId, 'public', 'data', 'plans', planId), { active: !(plan.active !== false) });
+        showMsg("تم تعديل حالة الباقة", "success");
+    } catch(e) {}
+};
+
+window.showSubscriptionModal = () => {
+    renderPublicPlans();
+    document.getElementById('subscriptionModal')?.classList.remove('hidden');
+    document.getElementById('subscriptionFormDiv')?.classList.add('hidden');
+};
+
+function renderPublicPlans() {
+    const list = document.getElementById('subscriptionPlansList');
+    if (!list) return;
+    const plans = Object.values(_plans || {}).filter(p => p.active !== false);
+    if (plans.length === 0) {
+        list.innerHTML = `<div class="text-center py-6"><p class="text-gray-400">لا توجد باقات متاحة حالياً</p><p class="text-sm text-gray-400 mt-1">سيتم إضافة الباقات قريباً</p></div>`;
+        return;
+    }
+    list.innerHTML = plans.map(p => `
+        <div class="border-2 border-purple-100 rounded-2xl p-4 hover:border-hola-purple transition cursor-pointer relative overflow-hidden"
+             data-action="select-plan" data-planid="${p.id}" data-planname="${p.name}" role="button" tabindex="0">
+            <div class="absolute top-0 right-0 bg-hola-orange text-white text-[10px] px-3 py-1 rounded-bl-lg font-bold">${p.price} ج.م</div>
+            <div class="mt-4">
+                <h4 class="font-black text-hola-purple text-lg mb-1">${p.name}</h4>
+                <p class="text-xs text-gray-500 font-bold mb-3">${p.desc || ''}</p>
+                <div class="flex justify-between text-xs font-bold text-gray-600">
+                    <span><i class="fa-solid fa-calendar-days text-hola-orange ml-1" aria-hidden="true"></i>${p.days} يوم</span>
+                    <span><i class="fa-solid fa-check-circle text-green-500 ml-1" aria-hidden="true"></i>${p.allowedDays || p.days} أيام استخدام</span>
+                </div>
+            </div>
+        </div>`).join('');
+}
+
+window.selectPlan = (planId, planName) => {
+    const planEl = document.getElementById('subPlanId');
+    if (planEl) planEl.value = planId;
+    const titleEl = document.getElementById('selectedPlanTitle');
+    if (titleEl) titleEl.innerText = planName;
+    
+    const formDiv = document.getElementById('subscriptionFormDiv');
+    if (formDiv) {
+        formDiv.classList.remove('hidden');
+        formDiv.scrollIntoView({ behavior: 'smooth' });
+        if (typeof myProfile !== 'undefined' && myProfile) {
+            const nEl = document.getElementById('subName');
+            const pEl = document.getElementById('subPhone');
+            if (nEl && nEl.parentElement) nEl.parentElement.classList.add('hidden');
+            if (pEl && pEl.parentElement) pEl.parentElement.classList.add('hidden');
+            if (nEl) nEl.value = myProfile.name || "";
+            if (pEl) pEl.value = myProfile.phone || "";
+        }
+    }
+};
+
+window.submitSubscription = async () => {
+    if (!db) return showMsg("غير متصل بقاعدة البيانات", "error");
+    
+    const nameEl = document.getElementById('subName');
+    const phoneEl = document.getElementById('subPhone');
+    
+    const name = (typeof myProfile !== 'undefined' && myProfile) ? myProfile.name : (nameEl ? nameEl.value.trim() : '');
+    const phone = (typeof myProfile !== 'undefined' && myProfile) ? myProfile.phone : (phoneEl ? phoneEl.value.trim() : '');
+    const planIdEl = document.getElementById('subPlanId');
+    const planId = planIdEl ? planIdEl.value : null;
+
+    if (!name || !phone || phone.length < 10) return showMsg("برجاء إدخال الاسم ورقم الهاتف بشكل صحيح", "error");
+    if (!planId) return showMsg("اختر باقة أولاً", "error");
+
+    const mySubs = Object.values(_subscriptions || {}).filter(s => s.phone === phone);
+    
+    if (mySubs.some(s => s.status === 'pending')) {
+        return showMsg("لديك طلب اشتراك معلق بالفعل، يرجى انتظار الموافقة", "error");
+    }
+
+    const recent = mySubs.find(s => (Date.now() - s.createdAt < 48 * 3600000) && s.status !== 'cancelled' && s.status !== 'expired' && s.status !== 'rejected');
+    if (recent) {
+         return showMsg("لا يمكنك تقديم طلب جديد حالياً. الرجاء الانتظار.", "error");
+    }
+
+    try {
+        const plan = _plans[planId];
+        await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'subscriptions'), {
+            name, phone,
+            planId, planName: plan.name,
+            status: 'pending',
+            createdAt: Date.now(),
+            code: "" 
+        });
+        showMsg("تم إرسال طلب اشتراكك بنجاح! سيتم التواصل معك قريباً", "success");
+        document.getElementById('subscriptionModal')?.classList.add('hidden');
+    } catch (e) {
+        showMsg("حدث خطأ أثناء الطلب", "error");
+    }
+};
