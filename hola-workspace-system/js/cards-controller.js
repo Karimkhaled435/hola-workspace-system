@@ -222,14 +222,59 @@ window.checkCardStatus = async function () {
     const code = document.getElementById('cardLoginCode')?.value.trim().toUpperCase();
     if (!code) return;
 
+    const phone = document.getElementById('cardLoginPhone')?.value.trim() || '';
+
     const resultEl = document.getElementById('cardLoginResult');
     if (resultEl) {
         resultEl.classList.remove('hidden');
-        resultEl.innerHTML = '<p class="text-center text-gray-400 py-2">جاري الفحص...</p>';
+        resultEl.innerHTML = '<p class="text-center text-gray-400 py-2 text-sm">جاري الفحص...</p>';
     }
 
-    const card = db ? await getCardByCode(db, appId, code) : null;
-    if (resultEl) resultEl.innerHTML = renderCardLoginResult(card);
+    try {
+        const card = db ? await getCardByCode(db, appId, code) : null;
+        let html = renderCardLoginResult(card);
+
+        // If phone provided and card found, also look up active workspace session
+        if (card && phone.length >= 10 && db) {
+            try {
+                const { collection: col, query: q, where: wh, getDocs: gd } =
+                    await import('https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js');
+                const sessSnap = await gd(q(
+                    col(db, 'artifacts', appId, 'public', 'data', 'sessions'),
+                    wh('phone', '==', phone),
+                    wh('status', '==', 'active')
+                ));
+                if (!sessSnap.empty) {
+                    const sess = sessSnap.docs[0].data();
+                    const elapsedMs = Date.now() - sess.startTime;
+                    const hours = Math.floor(elapsedMs / 3600000);
+                    const mins = Math.floor((elapsedMs % 3600000) / 60000);
+                    const startLabel = new Date(sess.startTime).toLocaleTimeString('ar-EG', { hour: '2-digit', minute: '2-digit' });
+                    html += `
+                    <div class="bg-green-50 border border-green-200 rounded-xl p-3 mt-2">
+                        <p class="font-bold text-green-800 text-xs mb-2 flex items-center gap-1">
+                            <span class="live-dot" aria-hidden="true"></span> جلسة نشطة في المكان
+                        </p>
+                        <div class="grid grid-cols-2 gap-2 text-xs font-bold">
+                            <div class="bg-white rounded-lg p-2 border border-green-100 text-center">
+                                <p class="text-gray-400 mb-0.5">بدأت</p>
+                                <p class="text-green-700">${startLabel}</p>
+                            </div>
+                            <div class="bg-white rounded-lg p-2 border border-green-100 text-center">
+                                <p class="text-gray-400 mb-0.5">المدة</p>
+                                <p class="text-green-700 font-mono">${hours > 0 ? hours + ':' : ''}${String(mins).padStart(2, '0')} ${hours > 0 ? 'س' : 'د'}</p>
+                            </div>
+                        </div>
+                    </div>`;
+                }
+            } catch (_e) { /* session lookup optional — ignore errors */ }
+        }
+
+        if (resultEl) resultEl.innerHTML = html;
+    } catch (err) {
+        console.error('[checkCardStatus]', err);
+        if (resultEl) resultEl.innerHTML = '<p class="text-center text-red-500 text-sm py-2">حدث خطأ، حاول مرة أخرى</p>';
+    }
 };
 
 // ─── Activate card for client (My Package tab) ───────────────────────────────
@@ -331,7 +376,38 @@ window._syncCardTab = async function () {
         const card = await getCardByCode(db, appId, savedCode);
         renderMyCard(card);
     }
+    // Refresh active session panel from global state if available
+    _refreshMyPackageSession();
 };
+
+// ─── Refresh the "active session" summary card in My Package tab ──────────────
+function _refreshMyPackageSession() {
+    const sessionCard = document.getElementById('myPackageSessionCard');
+    if (!sessionCard) return;
+
+    // Use globally tracked session start time exposed by app.js
+    const startTime = window._sessionStartTime || window._activeSessionStartTime || null;
+    const timeCostEl = document.getElementById('clientTimeCost');
+
+    if (!startTime) {
+        sessionCard.classList.add('hidden');
+        return;
+    }
+
+    const startLabel = new Date(startTime).toLocaleTimeString('ar-EG', { hour: '2-digit', minute: '2-digit' });
+    const elapsedMs  = Date.now() - startTime;
+    const hours      = Math.floor(elapsedMs / 3600000);
+    const mins       = Math.floor((elapsedMs % 3600000) / 60000);
+    const secs       = Math.floor((elapsedMs % 60000) / 1000);
+    const elapsed    = `${hours > 0 ? hours + ':' : ''}${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
+    const cost       = timeCostEl ? timeCostEl.textContent : '—';
+
+    const s = (id, v) => { const el = document.getElementById(id); if (el) el.textContent = v; };
+    s('myPackageSessionStart', startLabel);
+    s('myPackageSessionElapsed', elapsed);
+    s('myPackageSessionCost', cost);
+    sessionCard.classList.remove('hidden');
+}
 
 // ─── Extend switchClientTab to handle 'internet' tab ─────────────────────────
 const _originalSwitchClientTab = window.switchClientTab;
