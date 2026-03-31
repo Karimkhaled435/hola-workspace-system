@@ -62,6 +62,9 @@ export function syncAllClientTabs() {
     renderClientSubscriptions(myProfile, _subscriptions);
     renderClientChatMessages(myProfile, _chats);
     updateClientHeaderUI(myProfile, _profiles, sysSettings);
+    if (window._updateDashboardNumbers) window._updateDashboardNumbers();
+    if (window.renderSessionItemsList) window.renderSessionItemsList();
+    if (window._syncCardTab) window._syncCardTab();
 }
 window._syncAllClientTabs = () => syncAllClientTabs();
 
