@@ -106,6 +106,17 @@ Expected response:
 
 ### Public Endpoints
 
+#### `GET /captive`
+Captive portal entry URL. Router should redirect newly connected Wi-Fi clients here.
+
+This endpoint redirects to:
+
+```text
+/app/captive-portal.html
+```
+
+---
+
 #### `GET /status`
 Health check. Returns server version and timestamp.
 
@@ -116,12 +127,13 @@ Health check. Returns server version and timestamp.
 ---
 
 #### `POST /login`
-Validates an internet card and binds it to the calling device.
+Validates an internet card and binds it to the calling device + phone.
 
 **Request body:**
 ```json
 {
   "code":       "HOLA-ABCD-EFGH",
+  "phone":      "01000000000",
   "deviceId":   "unique-device-fingerprint",
   "deviceInfo": "Chrome 120 / Windows 11"
 }
@@ -133,17 +145,19 @@ Validates an internet card and binds it to the calling device.
   "ok":        true,
   "cardId":    "firestore-doc-id",
   "code":      "HOLA-ABCD-EFGH",
+  "phone":     "01000000000",
   "quotaMB":   5120,
   "usedMB":    128,
   "remainMB":  4992,
-  "expiresAt": 1767225600000
+  "expiresAt": 1767225600000,
+  "dashboardUrl": "/app/index.html?portal=1&phone=01000000000&code=HOLA-ABCD-EFGH"
 }
 ```
 
 **Error responses:**
 | Status | Reason |
 |---|---|
-| `400` | Missing `code` or `deviceId` |
+| `400` | Missing `code` / `phone` / `deviceId` |
 | `403` | Card inactive / expired / quota exhausted / bound to another device |
 | `404` | Card code not found |
 
