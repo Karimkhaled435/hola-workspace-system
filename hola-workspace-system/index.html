@@ -402,7 +402,6 @@
                     </div>
                     <div class="flex gap-2">
                         <button onclick="window.showCheckoutModal()" class="flex-1 bg-red-500 hover:bg-red-600 text-white font-bold py-3.5 rounded-xl shadow-md transition transform hover:-translate-y-1">طلب الحساب والإنهاء</button>
-                        <button onclick="window._syncTab('session')" class="w-12 bg-gray-100 hover:bg-gray-200 text-gray-600 rounded-xl border font-bold transition flex items-center justify-center" aria-label="تحديث" title="تحديث"><i aria-hidden="true" class="fa-solid fa-rotate-right text-sm"></i></button>
                     </div>
                 </div>
                 <div class="lg:col-span-2 space-y-6">
@@ -429,7 +428,6 @@
             <div id="client-history" role="tabpanel" aria-labelledby="c-tab-history" class="client-tab-content hidden glass-card p-6">
                 <div class="flex justify-between items-center mb-4">
                     <h3 class="font-black text-hola-purple"><i aria-hidden="true" class="fa-solid fa-file-invoice ml-2 text-hola-orange"></i>السجل والفواتير</h3>
-                    <button onclick="window._syncTab('history')" class="text-xs bg-gray-100 hover:bg-gray-200 text-gray-600 px-3 py-1.5 rounded-lg font-bold transition flex items-center gap-1"><i aria-hidden="true" class="fa-solid fa-rotate-right"></i> مزامنة</button>
                 </div>
                 <div class="flex justify-between items-center mb-4"><h3 class="text-lg font-bold text-hola-purple"><i aria-hidden="true" class="fa-solid fa-file-invoice text-hola-orange ml-2"></i>سجل زياراتي والفواتير</h3></div>
                 <div class="overflow-x-auto">
@@ -443,7 +441,6 @@
             <div id="client-loyalty" role="tabpanel" aria-labelledby="c-tab-loyalty" class="client-tab-content hidden space-y-6">
                 <div class="flex justify-between items-center">
                     <h3 class="font-black text-hola-purple"><i aria-hidden="true" class="fa-solid fa-stamp ml-2 text-hola-orange"></i>الأختام والمكافآت</h3>
-                    <button onclick="window._syncTab('loyalty')" class="text-xs bg-gray-100 hover:bg-gray-200 text-gray-600 px-3 py-1.5 rounded-lg font-bold transition flex items-center gap-1"><i aria-hidden="true" class="fa-solid fa-rotate-right"></i> مزامنة</button>
                 </div>
                 <div class="glass-card p-6 text-center">
                     <h3 class="text-xl font-black text-hola-purple mb-2"><i aria-hidden="true" class="fa-solid fa-stamp text-hola-orange ml-2"></i>أختام الحضور</h3>
@@ -459,9 +456,6 @@
             <div id="client-notifications" role="tabpanel" aria-labelledby="c-tab-notifications" class="client-tab-content hidden glass-card p-6">
                 <div class="flex justify-between items-center mb-4">
                     <h3 class="font-black text-hola-purple"><i aria-hidden="true" class="fa-solid fa-bell ml-2 text-hola-orange"></i>إشعاراتي</h3>
-                    <button onclick="window.refreshNotifications()" class="text-xs bg-gray-100 hover:bg-gray-200 text-gray-600 px-3 py-1.5 rounded-lg font-bold transition flex items-center gap-1">
-                        <i aria-hidden="true" class="fa-solid fa-rotate-right"></i> تحديث
-                    </button>
                 </div>
                 <h3 class="text-lg font-bold text-hola-purple mb-4"><i aria-hidden="true" class="fa-solid fa-bell text-hola-orange ml-2"></i>سجل الإشعارات</h3>
                 <div id="clientNotifsList" class="space-y-4"></div>
@@ -503,9 +497,6 @@
                 <div class="glass-card p-5 border-t-4 border-hola-orange">
                     <div class="flex justify-between items-center mb-4">
                         <h3 class="font-black text-hola-purple"><i aria-hidden="true" class="fa-solid fa-wifi text-hola-orange ml-2"></i>باقتي (كرت الإنترنت)</h3>
-                        <button onclick="window._syncTab('internet')" class="text-xs bg-gray-100 hover:bg-gray-200 text-gray-600 px-3 py-1.5 rounded-xl font-bold transition flex items-center gap-1">
-                            <i aria-hidden="true" class="fa-solid fa-rotate-right"></i> تحديث
-                        </button>
                     </div>
                     <!-- Active Card Display (shown when card is loaded) -->
                     <div id="myCardDisplay" class="hidden">
@@ -629,7 +620,6 @@
                     <div class="flex justify-between items-center mb-4">
                         <h3 class="text-lg font-bold text-hola-purple"><i aria-hidden="true" class="fa-solid fa-crown text-hola-orange ml-2"></i>اشتراكاتي</h3>
                         <div class="flex gap-2">
-                            <button onclick="window._syncTab('subscriptions')" aria-label="مزامنة الاشتراكات" class="text-xs bg-gray-100 hover:bg-gray-200 text-gray-600 px-3 py-1.5 rounded-xl font-bold transition flex items-center gap-1"><i aria-hidden="true" class="fa-solid fa-rotate-right"></i></button>
                             <button onclick="window.showSubscriptionModal()" class="bg-hola-orange text-white font-bold text-sm px-4 py-2 rounded-xl hover:bg-orange-600 transition shadow">اشترك الآن</button>
                         </div>
                     </div>
