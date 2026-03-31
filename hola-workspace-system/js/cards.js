@@ -9,8 +9,10 @@ import { logOperation } from "./app.js";
 // ─── Code Generation Helpers ──────────────────────────────────────────────────
 function randomSegment(length = 4) {
     const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'; // no I, O, 0, 1 to avoid confusion
+    const array = new Uint8Array(length);
+    crypto.getRandomValues(array);
     let result = '';
-    for (let i = 0; i < length; i++) result += chars.charAt(Math.floor(Math.random() * chars.length));
+    for (let i = 0; i < length; i++) result += chars[array[i] % chars.length];
     return result;
 }
 
