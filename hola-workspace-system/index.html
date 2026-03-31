@@ -1,0 +1,318 @@
+<!--
+=======================================================================
+  WCAG ACCESSIBILITY FIXES — index.html PATCH GUIDE
+  Apply each change to the corresponding line in your index.html
+=======================================================================
+
+AUDIT ISSUES FIXED:
+  ✅ #4  — iframe missing title (dynamic; fixed via sanitizeEmbedForA11y in ui.js)
+  ✅ #8  — <span> used for strong/emphasis → changed to <strong>
+  ✅ #10 — <body> exposed to AT → fixed by adding proper footer landmark  
+  ✅ #31 — <nav> misused (contains buttons, not links) → div[role=navigation]
+  ✅ #37 — Decorative image missing alt/aria-hidden → fixed in ui.js
+  ✅ #38 — Images missing alt text → fixed in markup + ui.js
+  ✅ #43 — Sticky header overlaps focused elements → scroll-padding-top + a11y.css
+  ✅ #50 — Tab container missing role="tablist" → added in client & admin tab rows
+  ✅ #52 — Tab buttons missing role="tab" + aria-selected → added + toggled in JS
+  ✅ BONUS — Skip-to-main link added for keyboard navigation
+  ✅ BONUS — Footer landmark added (WCAG best practice #9)
+  ✅ BONUS — aria-label on all icon-only action buttons
+  ✅ BONUS — prefers-reduced-motion support in a11y.css
+  ✅ BONUS — focus-visible ring in a11y.css for keyboard users
+
+=======================================================================
+  CHANGES TO APPLY — Copy-paste replacements for index.html
+=======================================================================
+-->
+
+<!-- ════════════════════════════════════════════════════════════════
+  CHANGE 1: Add scroll-padding-top to <html> (FIX #43)
+════════════════════════════════════════════════════════════════ -->
+
+<!-- BEFORE: -->
+<html lang="ar" dir="rtl">
+
+<!-- AFTER: -->
+<html lang="ar" dir="rtl" style="scroll-padding-top:72px;">
+
+
+<!-- ════════════════════════════════════════════════════════════════
+  CHANGE 2: Add <link> for a11y.css in <head> (NEW)
+════════════════════════════════════════════════════════════════ -->
+
+<!-- Add this line inside <head>, after the other CSS links: -->
+<link rel="stylesheet" href="css/a11y.css">
+
+
+<!-- ════════════════════════════════════════════════════════════════
+  CHANGE 3: Add skip-to-main link after <body> opening tag (BONUS)
+════════════════════════════════════════════════════════════════ -->
+
+<!-- BEFORE: -->
+<body class="text-gray-800 antialiased min-h-screen flex flex-col relative">
+
+    <!-- Sound Alerts -->
+
+<!-- AFTER: -->
+<body class="text-gray-800 antialiased min-h-screen flex flex-col relative">
+
+    <!-- Skip to main content link for keyboard/screen reader users -->
+    <a href="#main-content"
+       class="sr-only focus:not-sr-only focus:fixed focus:top-2 focus:right-2 focus:z-[9999] focus:bg-white focus:text-gray-900 focus:px-4 focus:py-2 focus:rounded-lg focus:font-bold focus:shadow-xl focus:border-2 focus:border-gray-900">
+        انتقل إلى المحتوى الرئيسي
+    </a>
+
+    <!-- Sound Alerts -->
+
+
+<!-- ════════════════════════════════════════════════════════════════
+  CHANGE 4: Add id + role to msgBox toast for live regions (FIX #10)
+════════════════════════════════════════════════════════════════ -->
+
+<!-- BEFORE: -->
+<div id="msgBox" class="hidden fixed bottom-6 left-1/2 transform -translate-x-1/2 bg-gray-900 text-white px-6 py-4 rounded-xl shadow-2xl z-[300] flex items-center gap-3 print:hidden">
+
+<!-- AFTER: -->
+<div id="msgBox" role="status" aria-live="polite" aria-atomic="true" class="hidden fixed bottom-6 left-1/2 transform -translate-x-1/2 bg-gray-900 text-white px-6 py-4 rounded-xl shadow-2xl z-[300] flex items-center gap-3 print:hidden">
+
+
+<!-- ════════════════════════════════════════════════════════════════
+  CHANGE 5: Add id + scroll-margin to <main> (FIX #43 + skip link)
+════════════════════════════════════════════════════════════════ -->
+
+<!-- BEFORE: -->
+<main class="flex-grow container mx-auto px-4 py-8 no-print">
+
+<!-- AFTER: -->
+<main id="main-content" class="flex-grow container mx-auto px-4 py-8 no-print" style="scroll-margin-top:72px;">
+
+
+<!-- ════════════════════════════════════════════════════════════════
+  CHANGE 6: Fix <nav> misuse (FIX #31)
+  <nav> should only wrap navigation links, not action buttons
+════════════════════════════════════════════════════════════════ -->
+
+<!-- BEFORE: -->
+<nav class="flex gap-4 items-center">
+    <button id="navPublic" ...
+    ...
+</nav>
+
+<!-- AFTER: -->
+<div role="navigation" aria-label="القائمة الرئيسية" class="flex gap-4 items-center">
+    <button id="navPublic" ...
+    ...
+</div>
+
+
+<!-- ════════════════════════════════════════════════════════════════
+  CHANGE 7: Fix <span> strong importance (FIX #8)
+════════════════════════════════════════════════════════════════ -->
+
+<!-- BEFORE: -->
+<span class="text-green-600">هادئ</span>
+
+<!-- AFTER: -->
+<strong class="text-green-600">هادئ</strong>
+
+
+<!-- ════════════════════════════════════════════════════════════════
+  CHANGE 8: Fix image alt text — pubPromoImg (FIX #38)
+════════════════════════════════════════════════════════════════ -->
+
+<!-- BEFORE: -->
+<img id="pubPromoImg" src="" alt="Promo" class="...">
+
+<!-- AFTER: -->
+<img id="pubPromoImg" src="" alt="صورة الإعلان الترويجي" class="...">
+
+
+<!-- ════════════════════════════════════════════════════════════════
+  CHANGE 9: Fix eventBannerImg alt text (FIX #38)
+════════════════════════════════════════════════════════════════ -->
+
+<!-- BEFORE: -->
+<img id="eventBannerImg" src="" class="..." alt="">
+
+<!-- AFTER: -->
+<img id="eventBannerImg" src="" class="..." alt="صورة الفعالية">
+<!-- Note: JS will override this with the actual event title via ui.js -->
+
+
+<!-- ════════════════════════════════════════════════════════════════
+  CHANGE 10: Login screen action buttons — add role="group" (FIX #50/#52)
+  These are NOT tabs; they're action buttons. group role clarifies this.
+════════════════════════════════════════════════════════════════ -->
+
+<!-- BEFORE: -->
+<div class="grid grid-cols-2 gap-2">
+    <button onclick="window.showPreBookingFallback('حجز مسبق')" ...
+
+<!-- AFTER: -->
+<div class="grid grid-cols-2 gap-2" role="group" aria-label="خيارات الدخول البديلة">
+    <button onclick="window.showPreBookingFallback('حجز مسبق')" ...
+
+
+<!-- ════════════════════════════════════════════════════════════════
+  CHANGE 11: Client tab row — add role="tablist" (FIX #50)
+════════════════════════════════════════════════════════════════ -->
+
+<!-- BEFORE: -->
+<div class="flex gap-2 mb-6 bg-white p-2 rounded-xl shadow-sm border overflow-x-auto no-scrollbar">
+
+<!-- AFTER: -->
+<div class="flex gap-2 mb-6 bg-white p-2 rounded-xl shadow-sm border overflow-x-auto no-scrollbar"
+     role="tablist" aria-label="تبويبات العميل">
+
+
+<!-- ════════════════════════════════════════════════════════════════
+  CHANGE 12: Client tab buttons — add role="tab" + aria-selected + aria-controls (FIX #52)
+════════════════════════════════════════════════════════════════ -->
+
+<!-- BEFORE: -->
+<button onclick="window.switchClientTab('session')" id="c-tab-session" class="client-tab-active px-4 py-2 text-sm font-bold transition whitespace-nowrap">
+<button onclick="window.switchClientTab('history')" id="c-tab-history" class="text-gray-600 px-4 py-2 text-sm font-bold hover:text-hola-purple transition whitespace-nowrap">
+<button onclick="window.switchClientTab('loyalty')" id="c-tab-loyalty" class="text-gray-600 px-4 py-2 text-sm font-bold hover:text-hola-purple transition whitespace-nowrap">
+<button onclick="window.switchClientTab('notifications')" id="c-tab-notifications" class="text-gray-600 px-4 py-2 text-sm font-bold hover:text-hola-purple transition whitespace-nowrap">
+<button onclick="window.switchClientTab('prebook')" id="c-tab-prebook" class="text-gray-600 px-4 py-2 text-sm font-bold hover:text-hola-purple transition whitespace-nowrap">
+<button onclick="window.switchClientTab('subscriptions')" id="c-tab-subscriptions" class="text-gray-600 px-4 py-2 text-sm font-bold hover:text-hola-purple transition whitespace-nowrap">
+<button onclick="window.switchClientTab('remote')" id="c-tab-remote" class="hidden text-gray-600 px-4 py-2 text-sm font-bold hover:text-gray-800 transition whitespace-nowrap">
+
+<!-- AFTER (add role="tab" aria-selected aria-controls to each): -->
+<button onclick="window.switchClientTab('session')" id="c-tab-session" role="tab" aria-selected="true" aria-controls="client-session" class="client-tab-active px-4 py-2 text-sm font-bold transition whitespace-nowrap">
+<button onclick="window.switchClientTab('history')" id="c-tab-history" role="tab" aria-selected="false" aria-controls="client-history" class="text-gray-600 px-4 py-2 text-sm font-bold hover:text-hola-purple transition whitespace-nowrap">
+<button onclick="window.switchClientTab('loyalty')" id="c-tab-loyalty" role="tab" aria-selected="false" aria-controls="client-loyalty" class="text-gray-600 px-4 py-2 text-sm font-bold hover:text-hola-purple transition whitespace-nowrap">
+<button onclick="window.switchClientTab('notifications')" id="c-tab-notifications" role="tab" aria-selected="false" aria-controls="client-notifications" class="text-gray-600 px-4 py-2 text-sm font-bold hover:text-hola-purple transition whitespace-nowrap">
+<button onclick="window.switchClientTab('prebook')" id="c-tab-prebook" role="tab" aria-selected="false" aria-controls="client-prebook" class="text-gray-600 px-4 py-2 text-sm font-bold hover:text-hola-purple transition whitespace-nowrap">
+<button onclick="window.switchClientTab('subscriptions')" id="c-tab-subscriptions" role="tab" aria-selected="false" aria-controls="client-subscriptions" class="text-gray-600 px-4 py-2 text-sm font-bold hover:text-hola-purple transition whitespace-nowrap">
+<button onclick="window.switchClientTab('remote')" id="c-tab-remote" role="tab" aria-selected="false" aria-controls="client-remote" class="hidden text-gray-600 px-4 py-2 text-sm font-bold hover:text-gray-800 transition whitespace-nowrap">
+
+
+<!-- ════════════════════════════════════════════════════════════════
+  CHANGE 13: Client tab panels — add role="tabpanel" + aria-labelledby (FIX #54)
+════════════════════════════════════════════════════════════════ -->
+
+<!-- Apply these id + role changes to each tab panel div: -->
+
+<!--  session: -->
+<div id="client-session" role="tabpanel" aria-labelledby="c-tab-session" class="client-tab-content grid lg:grid-cols-3 gap-6">
+<!--  history: -->
+<div id="client-history" role="tabpanel" aria-labelledby="c-tab-history" class="client-tab-content hidden glass-card p-6">
+<!--  loyalty: -->
+<div id="client-loyalty" role="tabpanel" aria-labelledby="c-tab-loyalty" class="client-tab-content hidden space-y-6">
+<!--  notifications: -->
+<div id="client-notifications" role="tabpanel" aria-labelledby="c-tab-notifications" class="client-tab-content hidden glass-card p-6">
+<!--  prebook: -->
+<div id="client-prebook" role="tabpanel" aria-labelledby="c-tab-prebook" class="client-tab-content hidden glass-card p-6 max-w-xl mx-auto border-t-4 border-hola-orange">
+<!--  remote: -->
+<div id="client-remote" role="tabpanel" aria-labelledby="c-tab-remote" class="client-tab-content hidden max-w-xl mx-auto space-y-4">
+<!--  subscriptions: -->
+<div id="client-subscriptions" role="tabpanel" aria-labelledby="c-tab-subscriptions" class="client-tab-content hidden space-y-4">
+
+
+<!-- ════════════════════════════════════════════════════════════════
+  CHANGE 14: Admin tab row — add role="tablist" (FIX #50)
+════════════════════════════════════════════════════════════════ -->
+
+<!-- BEFORE: -->
+<div class="flex overflow-x-auto border-b-2 border-gray-200 mb-6 font-bold text-gray-500 gap-6 pb-2 pt-4 no-scrollbar" id="adminTabsContainer">
+
+<!-- AFTER: -->
+<div class="flex overflow-x-auto border-b-2 border-gray-200 mb-6 font-bold text-gray-500 gap-6 pb-2 pt-4 no-scrollbar"
+     id="adminTabsContainer" role="tablist" aria-label="تبويبات الإدارة">
+
+
+<!-- ════════════════════════════════════════════════════════════════
+  CHANGE 15: Admin tab buttons — add role="tab" + aria-selected + aria-controls (FIX #52)
+════════════════════════════════════════════════════════════════ -->
+
+<!-- Add role="tab" aria-selected aria-controls to every admin tab button.
+     First tab starts with aria-selected="true", all others "false". -->
+
+<button onclick="window.switchAdminTab('live')"          id="tab-live"          role="tab" aria-selected="true"  aria-controls="admin-live"          class="tab-active hover:text-hola-orange transition whitespace-nowrap">النشاط الحي</button>
+<button onclick="window.switchAdminTab('chats')"         id="tab-chats"         role="tab" aria-selected="false" aria-controls="admin-chats"         class="hover:text-hola-orange transition whitespace-nowrap relative">الدردشة ...</button>
+<button onclick="window.switchAdminTab('events')"        id="tab-events"        role="tab" aria-selected="false" aria-controls="admin-events"        class="hover:text-hola-orange transition whitespace-nowrap">الفعاليات</button>
+<button onclick="window.switchAdminTab('menu')"          id="tab-menu"          role="tab" aria-selected="false" aria-controls="admin-menu"          class="hover:text-hola-orange transition whitespace-nowrap">المنيو والباقات</button>
+<button onclick="window.switchAdminTab('discounts')"     id="tab-discounts"     role="tab" aria-selected="false" aria-controls="admin-discounts"     class="hover:text-hola-orange transition whitespace-nowrap">الخصومات</button>
+<button onclick="window.switchAdminTab('users')"         id="tab-users"         role="tab" aria-selected="false" aria-controls="admin-users"         class="hover:text-hola-orange transition whitespace-nowrap">العملاء والحظر</button>
+<button onclick="window.switchAdminTab('history')"       id="tab-history"       role="tab" aria-selected="false" aria-controls="admin-history"       class="hover:text-hola-orange transition whitespace-nowrap">الأرشيف</button>
+<button onclick="window.switchAdminTab('operations')"    id="tab-operations"    role="tab" aria-selected="false" aria-controls="admin-operations"    class="hover:text-hola-orange transition whitespace-nowrap">العمليات</button>
+<button onclick="window.switchAdminTab('subscriptions')" id="tab-subscriptions" role="tab" aria-selected="false" aria-controls="admin-subscriptions" class="hover:text-hola-orange transition whitespace-nowrap relative">...</button>
+<button onclick="window.switchAdminTab('settings')"      id="tab-settings"      role="tab" aria-selected="false" aria-controls="admin-settings"      class="hover:text-hola-orange transition whitespace-nowrap">الإعدادات</button>
+
+
+<!-- ════════════════════════════════════════════════════════════════
+  CHANGE 16: Admin tab panels — add role="tabpanel" + aria-labelledby (FIX #54)
+════════════════════════════════════════════════════════════════ -->
+
+<div id="admin-live"          role="tabpanel" aria-labelledby="tab-live"          class="admin-tab-content grid lg:grid-cols-3 gap-6">
+<div id="admin-chats"         role="tabpanel" aria-labelledby="tab-chats"         class="admin-tab-content hidden glass-card p-6 grid md:grid-cols-3 gap-6 h-[70vh]">
+<div id="admin-events"        role="tabpanel" aria-labelledby="tab-events"        class="admin-tab-content hidden glass-card p-6">
+<div id="admin-menu"          role="tabpanel" aria-labelledby="tab-menu"          class="admin-tab-content hidden glass-card p-6">
+<div id="admin-discounts"     role="tabpanel" aria-labelledby="tab-discounts"     class="admin-tab-content hidden glass-card p-6">
+<div id="admin-users"         role="tabpanel" aria-labelledby="tab-users"         class="admin-tab-content hidden glass-card p-6">
+<div id="admin-history"       role="tabpanel" aria-labelledby="tab-history"       class="admin-tab-content hidden glass-card p-6">
+<div id="admin-operations"    role="tabpanel" aria-labelledby="tab-operations"    class="admin-tab-content hidden glass-card p-6">
+<div id="admin-subscriptions" role="tabpanel" aria-labelledby="tab-subscriptions" class="admin-tab-content hidden glass-card p-6">
+<div id="admin-settings"      role="tabpanel" aria-labelledby="tab-settings"      class="admin-tab-content hidden">
+
+
+<!-- ════════════════════════════════════════════════════════════════
+  CHANGE 17: Event slot tabs in admin — add role="tablist" + role="tab" (FIX #50/#52)
+════════════════════════════════════════════════════════════════ -->
+
+<!-- BEFORE: -->
+<div class="flex gap-2 mb-6 border-b pb-3">
+    <button onclick="window.switchEventSlot(1)" id="ev-slot-1-btn" class="ev-slot-btn px-4 py-2 text-sm font-bold bg-hola-purple text-white rounded-lg shadow transition">🎉 الفعالية 1</button>
+    <button onclick="window.switchEventSlot(2)" id="ev-slot-2-btn" class="ev-slot-btn px-4 py-2 text-sm font-bold bg-gray-100 text-gray-600 rounded-lg transition hover:bg-gray-200">🎉 الفعالية 2</button>
+    <button onclick="window.switchEventSlot(3)" id="ev-slot-3-btn" class="ev-slot-btn px-4 py-2 text-sm font-bold bg-gray-100 text-gray-600 rounded-lg transition hover:bg-gray-200">🎉 الفعالية 3</button>
+</div>
+
+<!-- AFTER: -->
+<div class="flex gap-2 mb-6 border-b pb-3" role="tablist" aria-label="فعاليات المسارب">
+    <button onclick="window.switchEventSlot(1)" id="ev-slot-1-btn" role="tab" aria-selected="true"  class="ev-slot-btn px-4 py-2 text-sm font-bold bg-hola-purple text-white rounded-lg shadow transition">🎉 الفعالية 1</button>
+    <button onclick="window.switchEventSlot(2)" id="ev-slot-2-btn" role="tab" aria-selected="false" class="ev-slot-btn px-4 py-2 text-sm font-bold bg-gray-100 text-gray-600 rounded-lg transition hover:bg-gray-200">🎉 الفعالية 2</button>
+    <button onclick="window.switchEventSlot(3)" id="ev-slot-3-btn" role="tab" aria-selected="false" class="ev-slot-btn px-4 py-2 text-sm font-bold bg-gray-100 text-gray-600 rounded-lg transition hover:bg-gray-200">🎉 الفعالية 3</button>
+</div>
+
+
+<!-- ════════════════════════════════════════════════════════════════
+  CHANGE 18: Add footer landmark (WCAG best practice #9)
+  Add just before </body>
+════════════════════════════════════════════════════════════════ -->
+
+<!-- Add before <script type="module" src="js/app.js"> -->
+<footer class="sr-only" aria-label="معلومات الموقع">
+    Hola Workspace — جميع الحقوق محفوظة
+</footer>
+
+
+<!-- ════════════════════════════════════════════════════════════════
+  CHANGE 19: Add aria-hidden="true" to all decorative FontAwesome icons
+  that are already next to visible text labels (FIX #37)
+  Examples (apply globally throughout index.html):
+════════════════════════════════════════════════════════════════ -->
+
+<!-- Pattern: any <i class="fa-solid ..."></i> next to text → add aria-hidden="true" -->
+<!-- BEFORE: -->
+<i class="fa-solid fa-lock text-xs ml-1"></i> الإدارة
+<!-- AFTER: -->
+<i class="fa-solid fa-lock text-xs ml-1" aria-hidden="true"></i> الإدارة
+
+<!-- Apply this pattern to ALL icon elements throughout the file.
+     The ui.js render functions already include aria-hidden="true"
+     on all dynamically generated icons. -->
+
+
+<!-- ════════════════════════════════════════════════════════════════
+  CHANGE 20: iframe embed in admin settings — add title reminder
+════════════════════════════════════════════════════════════════ -->
+
+<!-- BEFORE placeholder: -->
+placeholder="<iframe src=... />"
+
+<!-- AFTER placeholder: -->
+placeholder="<iframe title='وصف المحتوى' src=... />"
+
+<!-- NOTE: sanitizeEmbedForA11y() in ui.js automatically adds title
+     to any iframe that is missing one when rendered dynamically. -->

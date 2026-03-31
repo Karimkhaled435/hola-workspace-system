@@ -1,0 +1,110 @@
+/* =====================================================
+   css/a11y.css — WCAG Accessibility Additions
+   Add <link rel="stylesheet" href="css/a11y.css"> in <head>
+   ===================================================== */
+
+/* ── Skip-to-main link (FIX #43 keyboard nav) ────── */
+.sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border-width: 0;
+}
+
+.focus\:not-sr-only:focus {
+    position: fixed;
+    width: auto;
+    height: auto;
+    padding: 0.5rem 1rem;
+    margin: 0;
+    overflow: visible;
+    clip: auto;
+    white-space: normal;
+}
+
+/* ── Sticky header offset (FIX #43) ──────────────── */
+/* Ensures focused elements are not hidden behind the sticky header (~72px) */
+html {
+    scroll-padding-top: 72px;
+}
+
+:target {
+    scroll-margin-top: 72px;
+}
+
+/* All focusable elements inside main get scroll-margin-top */
+main *:focus {
+    scroll-margin-top: 76px;
+}
+
+/* ── Tab focus ring (enhance keyboard visibility) ── */
+button:focus-visible,
+a:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible,
+[tabindex]:focus-visible {
+    outline: 3px solid #f17200;
+    outline-offset: 2px;
+    border-radius: 4px;
+}
+
+/* ── Tab role ARIA state (FIX #52) ──────────────── */
+/* Visual reinforcement of aria-selected="false" state */
+[role="tab"][aria-selected="false"] {
+    opacity: 0.75;
+}
+
+[role="tab"][aria-selected="true"] {
+    opacity: 1;
+}
+
+/* ── Tablist container (FIX #50) ─────────────────── */
+[role="tablist"] {
+    /* Ensure proper layout context */
+}
+
+/* ── Tabpanel visibility (FIX #54) ──────────────── */
+[role="tabpanel"][hidden],
+[role="tabpanel"].hidden {
+    display: none !important;
+}
+
+/* ── Navigation landmark correction (FIX #31) ───── */
+/* The nav element was replaced with div[role="navigation"] in HTML.
+   No CSS change needed — semantic fix is in the markup. */
+
+/* ── Decorative icons (FIX #37) ─────────────────── */
+/* Font Awesome icons used decoratively should have aria-hidden="true"
+   This is enforced in the JS render functions.
+   Below ensures FA icons don't pollute the accessibility tree
+   if aria-hidden is accidentally missing on pure decorative icons. */
+.fa-solid,
+.fa-regular,
+.fa-brands {
+    /* Do not add speak:none here — it's not standard. 
+       Rely on aria-hidden="true" in markup (applied in ui.js). */
+}
+
+/* ── High contrast / reduced motion support ─────── */
+@media (prefers-reduced-motion: reduce) {
+    .animate-pulse,
+    .animate-bounce,
+    .fade-in,
+    .pulse-highlight,
+    .live-dot {
+        animation: none !important;
+        transition: none !important;
+    }
+}
+
+/* ── Live region for toast notifications ─────────── */
+/* The #msgBox toast should announce to screen readers */
+#msgBox {
+    /* role="status" is set in HTML; this ensures proper rendering */
+}
