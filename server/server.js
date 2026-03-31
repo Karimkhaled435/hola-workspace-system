@@ -7,6 +7,7 @@
 
 require('dotenv').config();
 
+const path       = require('path');
 const express    = require('express');
 const cors       = require('cors');
 const cron       = require('node-cron');
@@ -15,6 +16,7 @@ const routerApi  = require('./router-api');
 
 const app  = express();
 const PORT = process.env.PORT || 3000;
+const FRONTEND_DIR = path.join(__dirname, '..', 'hola-workspace-system');
 
 // ─── Firebase Admin Initialization ────────────────────────────────────────────
 let db;
@@ -47,6 +49,7 @@ app.use(cors({
 }));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+app.use('/app', express.static(FRONTEND_DIR));
 
 // Request logger
 app.use((req, _res, next) => {
@@ -86,6 +89,16 @@ async function getCardByCode(code) {
 
 // ─── Routes ───────────────────────────────────────────────────────────────────
 
+// Captive portal entry (router should point clients here after Wi-Fi connect)
+app.get('/captive', (_req, res) => {
+    res.redirect('/app/captive-portal.html');
+});
+
+// Default root goes to captive portal for easy onboarding.
+app.get('/', (_req, res) => {
+    res.redirect('/captive');
+});
+
 // GET /status — Health check endpoint
 app.get('/status', (_req, res) => {
     res.json({
@@ -98,14 +111,17 @@ app.get('/status', (_req, res) => {
 
 // ─────────────────────────────────────────────────────────────────────────────
 // POST /login
-// Body: { code: "HOLA-XXXX-XXXX", deviceId: "...", deviceInfo: "..." }
+// Body: { code: "HOLA-XXXX-XXXX", phone: "01XXXXXXXXX", deviceId: "...", deviceInfo: "..." }
 //
 // Validates the card, enforces device binding, and (when router is configured)
 // allowlists the device's MAC address on the router.
 // ─────────────────────────────────────────────────────────────────────────────
 app.post('/login', async (req, res) => {
-    const { code, deviceId, deviceInfo } = req.body;
+    const { code, phone, deviceId, deviceInfo } = req.body;
     if (!code)     return res.status(400).json({ ok: false, error: 'code is required.' });
+    if (!phone || String(phone).trim().length < 10) {
+        return res.status(400).json({ ok: false, error: 'phone is required.' });
+    }
     if (!deviceId) return res.status(400).json({ ok: false, error: 'deviceId is required.' });
 
     try {
@@ -139,12 +155,13 @@ app.post('/login', async (req, res) => {
             await cardsCol().doc(card.id).update({
                 boundDevice:     deviceId,
                 boundDeviceInfo: deviceInfo || null,
+                boundPhone:      String(phone).trim(),
                 boundAt:         Date.now(),
                 lastUsed:        Date.now()
             });
-            console.log(`[Login] Card ${card.code} bound to device ${deviceId}`);
+            console.log(`[Login] Card ${card.code} bound to device ${deviceId} (phone: ${String(phone).trim()})`);
         } else {
-            await cardsCol().doc(card.id).update({ lastUsed: Date.now() });
+            await cardsCol().doc(card.id).update({ lastUsed: Date.now(), boundPhone: String(phone).trim() });
         }
 
         // ── Router Integration (stub) ─────────────────────────────────────────
@@ -163,7 +180,9 @@ app.post('/login', async (req, res) => {
             quotaMB:  card.quotaMB,
             usedMB:   card.usedMB,
             remainMB: Math.max(0, card.quotaMB - card.usedMB),
-            expiresAt: card.expiresAt
+            expiresAt: card.expiresAt,
+            phone: String(phone).trim(),
+            dashboardUrl: `/app/index.html?portal=1&phone=${encodeURIComponent(String(phone).trim())}&code=${encodeURIComponent(card.code)}`
         });
 
     } catch (err) {

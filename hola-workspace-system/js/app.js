@@ -1881,3 +1881,40 @@ window.adminManualSubscribe = async () => {
 
 // ─── Boot ─────────────────────────────────────────────────────────────────────
 initFirebase();
+
+// ─── Captive Portal Auto-Handoff ──────────────────────────────────────────────
+(function handleCaptivePortalRedirect() {
+    const params = new URLSearchParams(window.location.search);
+    const isPortal = params.get('portal') === '1';
+    const phone = (params.get('phone') || localStorage.getItem('hola_portal_phone') || '').trim();
+    if (!isPortal || !phone || phone.length < 10) return;
+
+    const tryAttachProfile = async () => {
+        if (!db) return setTimeout(tryAttachProfile, 500);
+        let prof = _profiles[phone];
+        if (!prof) {
+            const fallbackProfile = {
+                name: 'عميل إنترنت',
+                phone,
+                walletBalance: 0,
+                stamps: [],
+                joinedAt: Date.now()
+            };
+            try {
+                await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'profiles', phone), fallbackProfile);
+                prof = fallbackProfile;
+                _profiles[phone] = fallbackProfile;
+            } catch (_e) {}
+        }
+        if (!prof) return setTimeout(tryAttachProfile, 700);
+
+        setMyProfile({ ...prof, isRemote: true });
+        document.getElementById('navPublic')?.classList.add('hidden');
+        document.getElementById('navClient')?.classList.remove('hidden');
+        switchView('client');
+        window.activateRemoteMode && window.activateRemoteMode(phone);
+        showMsg('تم تسجيل دخولك عبر بوابة الواي فاي بنجاح', 'success');
+    };
+
+    setTimeout(tryAttachProfile, 1000);
+})();
