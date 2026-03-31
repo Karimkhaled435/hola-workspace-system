@@ -21,6 +21,7 @@
     <link rel="stylesheet" href="css/style.css">
     <link rel="stylesheet" href="css/admin.css">
     <link rel="stylesheet" href="css/print.css">
+    <link rel="stylesheet" href="css/mobile.css">
 
     <script>
         tailwind.config = {
@@ -212,7 +213,7 @@
                                 <div class="flex-1 h-px bg-gray-200"></div>
                             </div>
                             <!-- 3 secondary options -->
-                            <div class="grid grid-cols-2 gap-2" role="group" aria-label="خيارات الحجز الإضافية">
+                            <div class="grid grid-cols-3 gap-2" role="group" aria-label="خيارات الخدمات">
                                 <button onclick="window.showPreBookingFallback('حجز مسبق')"
                                     class="bg-orange-50 border-2 border-orange-100 text-hola-orange font-bold py-3.5 rounded-xl hover:bg-orange-100 transition-all text-[11px] flex flex-col items-center gap-1.5 active:scale-95">
                                     <i aria-hidden="true" class="fa-solid fa-calendar-check text-base"></i>
@@ -222,6 +223,11 @@
                                     class="bg-gray-50 border-2 border-gray-200 text-gray-600 font-bold py-3.5 rounded-xl hover:bg-gray-100 transition-all text-[11px] flex flex-col items-center gap-1.5 active:scale-95">
                                     <i aria-hidden="true" class="fa-solid fa-bolt text-base text-hola-orange"></i>
                                     حجز سريع
+                                </button>
+                                <button onclick="document.getElementById('cardLoginModal').classList.remove('hidden')"
+                                    class="bg-blue-50 border-2 border-blue-100 text-blue-600 font-bold py-3.5 rounded-xl hover:bg-blue-100 transition-all text-[11px] flex flex-col items-center gap-1.5 active:scale-95">
+                                    <i aria-hidden="true" class="fa-solid fa-wifi text-base"></i>
+                                    كرت إنترنت
                                 </button>
                             </div>
                             <p class="text-center text-[10px] text-gray-400 font-bold pt-0.5">
@@ -368,6 +374,7 @@
                 <button role="tab" aria-selected="false" aria-controls="client-notifications" onclick="window.switchClientTab('notifications')" id="c-tab-notifications" class="text-gray-600 px-4 py-2 text-sm font-bold hover:text-hola-purple transition whitespace-nowrap"><i aria-hidden="true" class="fa-solid fa-bell ml-1"></i> الإشعارات</button>
                 <button role="tab" aria-selected="false" aria-controls="client-prebook" onclick="window.switchClientTab('prebook')" id="c-tab-prebook" class="text-gray-600 px-4 py-2 text-sm font-bold hover:text-hola-purple transition whitespace-nowrap"><i aria-hidden="true" class="fa-solid fa-calendar-plus ml-1"></i> حجز قادم</button>
                 <button role="tab" aria-selected="false" aria-controls="client-subscriptions" onclick="window.switchClientTab('subscriptions')" id="c-tab-subscriptions" class="text-gray-600 px-4 py-2 text-sm font-bold hover:text-hola-purple transition whitespace-nowrap"><i aria-hidden="true" class="fa-solid fa-crown ml-1 text-hola-orange"></i> اشتراكاتي</button>
+                <button role="tab" aria-selected="false" aria-controls="client-internet" onclick="window.switchClientTab('internet')" id="c-tab-internet" class="text-gray-600 px-4 py-2 text-sm font-bold hover:text-hola-purple transition whitespace-nowrap"><i aria-hidden="true" class="fa-solid fa-wifi ml-1 text-hola-orange"></i> باقتي</button>
                 <button role="tab" aria-selected="false" aria-controls="client-remote" onclick="window.switchClientTab('remote')" id="c-tab-remote" class="hidden text-gray-600 px-4 py-2 text-sm font-bold hover:text-gray-800 transition whitespace-nowrap"><i aria-hidden="true" class="fa-solid fa-eye ml-1"></i> ملف بعيد</button>
             </div>
             
@@ -487,7 +494,87 @@
                 </div>
                 <button onclick="window.submitInternalPreBooking('seat')" class="w-full bg-hola-orange hover:bg-orange-600 text-white font-bold py-3.5 rounded-xl shadow-lg transition text-lg">تأكيد حجز الموعد <i aria-hidden="true" class="fa-solid fa-check ml-1"></i></button>
             </div>
-            <!-- CLIENT TAB 6: Remote Profile -->
+            <!-- CLIENT TAB 7: Internet Card / My Package -->
+            <div id="client-internet" role="tabpanel" aria-labelledby="c-tab-internet" class="client-tab-content hidden space-y-4">
+                <!-- Card Entry -->
+                <div class="glass-card p-5 border-t-4 border-hola-orange">
+                    <div class="flex justify-between items-center mb-4">
+                        <h3 class="font-black text-hola-purple"><i aria-hidden="true" class="fa-solid fa-wifi text-hola-orange ml-2"></i>باقتي (كرت الإنترنت)</h3>
+                        <button onclick="window._syncTab('internet')" class="text-xs bg-gray-100 hover:bg-gray-200 text-gray-600 px-3 py-1.5 rounded-xl font-bold transition flex items-center gap-1">
+                            <i aria-hidden="true" class="fa-solid fa-rotate-right"></i> تحديث
+                        </button>
+                    </div>
+                    <!-- Active Card Display (shown when card is loaded) -->
+                    <div id="myCardDisplay" class="hidden">
+                        <div class="bg-gradient-to-br from-hola-purple to-hola-dark text-white rounded-2xl p-5 shadow-xl mb-4">
+                            <div class="flex justify-between items-start mb-3">
+                                <div>
+                                    <p class="text-xs text-purple-300 mb-1">كرت الإنترنت</p>
+                                    <p class="font-mono font-black text-lg tracking-widest" id="myCardCode">HOLA-XXXX-XXXX</p>
+                                </div>
+                                <span id="myCardStatusBadge" class="bg-green-500 text-white text-xs px-2 py-1 rounded-full font-bold">نشط</span>
+                            </div>
+                            <!-- Quota Bar -->
+                            <div class="mb-3">
+                                <div class="flex justify-between text-xs text-purple-300 mb-1">
+                                    <span>الكوتا المستخدمة</span>
+                                    <span id="myCardUsedGB">0 GB / 0 GB</span>
+                                </div>
+                                <div class="w-full bg-white/20 rounded-full h-3">
+                                    <div id="myCardQuotaBar" class="bg-hola-orange h-3 rounded-full transition-all" style="width:0%"></div>
+                                </div>
+                            </div>
+                            <div class="grid grid-cols-3 gap-2 text-center">
+                                <div class="bg-white/10 rounded-xl p-2">
+                                    <p class="text-[10px] text-purple-300">المتبقي</p>
+                                    <p class="font-black text-green-300 text-lg" id="myCardRemainGB">0 GB</p>
+                                </div>
+                                <div class="bg-white/10 rounded-xl p-2">
+                                    <p class="text-[10px] text-purple-300">مُستخدم</p>
+                                    <p class="font-black text-hola-orange text-lg" id="myCardUsedGBStat">0 GB</p>
+                                </div>
+                                <div class="bg-white/10 rounded-xl p-2">
+                                    <p class="text-[10px] text-purple-300">ينتهي</p>
+                                    <p class="font-black text-white text-sm" id="myCardExpiry">--</p>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Device Binding Info -->
+                        <div id="myCardDeviceInfo" class="bg-blue-50 border border-blue-200 rounded-xl p-3 text-xs text-blue-700 font-bold flex items-center gap-2">
+                            <i aria-hidden="true" class="fa-solid fa-mobile-screen"></i>
+                            <span id="myCardDeviceText">الكرت مرتبط بهذا الجهاز</span>
+                        </div>
+                    </div>
+                    <!-- No Card State -->
+                    <div id="myCardEmpty" class="">
+                        <div class="text-center py-6">
+                            <div class="w-16 h-16 bg-orange-100 text-hola-orange rounded-full flex items-center justify-center text-3xl mx-auto mb-3">
+                                <i aria-hidden="true" class="fa-solid fa-wifi"></i>
+                            </div>
+                            <p class="font-bold text-gray-700 mb-1">لا يوجد كرت إنترنت مرتبط</p>
+                            <p class="text-xs text-gray-400 mb-4">أدخل كود الكرت الذي حصلت عليه من الإدارة</p>
+                            <div class="flex gap-2 max-w-xs mx-auto">
+                                <input type="text" id="myCardCodeInput" class="flex-1 border-2 border-gray-200 rounded-xl px-3 py-2.5 text-center font-mono font-bold text-sm uppercase tracking-widest focus:border-hola-orange outline-none" placeholder="HOLA-XXXX-XXXX" oninput="this.value=this.value.toUpperCase()">
+                                <button onclick="window.activateMyCard()" class="bg-hola-orange text-white font-bold px-4 rounded-xl hover:bg-orange-600 transition">
+                                    <i aria-hidden="true" class="fa-solid fa-check"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- Quick Tips -->
+                <div class="glass-card p-4 bg-purple-50 border border-purple-100">
+                    <h4 class="font-bold text-hola-purple mb-3 text-sm"><i aria-hidden="true" class="fa-solid fa-circle-info text-hola-orange ml-1"></i> ملاحظات مهمة</h4>
+                    <ul class="text-xs text-gray-600 font-bold space-y-2">
+                        <li class="flex items-start gap-2"><i aria-hidden="true" class="fa-solid fa-circle-check text-green-500 mt-0.5 flex-shrink-0"></i> يُربط الكرت بجهازك عند أول استخدام</li>
+                        <li class="flex items-start gap-2"><i aria-hidden="true" class="fa-solid fa-circle-check text-green-500 mt-0.5 flex-shrink-0"></i> لا يمكن استخدام نفس الكرت على أكثر من جهاز</li>
+                        <li class="flex items-start gap-2"><i aria-hidden="true" class="fa-solid fa-triangle-exclamation text-hola-orange mt-0.5 flex-shrink-0"></i> عند انتهاء الكوتا أو المدة — تواصل مع الإدارة</li>
+                        <li class="flex items-start gap-2"><i aria-hidden="true" class="fa-solid fa-triangle-exclamation text-hola-orange mt-0.5 flex-shrink-0"></i> لا تشارك كود الكرت مع أحد</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- CLIENT TAB 8: Remote Profile -->
             <div id="client-remote" role="tabpanel" aria-labelledby="c-tab-remote" class="client-tab-content hidden max-w-xl mx-auto space-y-4">
                 <!-- Remote Banner -->
                 <div class="bg-gradient-to-br from-gray-800 to-gray-900 text-white rounded-2xl p-5 flex items-center gap-4 shadow-xl">
@@ -567,6 +654,7 @@
                 <button role="tab" aria-selected="false" aria-controls="admin-history" onclick="window.switchAdminTab('history')" id="tab-history" class="hover:text-hola-orange transition whitespace-nowrap">الأرشيف</button>
                 <button role="tab" aria-selected="false" aria-controls="admin-operations" onclick="window.switchAdminTab('operations')" id="tab-operations" class="hover:text-hola-orange transition whitespace-nowrap">العمليات</button>
                 <button role="tab" aria-selected="false" aria-controls="admin-subscriptions" onclick="window.switchAdminTab('subscriptions')" id="tab-subscriptions" class="hover:text-hola-orange transition whitespace-nowrap relative"><i aria-hidden="true" class="fa-solid fa-crown text-hola-orange"></i> الاشتراكات <span id="adminSubsBadge" class="hidden absolute -top-1 -right-3 bg-red-500 text-white text-[9px] px-1.5 rounded-full">!</span></button>
+                <button role="tab" aria-selected="false" aria-controls="admin-cards" onclick="window.switchAdminTab('cards')" id="tab-cards" class="hover:text-hola-orange transition whitespace-nowrap relative"><i aria-hidden="true" class="fa-solid fa-wifi text-hola-orange"></i> كروت الإنترنت</button>
                 <button role="tab" aria-selected="false" aria-controls="admin-settings" onclick="window.switchAdminTab('settings')" id="tab-settings" class="hover:text-hola-orange transition whitespace-nowrap"><i aria-hidden="true" class="fa-solid fa-gear"></i> الإعدادات</button>
             </div>
             
@@ -807,6 +895,74 @@
                 <div>
                     <h4 class="font-bold text-hola-purple mb-3 border-b pb-2 flex items-center gap-2"><i aria-hidden="true" class="fa-solid fa-layer-group"></i> الباقات المتاحة للاشتراك</h4>
                     <div id="adminPlansList" class="grid md:grid-cols-3 gap-4"></div>
+                </div>
+            </div>
+
+            <!-- TAB: Internet Cards -->
+            <div id="admin-cards" role="tabpanel" aria-labelledby="tab-cards" class="admin-tab-content hidden glass-card p-6">
+                <!-- Header -->
+                <div class="flex flex-wrap justify-between items-center mb-6 gap-3">
+                    <h3 class="text-lg font-bold text-hola-purple"><i aria-hidden="true" class="fa-solid fa-wifi text-hola-orange ml-2"></i>إدارة كروت الإنترنت</h3>
+                    <button onclick="window.showGenerateCardsModal()" class="bg-hola-purple text-white px-4 py-2 rounded-xl text-sm font-bold hover:bg-hola-dark transition flex items-center gap-2 shadow">
+                        <i aria-hidden="true" class="fa-solid fa-plus"></i> إنشاء كروت جديدة
+                    </button>
+                </div>
+
+                <!-- Stats Row -->
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+                    <div class="bg-green-50 border border-green-200 rounded-xl p-3 text-center">
+                        <p class="text-xs text-gray-500 font-bold mb-1">نشطة</p>
+                        <p class="text-2xl font-black text-green-600" id="cardStatActive">0</p>
+                    </div>
+                    <div class="bg-gray-50 border border-gray-200 rounded-xl p-3 text-center">
+                        <p class="text-xs text-gray-500 font-bold mb-1">موقوفة</p>
+                        <p class="text-2xl font-black text-gray-600" id="cardStatSuspended">0</p>
+                    </div>
+                    <div class="bg-red-50 border border-red-200 rounded-xl p-3 text-center">
+                        <p class="text-xs text-gray-500 font-bold mb-1">منتهية</p>
+                        <p class="text-2xl font-black text-red-500" id="cardStatExpired">0</p>
+                    </div>
+                    <div class="bg-blue-50 border border-blue-200 rounded-xl p-3 text-center">
+                        <p class="text-xs text-gray-500 font-bold mb-1">إجمالي</p>
+                        <p class="text-2xl font-black text-blue-600" id="cardStatTotal">0</p>
+                    </div>
+                </div>
+
+                <!-- Filter & Search -->
+                <div class="flex flex-wrap gap-2 mb-4">
+                    <select id="cardFilterStatus" onchange="window.filterAdminCards()" class="border-2 border-gray-200 rounded-xl px-3 py-2 text-sm font-bold focus:border-hola-orange outline-none">
+                        <option value="all">جميع الحالات</option>
+                        <option value="active">نشطة فقط</option>
+                        <option value="suspended">موقوفة</option>
+                        <option value="expired">منتهية</option>
+                        <option value="inactive">غير نشطة</option>
+                    </select>
+                    <input type="text" id="cardSearchInput" oninput="window.filterAdminCards()" class="border-2 border-gray-200 rounded-xl px-3 py-2 text-sm font-bold focus:border-hola-orange outline-none flex-1 min-w-0" placeholder="بحث بالكود...">
+                    <button onclick="window.printAllCards()" class="bg-gray-700 text-white text-sm font-bold px-4 py-2 rounded-xl hover:bg-gray-800 transition flex items-center gap-2">
+                        <i aria-hidden="true" class="fa-solid fa-print"></i> طباعة الكروت
+                    </button>
+                    <button onclick="window.exportTableToCSV('adminCardsTable','Internet_Cards')" class="bg-green-600 text-white text-sm font-bold px-4 py-2 rounded-xl hover:bg-green-700 transition flex items-center gap-2">
+                        <i aria-hidden="true" class="fa-solid fa-file-excel"></i> تصدير
+                    </button>
+                </div>
+
+                <!-- Cards Table -->
+                <div class="overflow-x-auto border rounded-xl shadow-sm">
+                    <table class="w-full text-right text-sm" id="adminCardsTable">
+                        <thead class="bg-gray-50 text-gray-600 border-b">
+                            <tr>
+                                <th scope="col" class="p-3">الكود</th>
+                                <th scope="col" class="p-3 text-center">الحالة</th>
+                                <th scope="col" class="p-3 text-center min-w-[160px]">الاستهلاك</th>
+                                <th scope="col" class="p-3 text-center">ينتهي</th>
+                                <th scope="col" class="p-3 text-center">الجهاز</th>
+                                <th scope="col" class="p-3 text-center">إجراء</th>
+                            </tr>
+                        </thead>
+                        <tbody id="adminCardsList" class="divide-y divide-gray-100 font-semibold">
+                            <tr><td colspan="6" class="text-center py-8 text-gray-400">جاري التحميل...</td></tr>
+                        </tbody>
+                    </table>
                 </div>
             </div>
 
@@ -1120,6 +1276,95 @@
                 <button onclick="window.openUserDetails(document.getElementById('liveSesPhone').innerText)" class="w-full bg-blue-50 text-blue-700 font-bold py-2 rounded-xl text-sm hover:bg-blue-100 transition border border-blue-200"><i aria-hidden="true" class="fa-solid fa-eye ml-1"></i> عرض الملف الكامل</button>
             </div>
             <button id="liveSesEndBtn" class="w-full bg-red-600 text-white font-black py-3 rounded-xl shadow hover:bg-red-700 transition">إنهاء الجلسة واستخراج الفاتورة</button>
+        </div>
+    </div>
+
+    <!-- Generate Internet Cards Modal -->
+    <div id="generateCardsModal" class="hidden fixed inset-0 bg-black/80 z-[260] flex items-center justify-center p-4 backdrop-blur-sm print:hidden">
+        <div class="bg-white rounded-3xl shadow-2xl w-full max-w-md p-6 border-t-8 border-hola-purple relative max-h-[95vh] overflow-y-auto">
+            <button aria-label="إغلاق" onclick="document.getElementById('generateCardsModal').classList.add('hidden')" class="absolute top-4 left-4 text-gray-400 hover:text-red-500 text-xl bg-gray-100 w-8 h-8 rounded-full flex items-center justify-center"><i aria-hidden="true" class="fa-solid fa-xmark"></i></button>
+            <div class="text-center mb-5">
+                <div class="w-16 h-16 bg-purple-100 text-hola-purple rounded-full flex items-center justify-center text-3xl mx-auto mb-3"><i aria-hidden="true" class="fa-solid fa-wifi"></i></div>
+                <h3 class="text-xl font-black text-hola-purple">إنشاء كروت إنترنت</h3>
+                <p class="text-xs text-gray-500 mt-1">حدد المواصفات وأنشئ الكروت دفعة واحدة</p>
+            </div>
+            <div class="space-y-4">
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label for="genCardsCount" class="block text-xs font-bold text-gray-700 mb-1">عدد الكروت</label>
+                        <input type="number" id="genCardsCount" value="1" min="1" max="100" class="w-full border-2 border-gray-200 rounded-xl px-3 py-2.5 text-center font-black text-xl focus:border-hola-purple outline-none">
+                    </div>
+                    <div>
+                        <label for="genCardsQuota" class="block text-xs font-bold text-gray-700 mb-1">الكوتا (GB)</label>
+                        <input type="number" id="genCardsQuota" value="5" min="1" max="1000" class="w-full border-2 border-gray-200 rounded-xl px-3 py-2.5 text-center font-black text-xl focus:border-hola-purple outline-none">
+                    </div>
+                </div>
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label for="genCardsDays" class="block text-xs font-bold text-gray-700 mb-1">مدة الصلاحية (يوم)</label>
+                        <input type="number" id="genCardsDays" value="30" min="1" max="365" class="w-full border-2 border-gray-200 rounded-xl px-3 py-2.5 text-center font-black text-xl focus:border-hola-purple outline-none">
+                    </div>
+                    <div>
+                        <label for="genCardsPrefix" class="block text-xs font-bold text-gray-700 mb-1">البادئة (Prefix)</label>
+                        <input type="text" id="genCardsPrefix" value="HOLA" maxlength="6" class="w-full border-2 border-gray-200 rounded-xl px-3 py-2.5 text-center font-bold font-mono uppercase focus:border-hola-purple outline-none">
+                    </div>
+                </div>
+                <div class="bg-purple-50 p-3 rounded-xl border border-purple-100 text-xs text-gray-600 font-bold">
+                    <i aria-hidden="true" class="fa-solid fa-circle-info text-hola-purple ml-1"></i>
+                    الكوتا: <span id="genPreviewQuota">5</span> GB |
+                    المدة: <span id="genPreviewDays">30</span> يوم |
+                    ينتهي: <span id="genPreviewExpiry"></span>
+                </div>
+                <button onclick="window.doGenerateCards()" class="w-full bg-hola-purple text-white font-black py-3.5 rounded-xl shadow-lg hover:bg-hola-dark transition flex items-center justify-center gap-2">
+                    <i aria-hidden="true" class="fa-solid fa-wand-magic-sparkles"></i> إنشاء الكروت الآن
+                </button>
+            </div>
+            <!-- Generated Cards Preview -->
+            <div id="generatedCardsPreview" class="hidden mt-4 bg-gray-50 p-4 rounded-xl border">
+                <div class="flex justify-between items-center mb-3">
+                    <p class="font-bold text-sm text-gray-700">الكروت المُنشأة:</p>
+                    <button onclick="window.printGeneratedCards()" class="text-xs bg-gray-800 text-white px-3 py-1.5 rounded-lg hover:bg-black flex items-center gap-1"><i aria-hidden="true" class="fa-solid fa-print"></i> طباعة</button>
+                </div>
+                <div id="generatedCardsList" class="space-y-2 max-h-48 overflow-y-auto font-mono text-sm"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Internet Card Login Modal (Client) -->
+    <div id="cardLoginModal" class="hidden fixed inset-0 bg-black/80 z-[260] flex items-center justify-center p-4 backdrop-blur-sm print:hidden">
+        <div class="bg-white rounded-3xl shadow-2xl w-full max-w-sm p-6 border-t-8 border-hola-orange relative">
+            <button aria-label="إغلاق" onclick="document.getElementById('cardLoginModal').classList.add('hidden')" class="absolute top-4 left-4 text-gray-400 hover:text-red-500 text-xl bg-gray-100 w-8 h-8 rounded-full flex items-center justify-center"><i aria-hidden="true" class="fa-solid fa-xmark"></i></button>
+            <div class="text-center mb-5">
+                <div class="w-16 h-16 bg-orange-100 text-hola-orange rounded-full flex items-center justify-center text-3xl mx-auto mb-3 animate-pulse"><i aria-hidden="true" class="fa-solid fa-wifi"></i></div>
+                <h3 class="text-xl font-black text-hola-purple">كرت الإنترنت</h3>
+                <p class="text-xs text-gray-500 mt-1">أدخل كود الكرت لعرض حالتك</p>
+            </div>
+            <div class="space-y-4">
+                <div>
+                    <label for="cardLoginCode" class="block text-xs font-bold text-gray-700 mb-1">كود الكرت</label>
+                    <input type="text" id="cardLoginCode" class="w-full border-2 border-gray-200 rounded-xl px-4 py-3 text-center font-mono font-black text-xl uppercase tracking-widest focus:border-hola-orange outline-none" placeholder="HOLA-XXXX-XXXX" oninput="this.value=this.value.toUpperCase()">
+                </div>
+                <button onclick="window.checkCardStatus()" class="w-full bg-hola-orange text-white font-black py-3.5 rounded-xl shadow-lg hover:bg-orange-600 transition">
+                    <i aria-hidden="true" class="fa-solid fa-search ml-1"></i> فحص الكرت
+                </button>
+                <div id="cardLoginResult" class="hidden"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Cards Print Area (hidden, shown only during print) -->
+    <div id="cardsPrintArea" class="hidden fixed inset-0 bg-white z-[9999] p-8 overflow-auto" aria-hidden="true">
+        <div class="max-w-4xl mx-auto">
+            <div class="text-center mb-8 border-b-2 pb-4">
+                <h1 class="text-2xl font-black text-hola-purple">HOLA WORKSPACE — كروت الإنترنت</h1>
+                <p class="text-sm text-gray-500 font-bold" id="cardsPrintDate"></p>
+            </div>
+            <div id="cardsPrintGrid" class="grid grid-cols-2 gap-4"></div>
+            <p class="text-center text-xs text-gray-400 mt-8">هذه الكروت سرية — لا تشاركها مع الغير</p>
+            <div class="flex justify-center mt-6 gap-3 no-print">
+                <button onclick="window.print()" class="bg-gray-800 text-white font-bold px-6 py-2 rounded-lg">طباعة</button>
+                <button onclick="document.getElementById('cardsPrintArea').classList.add('hidden')" class="bg-gray-200 text-gray-800 font-bold px-6 py-2 rounded-lg">إغلاق</button>
+            </div>
         </div>
     </div>
 
@@ -1585,6 +1830,8 @@
 
     <!-- App Entry Point -->
     <script type="module" src="js/app.js"></script>
+    <!-- Internet Cards Controller -->
+    <script type="module" src="js/cards-controller.js"></script>
 
     <!-- Admin Manual Subscription Modal -->
     <div id="adminManualSubModal" class="hidden fixed inset-0 bg-black/70 z-[200] flex items-center justify-center p-4 print:hidden">

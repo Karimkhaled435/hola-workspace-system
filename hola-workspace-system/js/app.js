@@ -1772,6 +1772,9 @@ window._syncTab = (tab) => {
         case 'subscriptions':
             renderClientSubscriptions(myProfile, _subscriptions);
             break;
+        case 'internet':
+            window._syncCardTab && window._syncCardTab();
+            break;
         case 'remote':
             if (myProfile.isRemote) window.populateRemoteProfile(myProfile.phone);
             break;

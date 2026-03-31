@@ -36,6 +36,10 @@ export async function initFirebase() {
             if (user) {
                 currentUser = user;
                 setupListeners(db, appId);
+                // Expose db/appId for other modules (e.g. cards-controller.js)
+                window._firebaseDb    = db;
+                window._firebaseAppId = appId;
+                document.dispatchEvent(new CustomEvent('hola-firebase-ready', { detail: { db, appId } }));
             }
         });
     } catch (error) {
