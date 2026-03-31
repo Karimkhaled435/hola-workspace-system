@@ -119,7 +119,7 @@ export function resetLocationCheck() {
     // Rebuild authContainer to original state if it was replaced
     const container = document.getElementById('authContainer');
     if (container && !container.querySelector('#locationCheckState')) {
-        location.reload();
+        switchView('public');
         return;
     }
     document.getElementById('preBookingForm')?.classList.add('hidden');
@@ -156,7 +156,7 @@ export async function submitPreBooking(db, appId) {
     try {
         await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'prebookings'), { name, phone, expectedTime: time, status: 'pending', createdAt: Date.now() });
         const form = document.getElementById('preBookingForm');
-        if (form) form.innerHTML = `<div class="text-center py-6"><div class="w-20 h-20 bg-green-100 text-green-600 rounded-full flex items-center justify-center text-4xl mx-auto mb-4"><i class="fa-solid fa-check-double"></i></div><h3 class="text-xl font-black text-hola-purple mb-2">تم استلام حجزك بنجاح!</h3><p class="text-gray-600 font-bold leading-relaxed">سوف نقوم بالتواصل معك خلال ساعة من الآن.</p><button onclick="location.reload()" class="mt-6 text-hola-orange font-bold text-sm hover:underline">العودة للرئيسية</button></div>`;
+        if (form) form.innerHTML = `<div class="text-center py-6"><div class="w-20 h-20 bg-green-100 text-green-600 rounded-full flex items-center justify-center text-4xl mx-auto mb-4"><i class="fa-solid fa-check-double"></i></div><h3 class="text-xl font-black text-hola-purple mb-2">تم استلام حجزك بنجاح!</h3><p class="text-gray-600 font-bold leading-relaxed">سوف نقوم بالتواصل معك خلال ساعة من الآن.</p><button onclick="window.switchView('public')" class="mt-6 text-hola-orange font-bold text-sm hover:underline">العودة للرئيسية</button></div>`;
         playAlertSound('congrats');
         if (typeof window.grecaptcha !== 'undefined') { try { window.grecaptcha.reset(); } catch(e) {} }
     } catch (e) { console.error(e); showMsg("حدث خطأ أثناء الحجز", "error"); }

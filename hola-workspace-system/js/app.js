@@ -572,9 +572,12 @@ window.submitQuickBook = async () => {
                 <h3 class="text-xl font-black text-hola-purple mb-3">تم استلام حجزك!</h3>
                 <p class="text-gray-600 font-bold leading-relaxed text-sm">سنقوم بالتواصل معك على رقم <span class="text-hola-purple font-black">${phone}</span> قريباً لتأكيد الحجز.</p>
                 <p class="text-[10px] text-gray-400 mt-2">متبقي لك ${1 - count} حجز سريع اليوم</p>
-                <button onclick="document.getElementById('quickBookModal').classList.add('hidden');location.reload();" class="mt-6 text-hola-orange font-bold text-sm hover:underline">إغلاق</button>
+                <button onclick="document.getElementById('quickBookModal').classList.add('hidden')" class="mt-6 text-hola-orange font-bold text-sm hover:underline">إغلاق</button>
             </div>`;
         playAlertSound('congrats');
+        const qp = document.getElementById('quickBookPhone'); if (qp) qp.value = '';
+        const qt = document.getElementById('quickBookType'); if (qt) qt.value = 'seat';
+        const qn = document.getElementById('quickBookNote'); if (qn) qn.value = '';
     } catch (e) { showMsg("حدث خطأ أثناء الحجز", "error"); }
 };
 
@@ -1570,12 +1573,8 @@ window.rejectSubscription = async (subId) => {
 
 window.refreshNotifications = () => {
     if (!myProfile) return showMsg("يجب تسجيل الدخول أولاً", "error");
-    showMsg("جاري تحديث الإشعارات...", "info");
-    // Re-render from current _notifications state (auto-updated by Firestore listener)
-    try {
-        renderClientNotifications(myProfile, _notifications);
-        showMsg("تم التحديث", "success");
-    } catch(e) { showMsg("تم التحديث", "success"); }
+    // Data is already live via Firestore listeners; this only re-renders current state.
+    renderClientNotifications(myProfile, _notifications);
 };
 
 // ─── Remote Mode (Outside Location) ──────────────────────────────────────────
@@ -1751,38 +1750,8 @@ async function _unregisterAdminSession() {
 }
 
 
-// ─── Manual Tab Sync ─────────────────────────────────────────────────────────
-window._syncTab = (tab) => {
-    if (!myProfile) return;
-    switch(tab) {
-        case 'session':
-            window._updateDashboardNumbers && window._updateDashboardNumbers();
-            window.renderSessionItemsList && window.renderSessionItemsList();
-            break;
-        case 'history':
-            renderClientHistory(myProfile, _sessions);
-            break;
-        case 'loyalty':
-            renderClientLoyalty(myProfile, _profiles, _discounts, sysSettings);
-            break;
-        case 'notifications':
-            renderClientNotifications(myProfile, _notifications);
-            break;
-        case 'prebook':
-            // Just a form, no need to sync
-            break;
-        case 'subscriptions':
-            renderClientSubscriptions(myProfile, _subscriptions);
-            break;
-        case 'internet':
-            window._syncCardTab && window._syncCardTab();
-            break;
-        case 'remote':
-            if (myProfile.isRemote) window.populateRemoteProfile(myProfile.phone);
-            break;
-    }
-    showMsg('تم التحديث', 'success');
-};
+// ─── Live client tab rendering from Firestore snapshots (no manual sync) ─────
+window._syncTab = () => {};
 
 
 // ─── Client Logout ────────────────────────────────────────────────────────────
