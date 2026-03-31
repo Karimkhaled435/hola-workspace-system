@@ -37,18 +37,56 @@ export function switchView(viewName) {
 window.switchView = switchView;
 
 export function switchClientTab(tabName) {
-    document.querySelectorAll('.client-tab-content').forEach(el => el.classList.add('hidden'));
-    document.querySelectorAll('[id^="c-tab-"]').forEach(el => { el.classList.remove('client-tab-active','text-white'); el.classList.add('text-gray-600'); });
-    const c = document.getElementById(`client-${tabName}`); if(c) c.classList.remove('hidden');
-    const b = document.getElementById(`c-tab-${tabName}`); if(b) { b.classList.add('client-tab-active','text-white'); b.classList.remove('text-gray-600'); }
+    document.querySelectorAll('.client-tab-content').forEach(el => {
+        el.classList.add('hidden');
+        if (el.getAttribute('role') === 'tabpanel') el.setAttribute('hidden', 'hidden');
+    });
+    document.querySelectorAll('[id^="c-tab-"]').forEach(el => {
+        el.classList.remove('client-tab-active','text-white');
+        el.classList.add('text-gray-600');
+        if (el.getAttribute('role') === 'tab') {
+            el.setAttribute('aria-selected', 'false');
+            el.setAttribute('tabindex', '-1');
+        }
+    });
+    const c = document.getElementById(`client-${tabName}`); if(c) {
+        c.classList.remove('hidden');
+        if (c.getAttribute('role') === 'tabpanel') c.removeAttribute('hidden');
+    }
+    const b = document.getElementById(`c-tab-${tabName}`); if(b) {
+        b.classList.add('client-tab-active','text-white');
+        b.classList.remove('text-gray-600');
+        if (b.getAttribute('role') === 'tab') {
+            b.setAttribute('aria-selected', 'true');
+            b.setAttribute('tabindex', '0');
+        }
+    }
 }
 window.switchClientTab = switchClientTab;
 
 export function switchAdminTab(tabName) {
-    document.querySelectorAll('.admin-tab-content').forEach(el => el.classList.add('hidden'));
-    document.querySelectorAll('[id^="tab-"]').forEach(el => el.classList.remove('tab-active'));
-    const c = document.getElementById(`admin-${tabName}`); if(c) c.classList.remove('hidden');
-    const b = document.getElementById(`tab-${tabName}`); if(b) b.classList.add('tab-active');
+    document.querySelectorAll('.admin-tab-content').forEach(el => {
+        el.classList.add('hidden');
+        if (el.getAttribute('role') === 'tabpanel') el.setAttribute('hidden', 'hidden');
+    });
+    document.querySelectorAll('[id^="tab-"]').forEach(el => {
+        el.classList.remove('tab-active');
+        if (el.getAttribute('role') === 'tab') {
+            el.setAttribute('aria-selected', 'false');
+            el.setAttribute('tabindex', '-1');
+        }
+    });
+    const c = document.getElementById(`admin-${tabName}`); if(c) {
+        c.classList.remove('hidden');
+        if (c.getAttribute('role') === 'tabpanel') c.removeAttribute('hidden');
+    }
+    const b = document.getElementById(`tab-${tabName}`); if(b) {
+        b.classList.add('tab-active');
+        if (b.getAttribute('role') === 'tab') {
+            b.setAttribute('aria-selected', 'true');
+            b.setAttribute('tabindex', '0');
+        }
+    }
 }
 window.switchAdminTab = switchAdminTab;
 

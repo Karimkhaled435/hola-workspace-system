@@ -37,6 +37,11 @@
     border-width: 0;
 }
 
+/* ── Local fallback utilities (when CDN utilities fail) ───────────────────── */
+.hidden {
+    display: none !important;
+}
+
 /* ── Sticky header offset ────────────────────────── */
 html {
     scroll-padding-top: 72px;
