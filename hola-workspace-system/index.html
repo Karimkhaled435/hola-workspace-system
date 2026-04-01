@@ -3,1213 +3,1925 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>Hola Workspace — بوابة الدخول</title>
+<title>Hola Workspace</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&family=IBM+Plex+Mono:wght@400;600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<link rel="stylesheet" href="../css/style.css">
+<link rel="stylesheet" href="../css/redesign.css">
+<link rel="stylesheet" href="../css/mobile.css">
+<link rel="stylesheet" href="../css/admin.css">
+<link rel="stylesheet" href="../css/print.css">
 <style>
-  :root {
-    --brand: #1C0A2E;
-    --brand-mid: #2D1048;
-    --accent: #F06A00;
-    --accent-light: #FF8A30;
-    --surface: #FAFAF8;
-    --card: #FFFFFF;
-    --border: rgba(28,10,46,0.1);
-    --text: #1C0A2E;
-    --text-muted: #7A6B8A;
-    --green: #1A7A4A;
-    --green-light: #E3F7EE;
-    --radius: 18px;
-    --radius-sm: 12px;
-  }
-
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-
-  html, body {
-    min-height: 100%;
-    overflow-x: hidden;
-    -webkit-text-size-adjust: 100%;
-  }
-
-  body {
-    font-family: 'Cairo', sans-serif;
-    background: var(--brand);
-    color: var(--text);
-  }
-
-  /* ── Background pattern ── */
-  body::before {
-    content: '';
-    position: fixed;
-    inset: 0;
-    background:
-      radial-gradient(ellipse 80% 60% at 20% 0%, rgba(240,106,0,0.18) 0%, transparent 60%),
-      radial-gradient(ellipse 60% 80% at 85% 80%, rgba(240,106,0,0.10) 0%, transparent 55%);
-    pointer-events: none;
-    z-index: 0;
-  }
-
-  .page-wrap {
-    position: relative;
-    z-index: 1;
-    min-height: 100dvh;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    padding: 20px 16px 40px;
-  }
-
-  /* ── Header ── */
-  .header {
-    width: 100%;
-    max-width: 420px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 8px 0 24px;
-  }
-
-  .logo-wrap {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-  }
-
-  .logo-mark {
-    width: 42px;
-    height: 42px;
-    background: rgba(255,255,255,0.12);
-    border: 1px solid rgba(255,255,255,0.2);
-    border-radius: 12px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 20px;
-    color: var(--accent-light);
-    backdrop-filter: blur(8px);
-  }
-
-  .logo-text {
-    line-height: 1;
-  }
-
-  .logo-text h1 {
-    font-size: 22px;
-    font-weight: 900;
-    color: #fff;
-    letter-spacing: 1px;
-  }
-
-  .logo-text p {
-    font-size: 10px;
-    color: rgba(255,255,255,0.5);
-    font-weight: 600;
-    letter-spacing: 2px;
-    text-transform: uppercase;
-    margin-top: 1px;
-  }
-
-  .header-time {
-    font-family: 'IBM Plex Mono', monospace;
-    font-size: 12px;
-    color: rgba(255,255,255,0.4);
-    background: rgba(255,255,255,0.07);
-    padding: 6px 10px;
-    border-radius: 8px;
-    border: 1px solid rgba(255,255,255,0.1);
-  }
-
-  /* ── Hero text ── */
-  .hero {
-    width: 100%;
-    max-width: 420px;
-    text-align: center;
-    padding: 0 0 22px;
-  }
-
-  .hero-badge {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    background: rgba(240,106,0,0.15);
-    border: 1px solid rgba(240,106,0,0.3);
-    color: var(--accent-light);
-    font-size: 11px;
-    font-weight: 700;
-    padding: 5px 12px;
-    border-radius: 100px;
-    margin-bottom: 14px;
-    letter-spacing: 0.5px;
-  }
-
-  .hero-badge span {
-    width: 6px;
-    height: 6px;
-    background: var(--accent-light);
-    border-radius: 50%;
-    animation: pulse-dot 2s infinite;
-  }
-
-  @keyframes pulse-dot {
-    0%, 100% { opacity: 1; }
-    50% { opacity: 0.3; }
-  }
-
-  .hero h2 {
-    font-size: 28px;
-    font-weight: 900;
-    color: #fff;
-    line-height: 1.25;
-    margin-bottom: 8px;
-  }
-
-  .hero h2 em {
-    font-style: normal;
-    color: var(--accent-light);
-  }
-
-  .hero p {
-    font-size: 13px;
-    color: rgba(255,255,255,0.5);
-    font-weight: 600;
-    line-height: 1.6;
-  }
-
-  /* ── Main card ── */
-  .main-card {
-    width: 100%;
-    max-width: 420px;
-    background: var(--card);
-    border-radius: var(--radius);
-    overflow: hidden;
-    box-shadow: 0 32px 80px rgba(0,0,0,0.35);
-  }
-
-  /* ── Steps ── */
-  .step {
-    display: none;
-    animation: fadeUp 0.3s ease;
-  }
-
-  .step.active { display: block; }
-
-  @keyframes fadeUp {
-    from { opacity: 0; transform: translateY(10px); }
-    to { opacity: 1; transform: translateY(0); }
-  }
-
-  /* ── Step 0: Location check ── */
-  .step-top {
-    background: linear-gradient(160deg, var(--brand) 0%, var(--brand-mid) 100%);
-    padding: 28px 24px 22px;
-    text-align: center;
-    position: relative;
-    overflow: hidden;
-  }
-
-  .step-top::after {
-    content: '';
-    position: absolute;
-    bottom: -30px;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 200px;
-    height: 60px;
-    background: var(--card);
-    border-radius: 50%;
-  }
-
-  .step-icon {
-    width: 60px;
-    height: 60px;
-    background: rgba(240,106,0,0.15);
-    border: 2px solid rgba(240,106,0,0.25);
-    border-radius: 18px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 26px;
-    color: var(--accent-light);
-    margin: 0 auto 14px;
-  }
-
-  .step-top h3 {
-    font-size: 19px;
-    font-weight: 900;
-    color: #fff;
-    margin-bottom: 5px;
-  }
-
-  .step-top p {
-    font-size: 12px;
-    color: rgba(255,255,255,0.55);
-    font-weight: 600;
-    line-height: 1.6;
-  }
-
-  .step-body {
-    padding: 28px 20px 24px;
-  }
-
-  /* ── Location status indicator ── */
-  .loc-status {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    background: #F5F3F8;
-    border: 1px solid var(--border);
-    border-radius: var(--radius-sm);
-    padding: 12px 14px;
-    margin-bottom: 16px;
-  }
-
-  .loc-dot {
-    width: 10px;
-    height: 10px;
-    border-radius: 50%;
-    background: #CCC;
-    flex-shrink: 0;
-    transition: background 0.4s;
-  }
-
-  .loc-dot.checking { background: var(--accent); animation: pulse-dot 1s infinite; }
-  .loc-dot.ok { background: var(--green); }
-  .loc-dot.fail { background: #E44; }
-
-  .loc-status-text {
-    font-size: 12px;
-    font-weight: 700;
-    color: var(--text-muted);
-  }
-
-  /* ── Primary button ── */
-  .btn-primary {
-    width: 100%;
-    background: var(--brand);
-    color: #fff;
-    border: none;
-    border-radius: 14px;
-    padding: 16px 20px;
-    font-family: 'Cairo', sans-serif;
-    font-size: 15px;
-    font-weight: 900;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 10px;
-    transition: transform 0.15s, background 0.15s;
-    -webkit-tap-highlight-color: transparent;
-  }
-
-  .btn-primary:active { transform: scale(0.98); background: var(--brand-mid); }
-
-  .btn-primary .btn-icon {
-    width: 32px;
-    height: 32px;
-    background: rgba(255,255,255,0.15);
-    border-radius: 10px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 14px;
-  }
-
-  .btn-accent {
-    background: var(--accent);
-  }
-
-  .btn-accent:active { background: var(--accent-light); }
-
-  /* ── Divider ── */
-  .divider {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    margin: 14px 0;
-  }
-
-  .divider::before, .divider::after {
-    content: '';
-    flex: 1;
-    height: 1px;
-    background: var(--border);
-  }
-
-  .divider span {
-    font-size: 11px;
-    color: var(--text-muted);
-    font-weight: 700;
-    white-space: nowrap;
-    letter-spacing: 1px;
-  }
-
-  /* ── Quick option buttons ── */
-  .quick-options {
-    display: grid;
-    grid-template-columns: 1fr 1fr 1fr;
-    gap: 8px;
-  }
-
-  .btn-quick {
-    background: #F5F3F8;
-    border: 1px solid var(--border);
-    border-radius: var(--radius-sm);
-    padding: 12px 8px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 6px;
-    cursor: pointer;
-    transition: all 0.15s;
-    -webkit-tap-highlight-color: transparent;
-    font-family: 'Cairo', sans-serif;
-  }
-
-  .btn-quick:active { transform: scale(0.96); background: #EDE8F5; }
-
-  .btn-quick i {
-    font-size: 18px;
-    color: var(--accent);
-  }
-
-  .btn-quick span {
-    font-size: 10px;
-    font-weight: 800;
-    color: var(--brand);
-    text-align: center;
-    line-height: 1.3;
-  }
-
-  .footer-note {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    justify-content: center;
-    margin-top: 14px;
-    font-size: 10px;
-    color: var(--text-muted);
-    font-weight: 700;
-  }
-
-  .footer-note i { font-size: 10px; }
-
-  /* ── Step 1: Login form ── */
-  .success-bar {
-    background: var(--green);
-    color: #fff;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    padding: 12px 20px;
-    font-size: 13px;
-    font-weight: 800;
-  }
-
-  .success-bar i { font-size: 16px; }
-
-  .form-body {
-    padding: 22px 20px 24px;
-  }
-
-  .form-group {
-    margin-bottom: 14px;
-  }
-
-  .form-label {
-    font-size: 11px;
-    font-weight: 800;
-    color: var(--text-muted);
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    margin-bottom: 7px;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-  }
-
-  .form-label i { font-size: 11px; color: var(--accent); }
-
-  .form-input {
-    width: 100%;
-    background: #F5F3F8;
-    border: 2px solid transparent;
-    border-radius: var(--radius-sm);
-    padding: 13px 14px;
-    font-family: 'Cairo', sans-serif;
-    font-size: 16px;
-    font-weight: 700;
-    color: var(--text);
-    transition: border-color 0.2s, background 0.2s;
-    outline: none;
-    -webkit-appearance: none;
-  }
-
-  .form-input:focus {
-    border-color: var(--accent);
-    background: #fff;
-  }
-
-  .form-input::placeholder { color: #B8B0C8; font-weight: 600; }
-
-  .form-input.code-input {
-    font-family: 'IBM Plex Mono', monospace;
-    text-align: center;
-    letter-spacing: 3px;
-    font-size: 18px;
-    text-transform: uppercase;
-  }
-
-  /* ── Checkbox ── */
-  .checkbox-row {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    background: #F5F3F8;
-    border: 1px solid var(--border);
-    border-radius: var(--radius-sm);
-    padding: 11px 13px;
-    cursor: pointer;
-    -webkit-tap-highlight-color: transparent;
-  }
-
-  .checkbox-row input[type="checkbox"] {
-    width: 18px;
-    height: 18px;
-    accent-color: var(--brand);
-    flex-shrink: 0;
-    cursor: pointer;
-  }
-
-  .checkbox-label {
-    font-size: 12px;
-    font-weight: 700;
-    color: var(--text);
-    cursor: pointer;
-    flex: 1;
-  }
-
-  /* ── New user banner ── */
-  .new-user-banner {
-    display: none;
-    background: #FFF5EB;
-    border: 1px solid rgba(240,106,0,0.2);
-    border-radius: var(--radius-sm);
-    padding: 10px 13px;
-    margin-bottom: 14px;
-    flex-direction: column;
-    gap: 8px;
-  }
-
-  .new-user-banner.visible { display: flex; animation: fadeUp 0.2s ease; }
-
-  .new-user-banner-label {
-    display: flex;
-    align-items: center;
-    gap: 7px;
-    font-size: 11px;
-    font-weight: 800;
-    color: var(--accent);
-  }
-
-  /* ── Secondary button ── */
-  .btn-secondary {
-    width: 100%;
-    background: transparent;
-    color: var(--brand);
-    border: 2px solid var(--border);
-    border-radius: 14px;
-    padding: 14px 20px;
-    font-family: 'Cairo', sans-serif;
-    font-size: 14px;
-    font-weight: 800;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-    transition: all 0.15s;
-    margin-top: 10px;
-    -webkit-tap-highlight-color: transparent;
-  }
-
-  .btn-secondary:active { transform: scale(0.98); background: #F5F3F8; }
-
-  .btn-back {
-    background: none;
-    border: none;
-    color: var(--text-muted);
-    font-family: 'Cairo', sans-serif;
-    font-size: 12px;
-    font-weight: 800;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    gap: 5px;
-    justify-content: center;
-    width: 100%;
-    padding: 10px;
-    margin-top: 4px;
-    -webkit-tap-highlight-color: transparent;
-  }
-
-  /* ── Pre-booking form ── */
-  .prebook-top {
-    background: linear-gradient(160deg, var(--accent) 0%, #C04E00 100%);
-    padding: 24px 20px 20px;
-    text-align: center;
-  }
-
-  .prebook-top h3 {
-    font-size: 18px;
-    font-weight: 900;
-    color: #fff;
-    margin-bottom: 4px;
-  }
-
-  .prebook-top p {
-    font-size: 12px;
-    color: rgba(255,255,255,0.65);
-    font-weight: 600;
-  }
-
-  /* ── Outside location panel ── */
-  .outside-top {
-    background: linear-gradient(160deg, #3A3A3A 0%, #1A1A1A 100%);
-    padding: 24px 20px 20px;
-    text-align: center;
-  }
-
-  .outside-top h3 {
-    font-size: 18px;
-    font-weight: 900;
-    color: #fff;
-    margin-bottom: 4px;
-  }
-
-  .outside-top p {
-    font-size: 12px;
-    color: rgba(255,255,255,0.55);
-    font-weight: 600;
-  }
-
-  .outside-info {
-    background: #F5F3F8;
-    border-radius: var(--radius-sm);
-    padding: 12px 14px;
-    margin-bottom: 14px;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    font-size: 12px;
-    font-weight: 700;
-    color: var(--text-muted);
-  }
-
-  .outside-info i { color: #888; font-size: 14px; }
-
-  /* ── Distance badge ── */
-  #distanceBadge {
-    display: inline-flex;
-    align-items: center;
-    gap: 5px;
-    background: rgba(240,106,0,0.12);
-    border: 1px solid rgba(240,106,0,0.2);
-    color: var(--accent);
-    font-size: 11px;
-    font-weight: 800;
-    padding: 4px 10px;
-    border-radius: 100px;
-    margin-bottom: 16px;
-  }
-
-  /* ── Info pills below card ── */
-  .info-pills {
-    display: flex;
-    gap: 8px;
-    flex-wrap: wrap;
-    justify-content: center;
-    margin-top: 20px;
-    max-width: 420px;
-    width: 100%;
-  }
-
-  .info-pill {
-    display: flex;
-    align-items: center;
-    gap: 5px;
-    background: rgba(255,255,255,0.08);
-    border: 1px solid rgba(255,255,255,0.1);
-    border-radius: 100px;
-    padding: 6px 12px;
-    font-size: 10px;
-    font-weight: 700;
-    color: rgba(255,255,255,0.5);
-  }
-
-  .info-pill i { font-size: 10px; color: rgba(255,255,255,0.35); }
-
-  /* ── Success feedback ── */
-  .feedback {
-    display: none;
-    flex-direction: column;
-    align-items: center;
-    text-align: center;
-    padding: 40px 24px;
-    gap: 14px;
-  }
-
-  .feedback.visible { display: flex; }
-
-  .feedback-icon {
-    width: 70px;
-    height: 70px;
-    background: var(--green-light);
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 32px;
-    color: var(--green);
-  }
-
-  .feedback h3 {
-    font-size: 19px;
-    font-weight: 900;
-    color: var(--brand);
-  }
-
-  .feedback p {
-    font-size: 13px;
-    color: var(--text-muted);
-    font-weight: 600;
-    line-height: 1.6;
-  }
-
-  /* ── Toast ── */
-  #toast {
-    position: fixed;
-    bottom: 30px;
-    left: 50%;
-    transform: translateX(-50%) translateY(80px);
-    background: var(--brand);
-    color: #fff;
-    padding: 12px 20px;
-    border-radius: 12px;
-    font-size: 13px;
-    font-weight: 700;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    z-index: 999;
-    transition: transform 0.3s cubic-bezier(0.34,1.56,0.64,1);
-    box-shadow: 0 8px 30px rgba(0,0,0,0.3);
-    white-space: nowrap;
-    max-width: calc(100vw - 40px);
-  }
-
-  #toast.show { transform: translateX(-50%) translateY(0); }
-  #toast.error { background: #C0392B; }
-  #toast.success { background: var(--green); }
-
-  /* ── DateTime input fix ── */
-  input[type="datetime-local"] {
-    color-scheme: light;
-  }
-
-  /* ── Responsive ── */
-  @media (max-width: 380px) {
-    .hero h2 { font-size: 24px; }
-    .logo-text h1 { font-size: 19px; }
-  }
+:root {
+  --brand: #1C0A2E;
+  --brand-mid: #2D1048;
+  --brand-light: #4a1a67;
+  --accent: #F06A00;
+  --accent-light: #FF8A30;
+  --surface: #f8f7fc;
+  --card: #ffffff;
+  --border: rgba(28,10,46,0.08);
+  --text: #1C0A2E;
+  --text-muted: #7A6B8A;
+  --green: #16a34a;
+  --green-light: #dcfce7;
+  --red: #dc2626;
+  --radius: 16px;
+  --radius-sm: 10px;
+  --shadow: 0 8px 32px rgba(28,10,46,0.1);
+  --shadow-lg: 0 20px 60px rgba(28,10,46,0.18);
+}
+
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{min-height:100%;overflow-x:hidden;-webkit-text-size-adjust:100%}
+body{font-family:'Cairo',sans-serif;background:var(--surface);color:var(--text)}
+
+/* ── HEADER ── */
+#appHeader{
+  position:sticky;top:0;z-index:100;
+  background:var(--brand);
+  box-shadow:0 2px 20px rgba(0,0,0,0.3);
+  border-bottom:2px solid rgba(240,106,0,0.4);
+}
+.header-inner{
+  max-width:1200px;margin:0 auto;
+  display:flex;align-items:center;justify-content:space-between;
+  padding:10px 16px;gap:12px;
+}
+.logo-wrap{display:flex;align-items:center;gap:10px;text-decoration:none}
+.logo-img{
+  height:42px;width:42px;
+  border-radius:12px;
+  object-fit:cover;
+  border:2px solid rgba(240,106,0,0.5);
+  background:rgba(255,255,255,0.1);
+}
+.logo-text h1{font-size:20px;font-weight:900;color:#fff;letter-spacing:1px;line-height:1}
+.logo-text p{font-size:9px;color:rgba(255,255,255,0.45);font-weight:600;letter-spacing:2px;text-transform:uppercase;margin-top:2px}
+.header-actions{display:flex;align-items:center;gap:8px;flex-shrink:0}
+.header-clock{
+  font-family:'IBM Plex Mono',monospace;font-size:12px;
+  color:rgba(255,255,255,0.5);
+  background:rgba(255,255,255,0.07);
+  border:1px solid rgba(255,255,255,0.1);
+  padding:5px 10px;border-radius:8px;
+}
+.nav-btn{
+  display:flex;align-items:center;gap:6px;
+  padding:8px 14px;border-radius:10px;
+  font-family:'Cairo',sans-serif;font-size:12px;font-weight:800;
+  border:none;cursor:pointer;transition:all 0.2s;
+  -webkit-tap-highlight-color:transparent;
+}
+.nav-btn-ghost{background:rgba(255,255,255,0.08);color:rgba(255,255,255,0.75);border:1px solid rgba(255,255,255,0.12)}
+.nav-btn-ghost:hover{background:rgba(255,255,255,0.14)}
+.nav-btn-accent{background:var(--accent);color:#fff}
+.nav-btn-accent:hover{background:var(--accent-light)}
+.nav-btn-danger{background:rgba(220,38,38,0.15);color:#fca5a5;border:1px solid rgba(220,38,38,0.25)}
+
+/* ── BOTTOM NAV (mobile public) ── */
+#navPublic{
+  position:fixed;bottom:10px;left:10px;right:10px;z-index:90;
+  display:flex;align-items:center;justify-content:space-around;
+  background:rgba(255,255,255,0.95);backdrop-filter:blur(12px);
+  border:1px solid rgba(28,10,46,0.08);border-radius:16px;
+  padding:8px 4px;box-shadow:0 8px 32px rgba(28,10,46,0.15);
+}
+.nav-pub-btn{
+  display:flex;flex-direction:column;align-items:center;gap:3px;
+  font-family:'Cairo',sans-serif;font-size:10px;font-weight:800;
+  color:var(--text-muted);background:none;border:none;cursor:pointer;
+  padding:4px 12px;border-radius:10px;transition:all 0.2s;
+  -webkit-tap-highlight-color:transparent;
+}
+.nav-pub-btn i{font-size:18px;color:var(--text-muted);transition:color 0.2s}
+.nav-pub-btn.active,
+.nav-pub-btn:hover{color:var(--brand)}
+.nav-pub-btn.active i,.nav-pub-btn:hover i{color:var(--accent)}
+
+/* ── VIEWS ── */
+#viewPublic,#viewClient,#viewAdmin{display:none}
+#viewPublic.active,#viewClient.active,#viewAdmin.active{display:block}
+.view-wrap{max-width:1200px;margin:0 auto;padding:16px 14px 100px}
+
+/* ── GLASS CARD ── */
+.g-card{
+  background:var(--card);border:1px solid var(--border);
+  border-radius:var(--radius);box-shadow:var(--shadow);
+  overflow:hidden;
+}
+.g-card-p{padding:20px}
+
+/* ── SECTION TITLE ── */
+.sec-title{
+  font-size:13px;font-weight:800;color:var(--text-muted);
+  text-transform:uppercase;letter-spacing:1px;margin-bottom:12px;
+  display:flex;align-items:center;gap:8px;
+}
+.sec-title::before{content:'';width:3px;height:16px;background:var(--accent);border-radius:2px}
+
+/* ── STAT CARD ── */
+.stat-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
+@media(min-width:640px){.stat-grid{grid-template-columns:repeat(4,1fr)}}
+.stat-card{
+  background:var(--card);border:1px solid var(--border);
+  border-radius:var(--radius-sm);padding:14px;text-align:center;
+  box-shadow:0 2px 8px rgba(28,10,46,0.05);
+}
+.stat-val{font-size:24px;font-weight:900;color:var(--brand);line-height:1}
+.stat-lbl{font-size:11px;font-weight:700;color:var(--text-muted);margin-top:4px}
+
+/* ── BADGE ── */
+.badge{display:inline-flex;align-items:center;gap:4px;font-size:11px;font-weight:700;padding:3px 8px;border-radius:100px}
+.badge-green{background:#dcfce7;color:#16a34a}
+.badge-red{background:#fee2e2;color:#dc2626}
+.badge-yellow{background:#fef9c3;color:#854d0e}
+.badge-gray{background:#f3f4f6;color:#6b7280}
+.badge-purple{background:#f3e8ff;color:#7c3aed}
+.badge-orange{background:#fff7ed;color:#c2410c}
+
+/* ── BTN ── */
+.btn{
+  display:inline-flex;align-items:center;justify-content:center;gap:6px;
+  padding:10px 18px;border-radius:10px;font-family:'Cairo',sans-serif;
+  font-size:13px;font-weight:800;border:none;cursor:pointer;
+  transition:all 0.15s;-webkit-tap-highlight-color:transparent;
+}
+.btn:active{transform:scale(0.97)}
+.btn-primary{background:var(--brand);color:#fff}
+.btn-primary:hover{background:var(--brand-mid)}
+.btn-accent{background:var(--accent);color:#fff}
+.btn-accent:hover{background:var(--accent-light)}
+.btn-sm{padding:6px 12px;font-size:11px;border-radius:8px}
+.btn-outline{background:transparent;border:2px solid var(--border);color:var(--text)}
+.btn-danger{background:#fee2e2;color:#dc2626}
+.btn-success{background:#dcfce7;color:#16a34a}
+.btn-full{width:100%}
+
+/* ── INPUT ── */
+.inp{
+  width:100%;background:#f8f7fc;border:2px solid transparent;
+  border-radius:var(--radius-sm);padding:11px 14px;
+  font-family:'Cairo',sans-serif;font-size:14px;font-weight:600;
+  color:var(--text);transition:border-color 0.2s;outline:none;
+  -webkit-appearance:none;
+}
+.inp:focus{border-color:var(--accent);background:#fff}
+.inp::placeholder{color:#B8B0C8;font-weight:500}
+.inp-label{font-size:11px;font-weight:800;color:var(--text-muted);display:block;margin-bottom:6px;text-transform:uppercase;letter-spacing:0.5px}
+.inp-group{margin-bottom:14px}
+
+/* ── TABLE ── */
+.tbl{width:100%;border-collapse:collapse;font-size:13px}
+.tbl th{background:#f8f7fc;padding:10px 12px;font-weight:800;color:var(--text-muted);text-align:right;border-bottom:2px solid var(--border)}
+.tbl td{padding:10px 12px;border-bottom:1px solid var(--border);vertical-align:middle}
+.tbl tr:last-child td{border-bottom:none}
+.tbl tr:hover td{background:#faf9fe}
+.tbl-wrap{overflow-x:auto;border-radius:var(--radius);border:1px solid var(--border)}
+
+/* ── TABS ── */
+.tabs-bar{
+  display:flex;gap:4px;background:#fff;border:1px solid var(--border);
+  border-radius:var(--radius-sm);padding:4px;overflow-x:auto;
+  scrollbar-width:none;-webkit-overflow-scrolling:touch;
+}
+.tabs-bar::-webkit-scrollbar{display:none}
+.tab-btn{
+  flex-shrink:0;display:flex;align-items:center;gap:6px;
+  padding:8px 14px;border-radius:8px;font-family:'Cairo',sans-serif;
+  font-size:12px;font-weight:800;border:none;cursor:pointer;
+  color:var(--text-muted);background:transparent;transition:all 0.2s;
+  -webkit-tap-highlight-color:transparent;white-space:nowrap;
+}
+.tab-btn.active{background:linear-gradient(135deg,var(--brand),var(--brand-mid));color:#fff;box-shadow:0 4px 12px rgba(28,10,46,0.25)}
+.tab-panel{display:none}
+.tab-panel.active{display:block}
+
+/* ── MODAL ── */
+.modal-back{
+  position:fixed;inset:0;z-index:200;
+  background:rgba(28,10,46,0.6);backdrop-filter:blur(4px);
+  display:flex;align-items:center;justify-content:center;padding:16px;
+}
+.modal-back.hidden{display:none}
+.modal-box{
+  background:#fff;border-radius:20px;width:100%;max-width:420px;
+  max-height:90vh;overflow-y:auto;box-shadow:var(--shadow-lg);
+}
+.modal-head{
+  background:linear-gradient(135deg,var(--brand),var(--brand-mid));
+  padding:20px 24px;position:sticky;top:0;
+  display:flex;align-items:center;justify-content:space-between;
+}
+.modal-head h3{font-size:16px;font-weight:900;color:#fff}
+.modal-close{background:rgba(255,255,255,0.15);border:none;color:#fff;width:32px;height:32px;border-radius:8px;cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center}
+.modal-body{padding:20px}
+
+/* ── TOAST ── */
+#msgBox{
+  position:fixed;top:72px;left:50%;transform:translateX(-50%);
+  z-index:300;min-width:240px;max-width:calc(100vw - 32px);
+  background:#fff;border-radius:12px;box-shadow:var(--shadow-lg);
+  border:1px solid var(--border);padding:12px 16px;
+  display:flex;align-items:center;gap:10px;font-weight:700;font-size:13px;
+}
+#msgBox.hidden{display:none}
+
+/* ══════════════════════════════════════════════
+   PUBLIC VIEW
+══════════════════════════════════════════════ */
+.capacity-bar-wrap{background:#f3f4f6;border-radius:100px;height:10px;overflow:hidden;margin:8px 0}
+.capacity-bar{height:100%;border-radius:100px;background:linear-gradient(90deg,var(--green),#22c55e);transition:width 0.6s ease}
+.pricing-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.pricing-item{
+  background:linear-gradient(135deg,var(--brand),var(--brand-mid));
+  border-radius:12px;padding:14px 8px;text-align:center;color:#fff;
+}
+.pricing-hour{font-size:11px;color:rgba(255,255,255,0.6);font-weight:700;margin-bottom:4px}
+.pricing-price{font-size:20px;font-weight:900;color:var(--accent-light)}
+.pricing-note{font-size:10px;color:rgba(255,255,255,0.5);margin-top:2px}
+
+/* AUTH CONTAINER */
+#authContainer{background:#fff;border-radius:var(--radius);box-shadow:var(--shadow);overflow:hidden}
+.auth-top{background:linear-gradient(135deg,var(--brand),var(--brand-mid));padding:24px;text-align:center}
+.auth-top h3{font-size:18px;font-weight:900;color:#fff;margin-bottom:4px}
+.auth-top p{font-size:12px;color:rgba(255,255,255,0.55);font-weight:600}
+.auth-body{padding:20px}
+
+/* ══════════════════════════════════════════════
+   CLIENT VIEW
+══════════════════════════════════════════════ */
+#clientHeaderCard{
+  background:linear-gradient(135deg,var(--brand),var(--brand-mid));
+  border-radius:var(--radius);padding:16px;margin-bottom:12px;
+  box-shadow:0 8px 32px rgba(28,10,46,0.25);
+}
+.client-avatar{
+  width:48px;height:48px;border-radius:50%;
+  background:var(--accent);color:#fff;
+  display:flex;align-items:center;justify-content:center;
+  font-size:20px;font-weight:900;
+  border:3px solid rgba(255,255,255,0.3);flex-shrink:0;
+}
+.client-name{font-size:16px;font-weight:900;color:#fff}
+.client-phone{font-size:11px;color:rgba(255,255,255,0.55);font-weight:600}
+.client-stat{background:rgba(255,255,255,0.1);border-radius:10px;padding:10px 14px;text-align:center}
+.client-stat-val{font-size:18px;font-weight:900;color:var(--accent-light)}
+.client-stat-lbl{font-size:10px;color:rgba(255,255,255,0.55);font-weight:700;margin-top:2px}
+
+.timer-display{font-family:'IBM Plex Mono',monospace;font-size:42px;font-weight:600;color:var(--brand);letter-spacing:2px;line-height:1}
+
+/* STAMPS */
+.stamp-item{display:flex;flex-direction:column;align-items:center;gap:4px}
+.stamp-dot{width:44px;height:44px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:18px}
+.stamp-dot.filled{background:var(--brand);color:#fff;box-shadow:0 4px 12px rgba(28,10,46,0.3)}
+.stamp-dot.empty{background:#f3f4f6;border:2px dashed #d1d5db;color:#d1d5db}
+.stamp-dot.reward{background:var(--accent);color:#fff;animation:pulse-stamp 2s infinite}
+@keyframes pulse-stamp{0%,100%{transform:scale(1)}50%{transform:scale(1.1)}}
+
+/* ══════════════════════════════════════════════
+   ADMIN VIEW
+══════════════════════════════════════════════ */
+#viewAdmin{background:var(--surface)}
+.admin-header-bar{
+  background:linear-gradient(135deg,var(--brand),var(--brand-mid));
+  padding:16px 20px;margin-bottom:16px;
+  border-radius:var(--radius);
+  display:flex;align-items:center;justify-content:space-between;
+  box-shadow:0 8px 24px rgba(28,10,46,0.25);
+}
+.admin-title{font-size:16px;font-weight:900;color:#fff}
+.admin-sub{font-size:11px;color:rgba(255,255,255,0.5);font-weight:600;margin-top:2px}
+.admin-badge{
+  background:rgba(240,106,0,0.2);border:1px solid rgba(240,106,0,0.4);
+  color:var(--accent-light);font-size:10px;font-weight:800;
+  padding:4px 10px;border-radius:100px;
+}
+
+/* ADMIN STAT ROW */
+.admin-stats{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-bottom:16px}
+@media(min-width:640px){.admin-stats{grid-template-columns:repeat(4,1fr)}}
+.a-stat{
+  background:#fff;border:1px solid var(--border);border-radius:12px;
+  padding:14px;text-align:center;
+  border-top:3px solid transparent;
+}
+.a-stat.purple{border-top-color:var(--brand)}
+.a-stat.orange{border-top-color:var(--accent)}
+.a-stat.green{border-top-color:var(--green)}
+.a-stat.red{border-top-color:var(--red)}
+.a-stat-val{font-size:26px;font-weight:900;line-height:1}
+.a-stat.purple .a-stat-val{color:var(--brand)}
+.a-stat.orange .a-stat-val{color:var(--accent)}
+.a-stat.green .a-stat-val{color:var(--green)}
+.a-stat.red .a-stat-val{color:var(--red)}
+.a-stat-lbl{font-size:11px;font-weight:700;color:var(--text-muted);margin-top:4px}
+
+/* LIVE SESSIONS */
+.live-dot{display:inline-block;width:8px;height:8px;background:#22c55e;border-radius:50%;animation:blink 1.5s infinite}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:0.3}}
+
+/* SESSION CARD */
+.session-card{
+  background:#fff;border:1px solid var(--border);border-radius:12px;
+  padding:14px;cursor:pointer;transition:all 0.2s;
+  border-right:4px solid var(--accent);
+}
+.session-card:hover{box-shadow:var(--shadow);transform:translateY(-1px)}
+.session-name{font-size:14px;font-weight:900;color:var(--brand)}
+.session-phone{font-size:11px;color:var(--text-muted);font-weight:600}
+.session-timer{font-family:'IBM Plex Mono',monospace;font-size:18px;font-weight:700;color:var(--accent)}
+
+/* ORDER CARD */
+.order-card{
+  background:linear-gradient(135deg,#fff7ed,#fff);
+  border:1px solid rgba(240,106,0,0.2);border-radius:12px;padding:14px;
+  border-right:4px solid var(--accent);
+}
+
+/* CARD ITEM (internet card) */
+.card-item{
+  background:#fff;border:1px solid var(--border);border-radius:12px;padding:14px;
+  display:flex;align-items:center;justify-content:space-between;gap:12px;
+}
+.card-code{font-family:'IBM Plex Mono',monospace;font-size:14px;font-weight:700;color:var(--brand)}
+.quota-bar{height:6px;background:#f3f4f6;border-radius:100px;overflow:hidden;margin:6px 0}
+.quota-fill{height:100%;border-radius:100px;background:linear-gradient(90deg,var(--green),#22c55e);transition:width 0.4s}
+.quota-fill.warn{background:linear-gradient(90deg,#f59e0b,#fbbf24)}
+.quota-fill.danger{background:linear-gradient(90deg,var(--red),#ef4444)}
+
+/* SETTINGS */
+.settings-group{background:#fff;border:1px solid var(--border);border-radius:var(--radius);padding:20px;margin-bottom:12px}
+.settings-group h4{font-size:13px;font-weight:800;color:var(--brand);margin-bottom:14px;padding-bottom:10px;border-bottom:1px solid var(--border)}
+
+/* SUBSCRIPTION CARD */
+.sub-card{
+  background:linear-gradient(135deg,var(--brand),var(--brand-mid));
+  border-radius:16px;padding:16px;color:#fff;
+}
+.sub-code{font-family:'IBM Plex Mono',monospace;font-size:18px;font-weight:900;letter-spacing:3px;color:var(--accent-light)}
+
+/* PLAN CARD */
+.plan-card{
+  border:2px solid var(--border);border-radius:14px;padding:16px;
+  cursor:pointer;transition:all 0.2s;position:relative;overflow:hidden;
+}
+.plan-card:hover{border-color:var(--brand);box-shadow:var(--shadow)}
+.plan-price{font-size:24px;font-weight:900;color:var(--accent)}
+
+/* PRINT AREA */
+#invoicePrintArea{display:none}
+#endDayModal.hidden{display:none}
+#cardsPrintArea{display:none}
+
+/* ── SCROLLBAR ── */
+*{scrollbar-width:thin;scrollbar-color:rgba(28,10,46,0.15) transparent}
+::-webkit-scrollbar{width:4px;height:4px}
+::-webkit-scrollbar-thumb{background:rgba(28,10,46,0.15);border-radius:4px}
+
+/* ── UTILITY ── */
+.hidden{display:none!important}
+.flex{display:flex}.items-center{align-items:center}.justify-between{justify-content:space-between}
+.gap-2{gap:8px}.gap-3{gap:12px}.gap-4{gap:16px}
+.mt-2{margin-top:8px}.mt-3{margin-top:12px}.mt-4{margin-top:16px}.mb-2{margin-bottom:8px}.mb-3{margin-bottom:12px}
+.text-xs{font-size:11px}.text-sm{font-size:13px}.text-lg{font-size:18px}
+.font-bold{font-weight:700}.font-black{font-weight:900}
+.text-muted{color:var(--text-muted)}
+.text-accent{color:var(--accent)}
+.text-brand{color:var(--brand)}
+.text-green{color:var(--green)}
+.text-red{color:var(--red)}
+.w-full{width:100%}
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.grid-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px}
+@media(max-width:480px){.grid-3{grid-template-columns:1fr 1fr}}
+.space-y-3>*+*{margin-top:12px}
+.space-y-2>*+*{margin-top:8px}
+.rounded{border-radius:var(--radius-sm)}
+.p-3{padding:12px}.p-4{padding:16px}
+.truncate{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.live-badge{display:inline-flex;align-items:center;gap:5px;background:#dcfce7;color:#16a34a;font-size:11px;font-weight:800;padding:3px 10px;border-radius:100px}
+
+/* CAPACITY COLORS */
+.cap-low{background:linear-gradient(90deg,#22c55e,#4ade80)}
+.cap-mid{background:linear-gradient(90deg,#f59e0b,#fbbf24)}
+.cap-high{background:linear-gradient(90deg,#ef4444,#f87171)}
+
+/* PRINT */
+@media print{
+  #appHeader,#navPublic,#navClient,.no-print{display:none!important}
+  body.printing-invoice *{visibility:hidden!important}
+  body.printing-invoice #invoicePrintArea,body.printing-invoice #invoicePrintArea *{visibility:visible!important;display:block!important}
+  body.printing-invoice #invoicePrintArea{position:fixed;inset:0;background:#fff;padding:20px}
+}
 </style>
 </head>
 <body>
 
-<div class="page-wrap">
-
-  <!-- Header -->
-  <header class="header">
-    <div class="logo-wrap">
-      <div class="logo-mark"><i class="fa-solid fa-mug-hot"></i></div>
-      <div class="logo-text">
-        <h1>HOLA</h1>
-        <p>#Your digital gateway</p>
-      </div>
-    </div>
-    <div class="header-time" id="clockEl">--:--</div>
-  </header>
-
-  <!-- Hero -->
-  <div class="hero">
-    <div class="hero-badge">
-      <span></span>
-      أهلاً في Hola — ابدأ جلستك
-    </div>
-    <h2>مساحتك الرقمية<br><em>في انتظارك</em></h2>
-    <p>تأكد من تواجدك في المكان وسجّل دخولك فوراً</p>
-  </div>
-
-  <!-- Main card -->
-  <div class="main-card" id="mainCard">
-
-    <!-- STEP 0: Location gate -->
-    <div class="step active" id="step0">
-      <div class="step-top">
-        <div class="step-icon"><i class="fa-solid fa-location-crosshairs"></i></div>
-        <h3>بوابة الدخول الذكية</h3>
-        <p>تأكيد الموقع مطلوب قبل تفعيل الدخول<br>تأكد من تشغيل الـ GPS بدقة عالية</p>
-      </div>
-      <div class="step-body">
-
-        <div class="loc-status" id="locStatus">
-          <div class="loc-dot" id="locDot"></div>
-          <span class="loc-status-text" id="locText">في انتظار التحقق من الموقع</span>
-        </div>
-
-        <button class="btn-primary" onclick="checkLocation()" id="btnCheckLoc">
-          <div class="btn-icon"><i class="fa-solid fa-location-crosshairs"></i></div>
-          تحقق من موقعي وسجّل الدخول
-        </button>
-
-        <div class="divider"><span>أو اختر خياراً آخر</span></div>
-
-        <div class="quick-options">
-          <button class="btn-quick" onclick="showPrebook()">
-            <i class="fa-solid fa-calendar-check"></i>
-            <span>حجز مسبق</span>
-          </button>
-          <button class="btn-quick" onclick="showQuickBook()">
-            <i class="fa-solid fa-bolt"></i>
-            <span>حجز سريع</span>
-          </button>
-          <button class="btn-quick" onclick="window.location.href='#'">
-            <i class="fa-solid fa-wifi"></i>
-            <span>كرت إنترنت</span>
-          </button>
-        </div>
-
-        <p class="footer-note">
-          <i class="fa-solid fa-circle-info"></i>
-          التسجيل يتطلب تواجدك داخل المكان
-        </p>
-
-      </div>
-    </div>
-
-    <!-- STEP 1: Login form -->
-    <div class="step" id="step1">
-      <div class="success-bar">
-        <i class="fa-solid fa-circle-check"></i>
-        تم التحقق من موقعك بنجاح ✓
-      </div>
-      <div class="form-body">
-
-        <div class="form-group">
-          <label class="form-label">
-            <i class="fa-solid fa-wifi"></i>
-            كود كارت الواي فاي
-          </label>
-          <input type="text" class="form-input code-input" id="wifiCode" placeholder="HOLA-XXXX-XXXX"
-            oninput="this.value=this.value.toUpperCase()" autocomplete="off" spellcheck="false"
-            inputmode="text" maxlength="20">
-        </div>
-
-        <div class="form-group">
-          <label class="form-label">
-            <i class="fa-solid fa-mobile-screen"></i>
-            رقم الموبايل
-          </label>
-          <input type="tel" id="phoneInput" class="form-input" placeholder="01XXXXXXXXX"
-            dir="ltr" oninput="onPhoneInput(this.value)" autocomplete="tel" maxlength="11">
-        </div>
-
-        <div class="checkbox-row" onclick="toggleHasAccount()">
-          <input type="checkbox" id="hasAccount" onclick="event.stopPropagation();onHasAccountChange()">
-          <label class="checkbox-label" for="hasAccount">لدي حساب بالفعل</label>
-        </div>
-
-        <div class="new-user-banner" id="newUserBanner">
-          <div class="new-user-banner-label">
-            <i class="fa-solid fa-user-plus"></i>
-            أول مرة؟ أدخل اسمك الكريم
-          </div>
-          <input type="text" class="form-input" id="nameInput" placeholder="مثال: أحمد محمد" autocomplete="name">
-        </div>
-
-        <button class="btn-primary btn-accent" onclick="handleLogin()" style="margin-top:16px;" id="btnLogin">
-          <div class="btn-icon"><i class="fa-solid fa-arrow-right-to-bracket"></i></div>
-          تأكيد الدخول وبدء الجلسة
-        </button>
-
-        <button class="btn-secondary" onclick="enterGuest()">
-          <i class="fa-solid fa-user-secret"></i>
-          الدخول كضيف
-        </button>
-
-        <button class="btn-back" onclick="backToGate()">
-          <i class="fa-solid fa-chevron-right"></i>
-          العودة
-        </button>
-
-      </div>
-    </div>
-
-    <!-- STEP 2: Pre-booking form -->
-    <div class="step" id="step2">
-      <div class="prebook-top">
-        <div class="step-icon" style="background:rgba(255,255,255,0.15);border-color:rgba(255,255,255,0.25)">
-          <i class="fa-solid fa-calendar-check"></i>
-        </div>
-        <h3>حجز مسبق</h3>
-        <p>احجز مقعدك وسننتظرك!</p>
-      </div>
-      <div class="form-body">
-
-        <div class="form-group">
-          <label class="form-label"><i class="fa-solid fa-user"></i>الاسم بالكامل</label>
-          <input type="text" class="form-input" id="pbName" placeholder="اسمك الكريم" autocomplete="name">
-        </div>
-
-        <div class="form-group">
-          <label class="form-label"><i class="fa-solid fa-mobile-screen"></i>رقم الموبايل</label>
-          <input type="tel" class="form-input" id="pbPhone" placeholder="01XXXXXXXXX" dir="ltr" autocomplete="tel" maxlength="11">
-        </div>
-
-        <div class="form-group">
-          <label class="form-label"><i class="fa-regular fa-clock"></i>موعد الوصول المتوقع</label>
-          <input type="datetime-local" class="form-input" id="pbTime">
-        </div>
-
-        <button class="btn-primary btn-accent" onclick="submitPrebook()">
-          <div class="btn-icon"><i class="fa-solid fa-check"></i></div>
-          تأكيد الحجز المسبق
-        </button>
-
-        <button class="btn-back" onclick="backToGate()">
-          <i class="fa-solid fa-chevron-right"></i>
-          العودة
-        </button>
-
-        <!-- Feedback state (hidden by default) -->
-        <div class="feedback" id="prebookFeedback">
-          <div class="feedback-icon"><i class="fa-solid fa-check-double"></i></div>
-          <h3>تم استلام حجزك!</h3>
-          <p>سوف نقوم بالتواصل معك خلال ساعة من الآن لتأكيد الموعد.</p>
-          <button class="btn-back" onclick="backToGate()" style="margin-top:6px;">
-            <i class="fa-solid fa-house"></i>
-            العودة للرئيسية
-          </button>
-        </div>
-
-      </div>
-    </div>
-
-    <!-- STEP 3: Outside location -->
-    <div class="step" id="step3">
-      <div class="outside-top">
-        <div class="step-icon" style="background:rgba(255,255,255,0.1);border-color:rgba(255,255,255,0.15)">
-          <i class="fa-solid fa-location-dot-slash"></i>
-        </div>
-        <div id="distanceBadge"><i class="fa-solid fa-route"></i> <span id="distanceText">---</span></div>
-        <h3>أنت خارج المكان</h3>
-        <p>التسجيل الجديد متاح فقط داخل Hola</p>
-      </div>
-      <div class="form-body">
-
-        <div class="outside-info">
-          <i class="fa-solid fa-circle-info"></i>
-          يمكنك الدخول بالحساب المرتبط بهذا الجهاز فقط
-        </div>
-
-        <div class="form-group">
-          <label class="form-label"><i class="fa-solid fa-mobile-screen"></i>رقم هاتفك المسجّل</label>
-          <input type="tel" class="form-input" id="remotePhone" placeholder="01XXXXXXXXX"
-            dir="ltr" autocomplete="tel" maxlength="11">
-        </div>
-
-        <button class="btn-primary" onclick="handleRemoteLogin()">
-          <div class="btn-icon"><i class="fa-solid fa-eye"></i></div>
-          عرض ملفي فقط
-        </button>
-
-        <div class="divider"><span>أو</span></div>
-
-        <button class="btn-secondary" onclick="showPrebook()">
-          <i class="fa-solid fa-calendar-check"></i>
-          حجز مسبق بدلاً من ذلك
-        </button>
-
-        <button class="btn-back" onclick="backToGate()">
-          <i class="fa-solid fa-chevron-right"></i>
-          العودة
-        </button>
-
-      </div>
-    </div>
-
-  </div>
-
-  <!-- Info pills -->
-  <div class="info-pills">
-    <div class="info-pill"><i class="fa-solid fa-shield-halved"></i> تحقق آمن بالموقع</div>
-    <div class="info-pill"><i class="fa-solid fa-wifi"></i> كروت إنترنت ذكية</div>
-    <div class="info-pill"><i class="fa-solid fa-stamp"></i> نظام أختام ومكافآت</div>
-  </div>
-
+<!-- ════════════════════ TOAST ════════════════════ -->
+<div id="msgBox" class="hidden" role="alert">
+  <i id="msgIcon" class="fa-solid fa-circle-info text-accent"></i>
+  <span id="msgText"></span>
 </div>
 
-<!-- Toast -->
-<div id="toast"><i class="fa-solid fa-circle-info" id="toastIcon"></i> <span id="toastText">رسالة</span></div>
+<!-- ════════════════════ HEADER ════════════════════ -->
+<header id="appHeader">
+  <div class="header-inner">
+    <a class="logo-wrap" href="#">
+      <img src="https://i.postimg.cc/rsLC5pbm/hola.png" alt="Hola Workspace" class="logo-img" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+      <div style="display:none;width:42px;height:42px;background:var(--accent);border-radius:12px;align-items:center;justify-content:center;color:#fff;font-size:20px;border:2px solid rgba(240,106,0,0.5)"><i class="fa-solid fa-mug-hot"></i></div>
+      <div class="logo-text">
+        <h1>HOLA</h1>
+        <p>Workspace</p>
+      </div>
+    </a>
+    <div class="header-actions">
+      <div class="header-clock" id="headerClock">--:--</div>
+      <!-- Public -->
+      <button id="navAdminBtn" class="nav-btn nav-btn-ghost" onclick="window.showAdminLoginModal()">
+        <i class="fa-solid fa-lock"></i><span class="hidden sm-show">إدارة</span>
+      </button>
+      <!-- Client -->
+      <div id="navClient" class="hidden" style="display:none;align-items:center;gap:6px">
+        <button class="nav-btn nav-btn-ghost" onclick="window.openClientChat()"><i class="fa-solid fa-comment-dots"></i><span id="chatBadge" class="hidden" style="width:8px;height:8px;background:#ef4444;border-radius:50%;display:inline-block"></span></button>
+        <button class="nav-btn nav-btn-danger" onclick="window.clientLogout()"><i class="fa-solid fa-arrow-right-from-bracket"></i></button>
+      </div>
+      <!-- Admin active -->
+      <div id="navAdminActiveBtn" class="hidden" style="display:none;align-items:center;gap:6px">
+        <span class="admin-badge" id="currentAdminNameLabel">مدير النظام</span>
+        <button class="nav-btn nav-btn-danger" onclick="window.logoutAdmin()"><i class="fa-solid fa-right-from-bracket"></i> خروج</button>
+      </div>
+    </div>
+  </div>
+</header>
 
-<script>
-  /* ── Clock ── */
-  function updateClock() {
-    const now = new Date();
-    document.getElementById('clockEl').textContent =
-      now.toLocaleTimeString('ar-EG', { hour: '2-digit', minute: '2-digit', hour12: false });
-  }
-  updateClock();
-  setInterval(updateClock, 10000);
+<!-- ════════════════════════════════════════════════
+     PUBLIC VIEW
+════════════════════════════════════════════════ -->
+<div id="viewPublic">
+  <div class="view-wrap">
+    <div style="display:grid;gap:12px" id="publicGrid">
 
-  /* ── Toast ── */
-  let _toastTimer;
-  function showToast(msg, type = 'info') {
-    clearTimeout(_toastTimer);
-    const t = document.getElementById('toast');
-    const icon = document.getElementById('toastIcon');
-    document.getElementById('toastText').textContent = msg;
-    t.className = type;
-    icon.className = type === 'success' ? 'fa-solid fa-circle-check' :
-                     type === 'error'   ? 'fa-solid fa-circle-exclamation' :
-                     'fa-solid fa-circle-info';
-    t.classList.add('show');
-    _toastTimer = setTimeout(() => t.classList.remove('show'), 3200);
-  }
+      <!-- Welcome + Auth -->
+      <div style="display:grid;gap:12px" class="md-grid-2">
 
-  /* ── Step management ── */
-  function showStep(id) {
-    document.querySelectorAll('.step').forEach(s => s.classList.remove('active'));
-    document.getElementById(id)?.classList.add('active');
-  }
+        <!-- Auth Card -->
+        <div id="authContainer">
+          <div id="locationCheckState">
+            <div class="auth-top">
+              <div style="width:52px;height:52px;background:rgba(240,106,0,0.2);border:2px solid rgba(240,106,0,0.3);border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:22px;color:var(--accent-light);margin:0 auto 12px">
+                <i class="fa-solid fa-location-crosshairs"></i>
+              </div>
+              <h3>بوابة الدخول الذكية</h3>
+              <p>تأكيد موقعك مطلوب قبل الدخول</p>
+            </div>
+            <div class="auth-body">
+              <div style="display:flex;align-items:center;gap:10px;background:#f8f7fc;border:1px solid var(--border);border-radius:10px;padding:12px;margin-bottom:14px">
+                <div id="locDot" style="width:10px;height:10px;border-radius:50%;background:#ccc;flex-shrink:0"></div>
+                <span id="locText" style="font-size:12px;font-weight:700;color:var(--text-muted)">في انتظار التحقق من الموقع</span>
+              </div>
+              <button class="btn btn-primary btn-full" onclick="window.checkLocationForLogin()">
+                <i class="fa-solid fa-location-crosshairs"></i> تحقق من موقعي وسجّل الدخول
+              </button>
+              <div style="display:flex;align-items:center;gap:8px;margin:12px 0">
+                <div style="flex:1;height:1px;background:var(--border)"></div>
+                <span style="font-size:11px;font-weight:700;color:var(--text-muted)">أو</span>
+                <div style="flex:1;height:1px;background:var(--border)"></div>
+              </div>
+              <div class="grid-3" style="gap:8px">
+                <button class="btn btn-outline btn-sm" style="flex-direction:column;gap:4px;height:64px" onclick="window.showPreBookingFallback('حجز مسبق')">
+                  <i class="fa-solid fa-calendar-check text-accent" style="font-size:16px"></i>
+                  <span style="font-size:10px">حجز مسبق</span>
+                </button>
+                <button class="btn btn-outline btn-sm" style="flex-direction:column;gap:4px;height:64px" onclick="window.showQuickBookModal()">
+                  <i class="fa-solid fa-bolt text-accent" style="font-size:16px"></i>
+                  <span style="font-size:10px">حجز سريع</span>
+                </button>
+                <button class="btn btn-outline btn-sm" style="flex-direction:column;gap:4px;height:64px" onclick="window.showSubscriptionModal()">
+                  <i class="fa-solid fa-crown text-accent" style="font-size:16px"></i>
+                  <span style="font-size:10px">اشتراك</span>
+                </button>
+              </div>
+            </div>
+          </div>
 
-  function backToGate() {
-    document.getElementById('prebookFeedback').classList.remove('visible');
-    document.querySelector('#step2 .form-body').style.display = '';
-    showStep('step0');
-    resetLocStatus();
-  }
+          <!-- Pre-booking form -->
+          <div id="preBookingForm" class="hidden">
+            <div class="auth-top" style="background:linear-gradient(135deg,var(--accent),#c04e00)">
+              <h3>حجز مسبق</h3><p>احجز مقعدك وسننتظرك!</p>
+            </div>
+            <div class="auth-body">
+              <div class="inp-group"><label class="inp-label">الاسم بالكامل</label><input id="pbName" type="text" class="inp" placeholder="اسمك الكريم"></div>
+              <div class="inp-group"><label class="inp-label">رقم الموبايل</label><input id="pbPhone" type="tel" class="inp" dir="ltr" placeholder="01XXXXXXXXX"></div>
+              <div class="inp-group"><label class="inp-label">موعد الوصول</label><input id="pbTime" type="datetime-local" class="inp"></div>
+              <button class="btn btn-accent btn-full" onclick="window.submitPreBooking()"><i class="fa-solid fa-check"></i> تأكيد الحجز</button>
+              <button class="btn btn-outline btn-full mt-2" onclick="window.resetLocationCheck()"><i class="fa-solid fa-chevron-right"></i> العودة</button>
+            </div>
+          </div>
 
-  function resetLocStatus() {
-    setLocStatus('idle', 'في انتظار التحقق من الموقع');
-  }
+          <!-- Login form -->
+          <div id="loginForm" class="hidden">
+            <div style="background:var(--green);color:#fff;display:flex;align-items:center;gap:10px;padding:12px 20px;font-size:13px;font-weight:800">
+              <i class="fa-solid fa-circle-check"></i> تم التحقق من موقعك ✓
+            </div>
+            <div class="auth-body">
+              <div class="inp-group">
+                <label class="inp-label"><i class="fa-solid fa-wifi text-accent" style="font-size:10px;margin-left:4px"></i> كود كارت الواي فاي</label>
+                <input id="loginWifiCode" type="text" class="inp" style="text-align:center;font-family:'IBM Plex Mono';letter-spacing:3px;font-size:16px;text-transform:uppercase" placeholder="HOLA-XXXX-XXXX" oninput="this.value=this.value.toUpperCase()">
+              </div>
+              <div class="inp-group">
+                <label class="inp-label"><i class="fa-solid fa-mobile-screen text-accent" style="font-size:10px;margin-left:4px"></i> رقم الموبايل</label>
+                <input id="loginPhone" type="tel" class="inp" dir="ltr" placeholder="01XXXXXXXXX" oninput="window.checkNewUser(this.value)" maxlength="11">
+              </div>
+              <div style="display:flex;align-items:center;gap:8px;background:#f8f7fc;border:1px solid var(--border);border-radius:10px;padding:10px 12px;margin-bottom:12px;cursor:pointer" onclick="document.getElementById('loginHasAccount').click()">
+                <input type="checkbox" id="loginHasAccount" style="width:16px;height:16px;accent-color:var(--brand);cursor:pointer">
+                <label style="font-size:12px;font-weight:700;cursor:pointer;color:var(--text)">لدي حساب بالفعل</label>
+              </div>
+              <div id="nameField" class="inp-group hidden">
+                <label class="inp-label">اسمك الكريم (أول مرة)</label>
+                <input id="loginName" type="text" class="inp" placeholder="مثال: أحمد محمد">
+              </div>
+              <button class="btn btn-accent btn-full" id="btnLogin" onclick="window.handleLogin()">
+                <i class="fa-solid fa-arrow-right-to-bracket"></i> تأكيد الدخول وبدء الجلسة
+              </button>
+              <button class="btn btn-outline btn-full mt-2" onclick="window.enterGuestMode()"><i class="fa-solid fa-user-secret"></i> الدخول كضيف</button>
+              <button style="width:100%;background:none;border:none;color:var(--text-muted);font-family:'Cairo',sans-serif;font-size:12px;font-weight:700;cursor:pointer;padding:8px;margin-top:4px" onclick="window.resetLocationCheck()">
+                <i class="fa-solid fa-chevron-right" style="font-size:10px"></i> العودة
+              </button>
+            </div>
+          </div>
+        </div>
 
-  function setLocStatus(state, text) {
-    const dot = document.getElementById('locDot');
-    const txt = document.getElementById('locText');
-    dot.className = 'loc-dot ' + (state === 'checking' ? 'checking' : state === 'ok' ? 'ok' : state === 'fail' ? 'fail' : '');
-    txt.textContent = text;
-  }
+        <!-- Info Panel -->
+        <div style="display:flex;flex-direction:column;gap:12px">
+          <!-- Capacity -->
+          <div class="g-card g-card-p">
+            <div class="sec-title"><i class="fa-solid fa-users text-accent"></i> الطاقة الاستيعابية</div>
+            <div style="display:flex;align-items:baseline;gap:6px;margin-bottom:8px">
+              <span id="publicStatusText" style="font-size:22px;font-weight:900;color:var(--green)">هادئ</span>
+              <span style="font-size:12px;font-weight:700;color:var(--text-muted)">· <span id="liveCountPub">0</span> من <span id="pubMaxCap">50</span></span>
+            </div>
+            <div class="capacity-bar-wrap"><div class="capacity-bar cap-low" id="capacityGauge" style="width:0%"></div></div>
+          </div>
+          <!-- Pricing -->
+          <div class="g-card g-card-p">
+            <div class="sec-title"><i class="fa-solid fa-coins text-accent"></i> الأسعار</div>
+            <div class="pricing-grid">
+              <div class="pricing-item">
+                <div class="pricing-hour">الساعة الأولى</div>
+                <div class="pricing-price"><span id="pubT1">25</span> ج</div>
+                <div class="pricing-note">بدء الجلسة</div>
+              </div>
+              <div class="pricing-item">
+                <div class="pricing-hour">الساعة الثانية</div>
+                <div class="pricing-price"><span id="pubT2">15</span> ج</div>
+                <div class="pricing-note">إضافية</div>
+              </div>
+              <div class="pricing-item">
+                <div class="pricing-hour">الثالثة+</div>
+                <div class="pricing-price"><span id="pubT3">10</span> ج</div>
+                <div class="pricing-note">كل ساعة</div>
+              </div>
+            </div>
+            <p id="publicDescription" style="font-size:11px;color:var(--text-muted);font-weight:600;margin-top:10px;line-height:1.6">يتم حساب التكلفة تلقائياً بناءً على الوقت المنقضي.</p>
+          </div>
+          <!-- Loyalty hint -->
+          <div class="g-card g-card-p" style="background:linear-gradient(135deg,#fff7ed,#fff);border-color:rgba(240,106,0,0.2)">
+            <div class="flex items-center gap-2">
+              <i class="fa-solid fa-stamp text-accent" style="font-size:20px"></i>
+              <p id="publicLoyaltyText" style="font-size:12px;font-weight:700;color:var(--brand);line-height:1.5">اجمع 7 أختام = كود خصم 100%!</p>
+            </div>
+          </div>
+        </div>
+      </div>
 
-  /* ── Location check ── */
-  let _verifiedLocation = null;
+      <!-- Events -->
+      <div id="publicEventsBanners" class="space-y-3"></div>
 
-  function checkLocation() {
-    if (!navigator.geolocation) {
-      showToast('متصفحك لا يدعم تحديد الموقع', 'error');
-      return;
-    }
-    setLocStatus('checking', 'جاري تحديد موقعك بدقة...');
-    const btn = document.getElementById('btnCheckLoc');
-    btn.disabled = true;
-    btn.innerHTML = '<div class="btn-icon"><i class="fa-solid fa-spinner fa-spin"></i></div> جاري التحقق...';
+      <!-- Promo -->
+      <div id="fbPromoCard" class="g-card g-card-p hidden">
+        <img id="pubPromoImg" src="" alt="promo" style="width:100%;border-radius:10px;margin-bottom:10px;max-height:200px;object-fit:cover">
+        <p id="pubPromoText" class="hidden" style="font-size:13px;font-weight:700;color:var(--text);margin-bottom:8px"></p>
+        <a id="pubPromoLink" href="#" target="_blank" class="hidden btn btn-primary btn-sm"><i class="fa-solid fa-arrow-up-right-from-square"></i> عرض التفاصيل</a>
+      </div>
 
-    navigator.geolocation.getCurrentPosition(
-      (pos) => {
-        btn.disabled = false;
-        btn.innerHTML = '<div class="btn-icon"><i class="fa-solid fa-location-crosshairs"></i></div> تحقق من موقعي وسجّل الدخول';
+    </div>
+  </div>
 
-        const { latitude: lat, longitude: lng, accuracy: acc } = pos.coords;
+  <!-- Bottom nav -->
+  <nav id="navPublic">
+    <button class="nav-pub-btn active" onclick="/* public view already */"><i class="fa-solid fa-house"></i><span>الرئيسية</span></button>
+    <button class="nav-pub-btn" onclick="window.showSubscriptionModal()"><i class="fa-solid fa-crown"></i><span>اشتراك</span></button>
+    <button class="nav-pub-btn" onclick="window.showAdminLoginModal()"><i class="fa-solid fa-lock"></i><span>إدارة</span></button>
+  </nav>
+</div>
 
-        if (acc > 500) {
-          setLocStatus('fail', 'إشارة GPS غير دقيقة — حرك هاتفك للخارج');
-          showToast('دقة الموقع ضعيفة، حاول في مكان مكشوف', 'error');
-          return;
-        }
+<!-- ════════════════════════════════════════════════
+     CLIENT VIEW
+════════════════════════════════════════════════ -->
+<div id="viewClient" style="display:none">
+  <div class="view-wrap">
+    <!-- Client Header Card -->
+    <div id="clientHeaderCard" class="mb-3">
+      <div class="flex items-center gap-3 mb-3">
+        <div class="client-avatar" id="clientAvatarDiv"><i class="fa-solid fa-user"></i></div>
+        <div style="flex:1">
+          <div id="clientWelcomeName" class="client-name">أهلاً!</div>
+          <div id="clientWelcomePhone" class="client-phone">---</div>
+          <span id="remoteBadge" class="hidden badge badge-yellow mt-1" style="margin-top:4px">🌐 عرض بعيد</span>
+        </div>
+      </div>
+      <div class="grid-3" style="gap:8px">
+        <div class="client-stat">
+          <div class="client-stat-val"><span id="clientWallet">0</span> ج</div>
+          <div class="client-stat-lbl">المحفظة</div>
+        </div>
+        <div class="client-stat">
+          <div class="client-stat-val"><span id="clientHeaderStampsCount">0</span>/<span id="clientHeaderStampsReq">7</span></div>
+          <div class="client-stat-lbl">الأختام</div>
+        </div>
+        <div class="client-stat">
+          <button class="btn btn-danger btn-sm" style="width:100%;padding:8px" onclick="window.showCheckoutModal()">
+            <i class="fa-solid fa-receipt"></i> الحساب
+          </button>
+        </div>
+      </div>
+    </div>
 
-        /* Load workspace coordinates from global settings or use defaults */
-        const tLat = (window.sysSettings && window.sysSettings.workspaceLat) ? parseFloat(window.sysSettings.workspaceLat) : 26.559074;
-        const tLng = (window.sysSettings && window.sysSettings.workspaceLng) ? parseFloat(window.sysSettings.workspaceLng) : 31.695689;
-        const radius = (window.sysSettings && window.sysSettings.workspaceRadius) ? parseFloat(window.sysSettings.workspaceRadius) : 500;
+    <!-- Client Tabs -->
+    <div class="tabs-bar mb-3" id="clientTabsContainer">
+      <button class="tab-btn active" id="c-tab-session" onclick="window.switchClientTab('session')"><i class="fa-solid fa-hourglass-half"></i> الجلسة</button>
+      <button class="tab-btn" id="c-tab-loyalty" onclick="window.switchClientTab('loyalty')"><i class="fa-solid fa-stamp"></i> الأختام</button>
+      <button class="tab-btn" id="c-tab-internet" onclick="window.switchClientTab('internet')"><i class="fa-solid fa-wifi"></i> الإنترنت</button>
+      <button class="tab-btn" id="c-tab-subscriptions" onclick="window.switchClientTab('subscriptions')"><i class="fa-solid fa-crown"></i> اشتراكي</button>
+      <button class="tab-btn" id="c-tab-notifications" onclick="window.switchClientTab('notifications')"><i class="fa-solid fa-bell"></i> إشعارات</button>
+      <button class="tab-btn" id="c-tab-history" onclick="window.switchClientTab('history')"><i class="fa-solid fa-clock-rotate-left"></i> السجل</button>
+      <button class="tab-btn" id="c-tab-prebook" onclick="window.switchClientTab('prebook')"><i class="fa-solid fa-calendar-plus"></i> حجز</button>
+      <button class="tab-btn" id="c-tab-ads" onclick="window.switchClientTab('ads')"><i class="fa-solid fa-rectangle-ad"></i> الفعاليات</button>
+      <button class="tab-btn hidden" id="c-tab-remote" onclick="window.switchClientTab('remote')"><i class="fa-solid fa-eye"></i> ملفي</button>
+    </div>
 
-        const dist = getDistance(lat, lng, tLat, tLng);
+    <!-- Session Tab -->
+    <div class="tab-panel active" id="client-session">
+      <div class="g-card g-card-p mb-3" style="text-align:center">
+        <div style="font-size:11px;font-weight:800;color:var(--text-muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px">وقت الجلسة</div>
+        <div class="timer-display" id="clientElapsedTime">00:00<span style="font-size:18px;color:var(--text-muted);font-weight:400">:00</span></div>
+        <div style="font-size:12px;color:var(--text-muted);font-weight:700;margin-top:6px">بدأت: <span id="clientStartTime">--:--</span></div>
+      </div>
+      <div class="grid-3 mb-3">
+        <div class="g-card g-card-p" style="text-align:center">
+          <div style="font-size:11px;font-weight:700;color:var(--text-muted)">تكلفة الوقت</div>
+          <div style="font-size:20px;font-weight:900;color:var(--brand);margin-top:4px" id="clientTimeCost">0 ج</div>
+        </div>
+        <div class="g-card g-card-p" style="text-align:center">
+          <div style="font-size:11px;font-weight:700;color:var(--text-muted)">الطلبات</div>
+          <div style="font-size:20px;font-weight:900;color:var(--accent);margin-top:4px" id="clientItemsCost">0 ج</div>
+        </div>
+        <div class="g-card g-card-p" style="text-align:center">
+          <div style="font-size:11px;font-weight:700;color:var(--text-muted)">الإجمالي</div>
+          <div style="font-size:20px;font-weight:900;color:var(--green);margin-top:4px" id="clientTotalCost">0 ج</div>
+        </div>
+      </div>
+      <div id="activeSessionItemsDiv" class="g-card g-card-p hidden mb-3">
+        <div class="sec-title">طلباتك</div>
+        <div id="activeSessionItemsList" style="display:flex;flex-wrap:wrap;gap:6px"></div>
+      </div>
+      <!-- Menu -->
+      <div class="g-card g-card-p mb-3">
+        <div class="sec-title"><i class="fa-solid fa-utensils text-accent"></i> المنيو</div>
+        <div id="dynamicMenuGrid" style="display:grid;grid-template-columns:repeat(2,1fr);gap:8px"></div>
+      </div>
+      <button class="btn btn-outline btn-full" onclick="window.openBarSelfService()"><i class="fa-solid fa-cocktail"></i> بوفيه ذاتي</button>
+      <!-- Event Banner -->
+      <div id="eventBanner" class="hidden g-card g-card-p mt-3" style="border:2px solid rgba(240,106,0,0.2);cursor:pointer" onclick="window.openEventDetails()">
+        <div class="flex items-center gap-3">
+          <img id="eventBannerImg" src="" style="width:48px;height:48px;border-radius:10px;object-fit:cover">
+          <div>
+            <div style="font-size:10px;font-weight:800;color:var(--accent)">🎉 فعالية قادمة</div>
+            <div id="eventBannerTitle" style="font-size:14px;font-weight:900;color:var(--brand)"></div>
+            <div id="eventBannerDate" style="font-size:11px;color:var(--text-muted);font-weight:600"></div>
+          </div>
+        </div>
+      </div>
+    </div>
 
-        if (dist <= radius) {
-          setLocStatus('ok', `تم تأكيد موقعك ✓  (${Math.round(dist)} م من المكان)`);
-          _verifiedLocation = { lat, lng };
-          localStorage.setItem('hola_inside_workspace', '1');
-          showToast('تم التحقق من موقعك بنجاح', 'success');
-          setTimeout(() => showStep('step1'), 700);
-        } else {
-          setLocStatus('fail', `أنت على بُعد ${Math.round(dist)} م — خارج النطاق`);
-          showStep('step3');
-          document.getElementById('distanceText').textContent = `${Math.round(dist)} متر عن المكان`;
-          const savedPhone = localStorage.getItem('hola_bound_phone') || '';
-          if (savedPhone) document.getElementById('remotePhone').value = savedPhone;
-        }
-      },
-      (err) => {
-        btn.disabled = false;
-        btn.innerHTML = '<div class="btn-icon"><i class="fa-solid fa-location-crosshairs"></i></div> تحقق من موقعي وسجّل الدخول';
-        setLocStatus('fail', 'تعذر الوصول للموقع — تأكد من تشغيل GPS');
-        showToast('يرجى تفعيل GPS والمحاولة مرة أخرى', 'error');
-      },
-      { enableHighAccuracy: true, timeout: 15000, maximumAge: 0 }
-    );
-  }
+    <!-- Loyalty Tab -->
+    <div class="tab-panel hidden" id="client-loyalty">
+      <div class="g-card g-card-p mb-3">
+        <div class="sec-title"><i class="fa-solid fa-stamp text-accent"></i> بطاقة الأختام</div>
+        <p id="clientStampsGoalText" style="font-size:12px;font-weight:700;color:var(--text-muted);margin-bottom:14px">اجمع 7 أختام = كود خصم 100%!</p>
+        <div id="stampsContainer" style="display:flex;flex-wrap:wrap;gap:10px;justify-content:center"></div>
+      </div>
+      <div class="g-card g-card-p">
+        <div class="sec-title"><i class="fa-solid fa-ticket text-accent"></i> أكواد الخصم</div>
+        <div id="clientDiscountsList" style="display:grid;gap:10px"></div>
+      </div>
+    </div>
 
-  function getDistance(lat1, lon1, lat2, lon2) {
-    const R = 6371e3;
-    const dLat = (lat2 - lat1) * Math.PI / 180;
-    const dLon = (lon2 - lon1) * Math.PI / 180;
-    const a = Math.sin(dLat/2)**2 + Math.cos(lat1*Math.PI/180)*Math.cos(lat2*Math.PI/180)*Math.sin(dLon/2)**2;
-    return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
-  }
+    <!-- Internet Tab -->
+    <div class="tab-panel hidden" id="client-internet">
+      <div class="g-card g-card-p mb-3">
+        <div class="sec-title"><i class="fa-solid fa-wifi text-accent"></i> فحص كارت الإنترنت</div>
+        <div class="inp-group">
+          <label class="inp-label">كود الكارت</label>
+          <input id="cardLoginCode" type="text" class="inp" style="font-family:'IBM Plex Mono';text-align:center;letter-spacing:3px;text-transform:uppercase" placeholder="HOLA-XXXX-XXXX" oninput="this.value=this.value.toUpperCase()">
+        </div>
+        <div class="inp-group">
+          <label class="inp-label">رقم الهاتف (اختياري)</label>
+          <input id="cardLoginPhone" type="tel" class="inp" dir="ltr" placeholder="01XXXXXXXXX">
+        </div>
+        <button class="btn btn-primary btn-full" onclick="window.checkCardStatus()"><i class="fa-solid fa-search"></i> فحص الكارت</button>
+        <div id="cardLoginResult" class="hidden mt-3"></div>
+      </div>
+      <!-- My Card -->
+      <div class="g-card g-card-p">
+        <div class="sec-title"><i class="fa-solid fa-sim-card text-accent"></i> كارتي</div>
+        <div id="myCardEmpty" class="text-center" style="padding:24px">
+          <i class="fa-solid fa-wifi" style="font-size:32px;color:#d1d5db;margin-bottom:8px;display:block"></i>
+          <p style="font-size:13px;font-weight:700;color:var(--text-muted)">لا يوجد كارت مرتبط</p>
+          <div class="inp-group mt-3">
+            <input id="myCardCodeInput" type="text" class="inp" style="font-family:'IBM Plex Mono';text-align:center;letter-spacing:2px;text-transform:uppercase" placeholder="أدخل الكود هنا" oninput="this.value=this.value.toUpperCase()">
+          </div>
+          <button class="btn btn-accent btn-full" onclick="window.activateMyCard()"><i class="fa-solid fa-link"></i> ربط الكارت بجهازي</button>
+        </div>
+        <div id="myCardDisplay" class="hidden">
+          <div class="sub-card mb-3">
+            <div style="font-size:10px;color:rgba(255,255,255,0.5);margin-bottom:4px">كود الكارت</div>
+            <div id="myCardCode" class="sub-code">---</div>
+            <div class="flex justify-between items-center mt-3">
+              <span id="myCardStatusBadge" class="badge badge-green">نشط</span>
+              <span style="font-size:11px;color:rgba(255,255,255,0.5)">ينتهي: <span id="myCardExpiry">---</span></span>
+            </div>
+          </div>
+          <div id="myPackageSessionCard" class="hidden g-card g-card-p mb-2">
+            <div class="sec-title">الجلسة الحالية</div>
+            <div class="grid-3" style="gap:8px">
+              <div style="text-align:center"><div style="font-size:10px;color:var(--text-muted);font-weight:700">بدأت</div><div style="font-weight:900;font-size:13px" id="myPackageSessionStart">--:--</div></div>
+              <div style="text-align:center"><div style="font-size:10px;color:var(--text-muted);font-weight:700">المدة</div><div style="font-weight:900;font-size:13px;font-family:'IBM Plex Mono'" id="myPackageSessionElapsed">--:--</div></div>
+              <div style="text-align:center"><div style="font-size:10px;color:var(--text-muted);font-weight:700">التكلفة</div><div style="font-weight:900;font-size:13px;color:var(--accent)" id="myPackageSessionCost">0 ج</div></div>
+            </div>
+          </div>
+          <div class="g-card g-card-p">
+            <div style="font-size:11px;font-weight:700;color:var(--text-muted);margin-bottom:6px">الكوتا المستخدمة</div>
+            <div id="myCardUsedGB" style="font-size:13px;font-weight:700;color:var(--text)">0 GB / 0 GB</div>
+            <div class="quota-bar"><div id="myCardQuotaBar" class="quota-fill" style="width:0%"></div></div>
+            <div class="flex justify-between mt-1">
+              <span style="font-size:11px;color:var(--text-muted)">متبقي: <span id="myCardRemainGB" style="color:var(--green);font-weight:800">0 GB</span></span>
+              <span id="myCardDeviceText" style="font-size:10px;color:var(--text-muted)"></span>
+            </div>
+            <div style="font-size:11px;font-weight:700;color:var(--text-muted);margin-top:8px">مُستخدم إجمالاً: <span id="myCardUsedGBStat" style="color:var(--brand);font-weight:900">0 GB</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
 
-  /* ── Phone input logic ── */
-  function onPhoneInput(val) {
-    const hasAccount = document.getElementById('hasAccount').checked;
-    const banner = document.getElementById('newUserBanner');
-    if (!hasAccount && val.length >= 10) {
-      banner.classList.add('visible');
-    } else {
-      banner.classList.remove('visible');
-    }
-  }
+    <!-- Subscriptions Tab -->
+    <div class="tab-panel hidden" id="client-subscriptions">
+      <div id="clientSubsList" class="space-y-3 mb-3"></div>
+      <div class="g-card g-card-p">
+        <div class="sec-title">سجل الاشتراكات</div>
+        <div id="clientSubsHistory" class="space-y-2"></div>
+      </div>
+      <button class="btn btn-accent btn-full mt-3" onclick="window.showSubscriptionModal()"><i class="fa-solid fa-crown"></i> اشترك الآن</button>
+    </div>
 
-  function onHasAccountChange() {
-    const hasAccount = document.getElementById('hasAccount').checked;
-    const banner = document.getElementById('newUserBanner');
-    if (hasAccount) {
-      banner.classList.remove('visible');
-    } else {
-      const phone = document.getElementById('phoneInput').value;
-      if (phone.length >= 10) banner.classList.add('visible');
-    }
-  }
+    <!-- Notifications Tab -->
+    <div class="tab-panel hidden" id="client-notifications">
+      <div class="flex justify-between items-center mb-3">
+        <div class="sec-title" style="margin-bottom:0">الإشعارات</div>
+        <button class="btn btn-outline btn-sm" onclick="window.refreshNotifications()"><i class="fa-solid fa-rotate-right"></i> تحديث</button>
+      </div>
+      <div id="clientNotifsList" class="space-y-2"></div>
+    </div>
 
-  function toggleHasAccount() {
-    const cb = document.getElementById('hasAccount');
-    cb.checked = !cb.checked;
-    onHasAccountChange();
-  }
+    <!-- History Tab -->
+    <div class="tab-panel hidden" id="client-history">
+      <div class="tbl-wrap">
+        <table class="tbl">
+          <thead><tr><th>التاريخ</th><th>المدة</th><th>المدفوع</th><th>الدفع</th><th>الطلبات</th><th>فاتورة</th></tr></thead>
+          <tbody id="clientHistoryTableList"><tr><td colspan="6" style="text-align:center;padding:24px;color:var(--text-muted)">لا يوجد سجل.</td></tr></tbody>
+        </table>
+      </div>
+    </div>
 
-  /* ── Login handler — delegates to app.js global ── */
-  function handleLogin() {
-    const wifiCode = document.getElementById('wifiCode').value.trim();
-    const phone = document.getElementById('phoneInput').value.trim();
-    const hasAccount = document.getElementById('hasAccount').checked;
-    const name = document.getElementById('nameInput').value.trim();
+    <!-- Prebook Tab -->
+    <div class="tab-panel hidden" id="client-prebook">
+      <div class="g-card g-card-p mb-3">
+        <div class="sec-title"><i class="fa-solid fa-calendar-plus text-accent"></i> حجز مقعد</div>
+        <div class="inp-group"><label class="inp-label">موعد الحجز</label><input id="internalPbTime" type="datetime-local" class="inp"></div>
+        <button class="btn btn-primary btn-full" onclick="window.submitInternalPreBooking('seat')"><i class="fa-solid fa-chair"></i> حجز مقعد</button>
+      </div>
+      <div class="g-card g-card-p" id="roomsAvailableDiv" style="display:none">
+        <div class="sec-title"><i class="fa-solid fa-door-open text-accent"></i> حجز غرفة خاصة</div>
+        <div class="inp-group"><label class="inp-label">ملاحظات</label><input id="roomBookNote" type="text" class="inp" placeholder="أي تفاصيل للإدارة..."></div>
+        <input type="hidden" id="roomBookPhone">
+        <button class="btn btn-accent btn-full" onclick="window.submitRoomBooking()"><i class="fa-solid fa-door-closed"></i> طلب غرفة</button>
+      </div>
+      <div class="g-card g-card-p" id="roomsUnavailableDiv">
+        <div style="text-align:center;padding:16px">
+          <i class="fa-solid fa-door-closed" style="font-size:28px;color:#d1d5db;margin-bottom:8px;display:block"></i>
+          <p style="font-size:13px;font-weight:700;color:var(--text-muted)">الغرف الخاصة غير متاحة حالياً</p>
+        </div>
+      </div>
+    </div>
 
-    if (!wifiCode) { showToast('أدخل كود كارت الواي فاي أولاً', 'error'); return; }
-    if (!phone || phone.length < 10) { showToast('أدخل رقم موبايل صحيح (10 أرقام)', 'error'); return; }
-    if (!hasAccount && !name) { showToast('أدخل اسمك الكريم للتسجيل لأول مرة', 'error'); return; }
+    <!-- Ads/Events Tab -->
+    <div class="tab-panel hidden" id="client-ads">
+      <div id="adsCardsWrap" class="mb-3 space-y-3"></div>
+      <div id="eventsCardsWrap" class="grid-2"></div>
+    </div>
 
-    /* Bridge to app.js: populate original inputs and call existing handler */
-    const mapAndCall = () => {
-      const loginPhone = document.getElementById('loginPhone');
-      const loginCode = document.getElementById('loginWifiCode');
-      const loginName = document.getElementById('loginName');
-      const loginHasAccount = document.getElementById('loginHasAccount');
+    <!-- Remote Tab -->
+    <div class="tab-panel hidden" id="client-remote">
+      <div class="g-card g-card-p">
+        <div id="remoteProfileContent">
+          <div style="text-align:center;padding:24px">
+            <i class="fa-solid fa-user-clock" style="font-size:32px;color:#d1d5db;margin-bottom:8px;display:block"></i>
+            <p style="font-size:13px;font-weight:700;color:var(--text-muted)">جاري تحميل ملفك...</p>
+          </div>
+        </div>
+      </div>
+    </div>
 
-      if (loginPhone) loginPhone.value = phone;
-      if (loginCode)  loginCode.value  = wifiCode;
-      if (loginName)  loginName.value  = name;
-      if (loginHasAccount) loginHasAccount.checked = hasAccount;
+  </div><!-- /view-wrap -->
+  <!-- Client bottom nav -->
+  <nav id="navClient" style="position:fixed;bottom:10px;left:10px;right:10px;z-index:90;display:flex;align-items:center;justify-content:space-around;background:rgba(28,10,46,0.95);backdrop-filter:blur(12px);border:1px solid rgba(240,106,0,0.2);border-radius:16px;padding:8px 4px;box-shadow:0 8px 32px rgba(28,10,46,0.3)">
+    <button style="display:flex;flex-direction:column;align-items:center;gap:3px;font-family:'Cairo',sans-serif;font-size:10px;font-weight:800;color:rgba(255,255,255,0.5);background:none;border:none;cursor:pointer;padding:4px 10px;border-radius:10px" onclick="window.switchClientTab('session')"><i class="fa-solid fa-hourglass-half" style="font-size:17px;color:var(--accent)"></i>الجلسة</button>
+    <button style="display:flex;flex-direction:column;align-items:center;gap:3px;font-family:'Cairo',sans-serif;font-size:10px;font-weight:800;color:rgba(255,255,255,0.5);background:none;border:none;cursor:pointer;padding:4px 10px;border-radius:10px" onclick="window.switchClientTab('internet')"><i class="fa-solid fa-wifi" style="font-size:17px;color:rgba(255,255,255,0.5)"></i>الإنترنت</button>
+    <button style="display:flex;flex-direction:column;align-items:center;gap:3px;font-family:'Cairo',sans-serif;font-size:10px;font-weight:800;color:rgba(255,255,255,0.5);background:none;border:none;cursor:pointer;padding:4px 10px;border-radius:10px" onclick="window.openClientChat()"><i class="fa-solid fa-comment-dots" style="font-size:17px;color:rgba(255,255,255,0.5)"></i>شات</button>
+    <button style="display:flex;flex-direction:column;align-items:center;gap:3px;font-family:'Cairo',sans-serif;font-size:10px;font-weight:800;color:rgba(255,255,255,0.5);background:none;border:none;cursor:pointer;padding:4px 10px;border-radius:10px" onclick="window.switchClientTab('subscriptions')"><i class="fa-solid fa-crown" style="font-size:17px;color:rgba(255,255,255,0.5)"></i>اشتراكي</button>
+    <button style="display:flex;flex-direction:column;align-items:center;gap:3px;font-family:'Cairo',sans-serif;font-size:10px;font-weight:800;color:rgba(255,255,255,0.5);background:none;border:none;cursor:pointer;padding:4px 10px;border-radius:10px" onclick="window.showCheckoutModal()"><i class="fa-solid fa-receipt" style="font-size:17px;color:rgba(255,255,255,0.5)"></i>الحساب</button>
+  </nav>
+</div>
 
-      localStorage.setItem('hola_inside_workspace', '1');
+<!-- ════════════════════════════════════════════════
+     ADMIN VIEW
+════════════════════════════════════════════════ -->
+<div id="viewAdmin" style="display:none">
+  <div class="view-wrap">
+    <!-- Admin Header -->
+    <div class="admin-header-bar">
+      <div>
+        <div class="admin-title"><i class="fa-solid fa-shield-halved" style="color:var(--accent);margin-left:6px"></i> لوحة التحكم</div>
+        <div class="admin-sub">مرحباً، <span id="adminWelcomeName">مدير النظام</span></div>
+      </div>
+      <div style="display:flex;gap:8px;align-items:center">
+        <button class="btn btn-sm" style="background:rgba(255,255,255,0.1);color:#fff;border:1px solid rgba(255,255,255,0.15)" onclick="window.showEndDaySummary()"><i class="fa-solid fa-chart-pie"></i> تقرير اليوم</button>
+        <button class="btn btn-sm" style="background:rgba(240,106,0,0.2);color:var(--accent-light);border:1px solid rgba(240,106,0,0.3)" onclick="window.showAdminManualSubModal()"><i class="fa-solid fa-plus"></i> اشتراك يدوي</button>
+      </div>
+    </div>
 
-      if (window.handleLogin) {
-        window.handleLogin();
-      } else {
-        showToast('تم تسجيل البيانات بنجاح!', 'success');
-      }
-    };
+    <!-- Admin Stats -->
+    <div class="admin-stats" id="adminStatsRow">
+      <div class="a-stat purple">
+        <div class="a-stat-val" id="adminActiveSessions">0</div>
+        <div class="a-stat-lbl"><span class="live-dot" style="margin-left:4px"></span> جلسات نشطة</div>
+      </div>
+      <div class="a-stat orange">
+        <div class="a-stat-val" id="adminPendingOrders">0</div>
+        <div class="a-stat-lbl">طلبات معلقة</div>
+      </div>
+      <div class="a-stat green">
+        <div class="a-stat-val" id="adminTodayTotalCash">0</div>
+        <div class="a-stat-lbl">إيرادات اليوم (ج)</div>
+      </div>
+      <div class="a-stat red">
+        <div class="a-stat-val" id="adminTodayTotalUsers">0</div>
+        <div class="a-stat-lbl">جلسات مكتملة اليوم</div>
+      </div>
+    </div>
 
-    mapAndCall();
-  }
+    <!-- Admin Tabs -->
+    <div class="tabs-bar mb-3" id="adminTabsContainer">
+      <button class="tab-btn active" id="tab-live" onclick="window.switchAdminTab('live')"><i class="fa-solid fa-circle-dot" style="color:#22c55e"></i> مباشر</button>
+      <button class="tab-btn" id="tab-cards" onclick="window.switchAdminTab('cards')"><span id="adminCardsBadge" class="hidden badge badge-orange" style="margin-left:4px">!</span><i class="fa-solid fa-sim-card"></i> الكروت</button>
+      <button class="tab-btn" id="tab-subscriptions" onclick="window.switchAdminTab('subscriptions')"><span id="adminSubsBadge" class="hidden badge badge-red" style="margin-left:4px">!</span><i class="fa-solid fa-crown"></i> الاشتراكات</button>
+      <button class="tab-btn" id="tab-bookings" onclick="window.switchAdminTab('bookings')"><i class="fa-solid fa-calendar-check"></i> الحجوزات</button>
+      <button class="tab-btn" id="tab-history" onclick="window.switchAdminTab('history')"><i class="fa-solid fa-clock-rotate-left"></i> السجل</button>
+      <button class="tab-btn" id="tab-users" onclick="window.switchAdminTab('users')"><i class="fa-solid fa-users"></i> العملاء</button>
+      <button class="tab-btn" id="tab-chat" onclick="window.switchAdminTab('chat')"><i class="fa-solid fa-comments"></i> الشات<span id="adminChatBadge" class="hidden" style="width:8px;height:8px;background:#ef4444;border-radius:50%;display:inline-block;margin-right:4px"></span></button>
+      <button class="tab-btn" id="tab-menu" onclick="window.switchAdminTab('menu')"><i class="fa-solid fa-utensils"></i> المنيو</button>
+      <button class="tab-btn" id="tab-events" onclick="window.switchAdminTab('events')"><i class="fa-solid fa-masks-theater"></i> الفعاليات</button>
+      <button class="tab-btn" id="tab-settings" onclick="window.switchAdminTab('settings')"><i class="fa-solid fa-gear"></i> الإعدادات</button>
+    </div>
 
-  /* ── Guest mode ── */
-  function enterGuest() {
-    if (localStorage.getItem('hola_inside_workspace') !== '1') {
-      showToast('وضع الضيف يتطلب التواجد داخل المكان', 'error');
-      return;
-    }
-    if (window.enterGuestMode) window.enterGuestMode();
-    else showToast('الدخول كضيف بصلاحيات محدودة', 'info');
-  }
+    <!-- ── LIVE TAB ── -->
+    <div class="tab-panel admin-tab-content active" id="admin-live">
+      <div style="display:grid;gap:12px" class="md-grid-2">
+        <!-- Active Sessions -->
+        <div class="g-card">
+          <div style="padding:16px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between">
+            <div class="sec-title" style="margin-bottom:0"><span class="live-dot" style="margin-left:6px"></span> الجلسات النشطة</div>
+          </div>
+          <div id="adminLiveSessionCards" style="padding:12px;display:grid;gap:8px">
+            <div id="adminNoSessions" style="text-align:center;padding:24px;color:var(--text-muted)">
+              <i class="fa-solid fa-couch" style="font-size:28px;margin-bottom:8px;display:block;color:#d1d5db"></i>
+              <p style="font-size:13px;font-weight:700">لا يوجد جلسات نشطة</p>
+            </div>
+            <div id="adminLiveSessionCards_inner" style="display:contents"></div>
+          </div>
+          <!-- Legacy table for js compatibility -->
+          <table class="tbl hidden"><tbody id="adminSessionsList"></tbody></table>
+        </div>
+        <!-- Orders -->
+        <div class="g-card">
+          <div style="padding:16px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between">
+            <div class="sec-title" style="margin-bottom:0"><i class="fa-solid fa-bell text-accent" style="margin-left:6px"></i> الطلبات المعلقة</div>
+          </div>
+          <div id="adminGroupedAlertsList" style="padding:12px;display:grid;gap:8px">
+            <p style="text-align:center;padding:24px;color:var(--text-muted);font-size:13px;font-weight:700">لا توجد طلبات معلقة</p>
+          </div>
+        </div>
+      </div>
+      <!-- Today completed -->
+      <div class="g-card mt-3">
+        <div style="padding:16px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between">
+          <div class="sec-title" style="margin-bottom:0"><i class="fa-solid fa-check-circle text-green" style="margin-left:6px"></i> مكتملة اليوم</div>
+          <button class="btn btn-sm btn-outline" onclick="window.exportTableToCSV('adminTodayTable','today-sessions')"><i class="fa-solid fa-download"></i> تصدير</button>
+        </div>
+        <div class="tbl-wrap" style="border:none;border-radius:0">
+          <table class="tbl" id="adminTodayTable">
+            <thead><tr><th>العميل</th><th>المدة</th><th>المدفوع</th><th>الدفع</th><th>الطلبات</th></tr></thead>
+            <tbody id="adminTodayCompletedList"><tr><td colspan="5" style="text-align:center;padding:16px;color:var(--text-muted);font-size:12px">لا يوجد</td></tr></tbody>
+          </table>
+        </div>
+      </div>
+      <!-- Multi-admin & remote users -->
+      <div style="display:grid;gap:12px;margin-top:12px" class="md-grid-2">
+        <div class="g-card g-card-p">
+          <div class="sec-title"><i class="fa-solid fa-shield text-accent"></i> المسؤولون النشطون</div>
+          <div id="activeAdminSessionsList"><p style="font-size:12px;color:var(--text-muted);text-align:center;padding:12px">لا يوجد</p></div>
+        </div>
+        <div class="g-card g-card-p">
+          <div class="sec-title"><i class="fa-solid fa-globe text-accent"></i> المستخدمون البعيدون</div>
+          <div id="adminRemoteUsersList"><p style="font-size:12px;color:var(--text-muted);text-align:center;padding:12px">لا يوجد</p></div>
+        </div>
+      </div>
+    </div>
 
-  /* ── Remote login ── */
-  function handleRemoteLogin() {
-    const phone = document.getElementById('remotePhone').value.trim();
-    if (!phone || phone.length < 10) { showToast('أدخل رقم هاتفك المسجّل', 'error'); return; }
-    if (window.handleRemoteLogin) {
-      window.handleRemoteLogin();
-    } else {
-      showToast('جاري البحث عن ملفك...', 'info');
-    }
-  }
+    <!-- ── CARDS TAB ── -->
+    <div class="tab-panel admin-tab-content hidden" id="admin-cards">
+      <div class="g-card g-card-p mb-3">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;flex-wrap:wrap;gap:10px">
+          <div class="sec-title" style="margin-bottom:0"><i class="fa-solid fa-sim-card text-accent"></i> كروت الإنترنت</div>
+          <div style="display:flex;gap:8px">
+            <button class="btn btn-accent btn-sm" onclick="window.showGenerateCardsModal()"><i class="fa-solid fa-plus"></i> توليد كروت</button>
+            <button class="btn btn-outline btn-sm" onclick="window.printAllCards()"><i class="fa-solid fa-print"></i> طباعة الكل</button>
+          </div>
+        </div>
+        <!-- Stats -->
+        <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:14px">
+          <div class="a-stat green"><div class="a-stat-val" id="cardStatActive">0</div><div class="a-stat-lbl">نشط</div></div>
+          <div class="a-stat" style="border-top-color:#d97706"><div class="a-stat-val" style="color:#d97706" id="cardStatSuspended">0</div><div class="a-stat-lbl">موقوف</div></div>
+          <div class="a-stat red"><div class="a-stat-val" id="cardStatExpired">0</div><div class="a-stat-lbl">منتهي</div></div>
+          <div class="a-stat purple"><div class="a-stat-val" id="cardStatTotal">0</div><div class="a-stat-lbl">الإجمالي</div></div>
+        </div>
+        <!-- Filters -->
+        <div style="display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap">
+          <select id="cardFilterStatus" class="inp" style="flex:1;min-width:120px" onchange="window.filterAdminCards()">
+            <option value="all">جميع الحالات</option>
+            <option value="active">نشط</option>
+            <option value="suspended">موقوف</option>
+            <option value="expired">منتهي</option>
+            <option value="inactive">غير نشط</option>
+          </select>
+          <input id="cardSearchInput" type="text" class="inp" style="flex:2;min-width:160px" placeholder="بحث بالكود..." oninput="window.filterAdminCards()">
+        </div>
+      </div>
+      <div class="tbl-wrap">
+        <table class="tbl" id="adminCardsTable">
+          <thead><tr><th>الكود</th><th>الحالة</th><th>الاستهلاك</th><th>ينتهي</th><th>الجهاز</th><th>إجراء</th></tr></thead>
+          <tbody id="adminCardsList"><tr><td colspan="6" style="text-align:center;padding:24px;color:var(--text-muted)">جاري التحميل...</td></tr></tbody>
+        </table>
+      </div>
+    </div>
 
-  /* ── Pre-booking ── */
-  function showPrebook() { showStep('step2'); }
+    <!-- ── SUBSCRIPTIONS TAB ── -->
+    <div class="tab-panel admin-tab-content hidden" id="admin-subscriptions">
+      <div style="display:grid;gap:12px">
+        <!-- Pending -->
+        <div class="g-card">
+          <div style="padding:16px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between">
+            <div class="sec-title" style="margin-bottom:0"><i class="fa-solid fa-clock text-accent"></i> طلبات معلقة</div>
+            <button class="btn btn-accent btn-sm" onclick="window.showAddPlanModal()"><i class="fa-solid fa-plus"></i> باقة جديدة</button>
+          </div>
+          <div class="tbl-wrap" style="border:none;border-radius:0">
+            <table class="tbl"><thead><tr><th>الاسم</th><th>الهاتف</th><th>الباقة</th><th>التاريخ</th><th>إجراء</th></tr></thead>
+            <tbody id="adminPendingSubsList"><tr><td colspan="5" style="text-align:center;padding:16px;color:var(--text-muted);font-size:12px">لا توجد طلبات</td></tr></tbody></table>
+          </div>
+        </div>
+        <!-- Active -->
+        <div class="g-card">
+          <div style="padding:16px;border-bottom:1px solid var(--border)">
+            <div class="sec-title" style="margin-bottom:0"><i class="fa-solid fa-check-circle text-green"></i> الاشتراكات النشطة</div>
+          </div>
+          <div class="tbl-wrap" style="border:none;border-radius:0">
+            <table class="tbl"><thead><tr><th>الاسم</th><th>الهاتف</th><th>الباقة</th><th>الكود</th><th>الأيام</th><th>ينتهي</th><th>إجراء</th></tr></thead>
+            <tbody id="adminActiveSubsList"><tr><td colspan="7" style="text-align:center;padding:16px;color:var(--text-muted);font-size:12px">لا توجد اشتراكات</td></tr></tbody></table>
+          </div>
+        </div>
+        <!-- Plans -->
+        <div class="g-card g-card-p">
+          <div class="sec-title"><i class="fa-solid fa-layer-group text-accent"></i> الباقات المتاحة</div>
+          <div id="adminPlansList" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:10px"></div>
+        </div>
+      </div>
+    </div>
 
-  function submitPrebook() {
-    const name = document.getElementById('pbName').value.trim();
-    const phone = document.getElementById('pbPhone').value.trim();
-    const time = document.getElementById('pbTime').value;
+    <!-- ── BOOKINGS TAB ── -->
+    <div class="tab-panel admin-tab-content hidden" id="admin-bookings">
+      <div style="display:grid;gap:12px">
+        <div class="g-card">
+          <div style="padding:16px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center">
+            <div class="sec-title" style="margin-bottom:0"><i class="fa-solid fa-calendar-check text-accent"></i> الحجوزات المعلقة</div>
+          </div>
+          <div class="tbl-wrap" style="border:none;border-radius:0">
+            <table class="tbl"><thead><tr><th>الاسم</th><th>الهاتف</th><th>الموعد</th><th>إجراء</th></tr></thead>
+            <tbody id="adminPreBookingsList"><tr><td colspan="4" style="text-align:center;padding:16px;color:var(--text-muted)">لا يوجد</td></tr></tbody></table>
+          </div>
+        </div>
+        <div class="g-card">
+          <div style="padding:16px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center">
+            <div class="sec-title" style="margin-bottom:0"><i class="fa-solid fa-archive text-accent"></i> الأرشيف</div>
+            <button class="btn btn-danger btn-sm" onclick="window.deleteAllArchivedBookings()"><i class="fa-solid fa-trash"></i> مسح</button>
+          </div>
+          <div class="tbl-wrap" style="border:none;border-radius:0">
+            <table class="tbl"><thead><tr><th>الاسم</th><th>الهاتف</th><th>الموعد</th><th>الحالة</th></tr></thead>
+            <tbody id="adminArchivedPreBookingsList"><tr><td colspan="4" style="text-align:center;padding:16px;color:var(--text-muted)">لا يوجد</td></tr></tbody></table>
+          </div>
+        </div>
+        <div class="g-card">
+          <div style="padding:16px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center">
+            <div class="sec-title" style="margin-bottom:0"><i class="fa-solid fa-masks-theater text-accent"></i> حضور الفعاليات</div>
+            <button class="btn btn-danger btn-sm" onclick="window.clearEventAttendees()"><i class="fa-solid fa-trash"></i> مسح</button>
+          </div>
+          <div class="tbl-wrap" style="border:none;border-radius:0">
+            <table class="tbl"><thead><tr><th>الاسم</th><th>الهاتف</th><th>التاريخ</th><th>إجراء</th></tr></thead>
+            <tbody id="adminEventAttendeesList"><tr><td colspan="4" style="text-align:center;padding:16px;color:var(--text-muted)">لا يوجد</td></tr></tbody></table>
+          </div>
+        </div>
+      </div>
+    </div>
 
-    if (!name) { showToast('أدخل اسمك بالكامل', 'error'); return; }
-    if (!phone || phone.length < 10) { showToast('أدخل رقم موبايل صحيح', 'error'); return; }
-    if (!time) { showToast('اختر موعد الوصول', 'error'); return; }
+    <!-- ── HISTORY TAB ── -->
+    <div class="tab-panel admin-tab-content hidden" id="admin-history">
+      <div class="g-card">
+        <div style="padding:16px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px">
+          <div class="sec-title" style="margin-bottom:0"><i class="fa-solid fa-clock-rotate-left text-accent"></i> سجل الجلسات</div>
+          <div style="display:flex;gap:8px">
+            <button class="btn btn-outline btn-sm" onclick="window.exportTableToCSV('adminHistoryTable','sessions-history')"><i class="fa-solid fa-download"></i> تصدير</button>
+            <button class="btn btn-danger btn-sm" onclick="window.deleteAllHistory()"><i class="fa-solid fa-trash"></i> مسح الكل</button>
+          </div>
+        </div>
+        <div class="tbl-wrap" style="border:none;border-radius:0">
+          <table class="tbl" id="adminHistoryTable">
+            <thead><tr><th>العميل</th><th>التاريخ</th><th>المسؤول</th><th>المدة</th><th>المدفوع</th><th>الدفع</th><th>فاتورة</th></tr></thead>
+            <tbody id="adminHistoryList"><tr><td colspan="7" style="text-align:center;padding:16px;color:var(--text-muted)">لا يوجد</td></tr></tbody>
+          </table>
+        </div>
+      </div>
+      <!-- Operations Log -->
+      <div class="g-card mt-3">
+        <div style="padding:16px;border-bottom:1px solid var(--border)">
+          <div class="sec-title" style="margin-bottom:0"><i class="fa-solid fa-list-check text-accent"></i> سجل العمليات</div>
+        </div>
+        <div class="tbl-wrap" style="border:none;border-radius:0">
+          <table class="tbl"><thead><tr><th>الوقت</th><th>المسؤول</th><th>العملية</th><th>التفاصيل</th></tr></thead>
+          <tbody id="adminOperationsList"><tr><td colspan="4" style="text-align:center;padding:16px;color:var(--text-muted)">لا يوجد</td></tr></tbody></table>
+        </div>
+      </div>
+    </div>
 
-    if (window.submitPreBooking) {
-      /* Populate original fields */
-      const pbN = document.getElementById('pbName'); // same id — no duplication needed
-      window.submitPreBooking();
-    } else {
-      /* Standalone feedback */
-      document.querySelector('#step2 .form-body > *:not(#prebookFeedback)').forEach?.(el => el.style.display = 'none');
-      document.getElementById('prebookFeedback').classList.add('visible');
-      showToast('تم استلام حجزك بنجاح!', 'success');
-    }
-  }
+    <!-- ── USERS TAB ── -->
+    <div class="tab-panel admin-tab-content hidden" id="admin-users">
+      <div class="g-card mb-3">
+        <div style="padding:16px;border-bottom:1px solid var(--border)">
+          <div class="sec-title" style="margin-bottom:0"><i class="fa-solid fa-users text-accent"></i> العملاء المسجلون</div>
+        </div>
+        <div class="tbl-wrap" style="border:none;border-radius:0">
+          <table class="tbl"><thead><tr><th>الاسم</th><th>الهاتف</th><th>الأختام</th><th>المحفظة</th><th>إجراء</th></tr></thead>
+          <tbody id="adminUsersList"><tr><td colspan="5" style="text-align:center;padding:16px;color:var(--text-muted)">جاري التحميل...</td></tr></tbody></table>
+        </div>
+      </div>
+      <div class="g-card">
+        <div style="padding:16px;border-bottom:1px solid var(--border)">
+          <div class="sec-title" style="margin-bottom:0"><i class="fa-solid fa-ban text-red"></i> الأرقام المحظورة</div>
+        </div>
+        <div class="tbl-wrap" style="border:none;border-radius:0">
+          <table class="tbl"><thead><tr><th>الهاتف</th><th>التاريخ</th><th>السبب</th><th>إجراء</th></tr></thead>
+          <tbody id="adminBannedList"><tr><td colspan="4" style="text-align:center;padding:16px;color:var(--text-muted)">لا يوجد</td></tr></tbody></table>
+        </div>
+      </div>
+    </div>
 
-  /* ── Quick book ── */
-  function showQuickBook() {
-    if (window.showQuickBookModal) window.showQuickBookModal();
-    else showToast('الحجز السريع متاح بعد 2 مرات يومياً فقط', 'info');
-  }
+    <!-- ── CHAT TAB ── -->
+    <div class="tab-panel admin-tab-content hidden" id="admin-chat">
+      <div style="display:grid;gap:12px;grid-template-columns:1fr 2fr">
+        <div class="g-card" style="height:500px;display:flex;flex-direction:column">
+          <div style="padding:14px;border-bottom:1px solid var(--border)">
+            <div class="sec-title" style="margin-bottom:0"><i class="fa-solid fa-users text-accent"></i> المحادثات</div>
+          </div>
+          <div id="adminChatUsersList" style="flex:1;overflow-y:auto;padding:10px;display:grid;gap:6px;align-content:start"></div>
+        </div>
+        <div class="g-card" style="height:500px;display:flex;flex-direction:column">
+          <div style="padding:14px;border-bottom:1px solid var(--border)">
+            <div class="sec-title" style="margin-bottom:0" id="adminChatHeader"><i class="fa-solid fa-headset text-accent"></i> اختر محادثة</div>
+          </div>
+          <div id="adminChatMessages" style="flex:1;overflow-y:auto;padding:14px;display:flex;flex-direction:column;gap:8px"></div>
+          <div style="padding:12px;border-top:1px solid var(--border);display:flex;gap:8px">
+            <input id="adminChatInput" type="text" class="inp" style="flex:1" placeholder="اكتب رداً..." disabled onkeydown="if(event.key==='Enter')window.sendAdminMessage()">
+            <button id="adminChatBtn" class="btn btn-accent" onclick="window.sendAdminMessage()" disabled><i class="fa-solid fa-paper-plane"></i></button>
+          </div>
+        </div>
+      </div>
+    </div>
 
-  /* ── Keyboard: Enter submits ── */
-  document.addEventListener('keydown', (e) => {
-    if (e.key !== 'Enter') return;
-    const active = document.querySelector('.step.active');
-    if (!active) return;
-    if (active.id === 'step1') handleLogin();
-    if (active.id === 'step2') submitPrebook();
-    if (active.id === 'step3') handleRemoteLogin();
+    <!-- ── MENU TAB ── -->
+    <div class="tab-panel admin-tab-content hidden" id="admin-menu">
+      <div class="g-card g-card-p mb-3">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
+          <div class="sec-title" style="margin-bottom:0"><i class="fa-solid fa-utensils text-accent"></i> عناصر المنيو</div>
+          <button class="btn btn-accent btn-sm" onclick="window.showMenuModal()"><i class="fa-solid fa-plus"></i> إضافة</button>
+        </div>
+        <div id="adminMenuList" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px"></div>
+      </div>
+      <div class="g-card g-card-p">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
+          <div class="sec-title" style="margin-bottom:0"><i class="fa-solid fa-ticket text-accent"></i> أكواد الخصم</div>
+          <button class="btn btn-accent btn-sm" onclick="window.showDiscountModal()"><i class="fa-solid fa-plus"></i> كود جديد</button>
+        </div>
+        <div class="tbl-wrap">
+          <table class="tbl"><thead><tr><th>الكود</th><th>القيمة</th><th>مخصص لـ</th><th>الحالة</th><th>حذف</th></tr></thead>
+          <tbody id="adminDiscountsList"></tbody></table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── EVENTS TAB ── -->
+    <div class="tab-panel admin-tab-content hidden" id="admin-events">
+      <div class="g-card g-card-p mb-3">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;flex-wrap:wrap;gap:8px">
+          <div class="sec-title" style="margin-bottom:0"><i class="fa-solid fa-masks-theater text-accent"></i> الفعاليات <span id="currentEvSlotLabel">(1)</span></div>
+          <div style="display:flex;gap:6px">
+            <button class="ev-slot-btn btn btn-primary btn-sm" onclick="window.switchEventSlot(1)">1</button>
+            <button class="ev-slot-btn btn btn-outline btn-sm" onclick="window.switchEventSlot(2)">2</button>
+            <button class="ev-slot-btn btn btn-outline btn-sm" onclick="window.switchEventSlot(3)">3</button>
+          </div>
+        </div>
+        <div class="grid-2">
+          <div class="inp-group"><label class="inp-label">عنوان الفعالية</label><input id="setEvTitle" type="text" class="inp" placeholder="عنوان الفعالية..."></div>
+          <div class="inp-group"><label class="inp-label">رابط الصورة</label><input id="setEvImg" type="text" class="inp" placeholder="https://..."></div>
+          <div class="inp-group"><label class="inp-label">تاريخ الفعالية</label><input id="setEvDate" type="date" class="inp"></div>
+          <div class="inp-group"><label class="inp-label">من الساعة</label><input id="setEvTimeFrom" type="time" class="inp"></div>
+          <div class="inp-group"><label class="inp-label">إلى الساعة</label><input id="setEvTimeTo" type="time" class="inp"></div>
+          <div class="inp-group"><label class="inp-label">كود Embed (اختياري)</label><input id="setEvEmbed" type="text" class="inp" placeholder="iframe code..."></div>
+        </div>
+        <div class="inp-group"><label class="inp-label">وصف الفعالية</label><textarea id="setEvDesc" class="inp" rows="2" placeholder="وصف الفعالية..."></textarea></div>
+        <div style="display:flex;align-items:center;gap:10px;background:#f8f7fc;border:1px solid var(--border);border-radius:10px;padding:10px 14px;margin-bottom:14px">
+          <input type="checkbox" id="setEvActive" style="width:16px;height:16px;accent-color:var(--brand)">
+          <label style="font-size:13px;font-weight:700">تفعيل الفعالية وإظهارها للعملاء</label>
+        </div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+          <button class="btn btn-primary" onclick="window.saveEventSettings()"><i class="fa-solid fa-floppy-disk"></i> حفظ ونشر</button>
+          <button class="btn btn-outline btn-sm" onclick="window.shareEventLink()"><i class="fa-solid fa-share-nodes"></i> مشاركة</button>
+        </div>
+      </div>
+      <div class="g-card g-card-p">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;flex-wrap:wrap;gap:8px">
+          <div class="sec-title" style="margin-bottom:0"><i class="fa-solid fa-hand-paper text-accent"></i> قائمة الحضور</div>
+          <button class="btn btn-danger btn-sm" onclick="window.clearEventAttendees()"><i class="fa-solid fa-trash"></i> مسح الكل</button>
+        </div>
+        <div class="tbl-wrap">
+          <table class="tbl"><thead><tr><th>الاسم</th><th>الهاتف</th><th>التاريخ</th><th>حذف</th></tr></thead>
+          <tbody id="adminEventAttendeesList2"></tbody></table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── SETTINGS TAB ── -->
+    <div class="tab-panel admin-tab-content hidden" id="admin-settings">
+      <div style="display:grid;gap:12px">
+        <!-- Pricing -->
+        <div class="settings-group">
+          <h4><i class="fa-solid fa-coins text-accent" style="margin-left:6px"></i> التسعير والطاقة</h4>
+          <div class="grid-3" style="gap:10px">
+            <div class="inp-group"><label class="inp-label">الساعة الأولى (ج)</label><input id="setT1" type="number" class="inp"></div>
+            <div class="inp-group"><label class="inp-label">الساعة الثانية (ج)</label><input id="setT2" type="number" class="inp"></div>
+            <div class="inp-group"><label class="inp-label">الثالثة+ (ج)</label><input id="setT3" type="number" class="inp"></div>
+          </div>
+          <div class="grid-2" style="gap:10px">
+            <div class="inp-group"><label class="inp-label">الطاقة القصوى</label><input id="setMaxCap" type="number" class="inp"></div>
+            <div class="inp-group"><label class="inp-label">الأختام المطلوبة</label><input id="setStampsReq" type="number" class="inp"></div>
+          </div>
+        </div>
+        <!-- Location -->
+        <div class="settings-group">
+          <h4><i class="fa-solid fa-location-dot text-accent" style="margin-left:6px"></i> الموقع الجغرافي</h4>
+          <div class="grid-3" style="gap:10px">
+            <div class="inp-group"><label class="inp-label">خط العرض (Lat)</label><input id="setLat" type="number" step="any" class="inp"></div>
+            <div class="inp-group"><label class="inp-label">خط الطول (Lng)</label><input id="setLng" type="number" step="any" class="inp"></div>
+            <div class="inp-group"><label class="inp-label">النطاق (متر)</label><input id="setRadius" type="number" class="inp"></div>
+          </div>
+        </div>
+        <!-- Payment -->
+        <div class="settings-group">
+          <h4><i class="fa-solid fa-wallet text-accent" style="margin-left:6px"></i> الدفع الإلكتروني</h4>
+          <div class="grid-2" style="gap:10px">
+            <div class="inp-group"><label class="inp-label">رقم VF كاش</label><input id="setVfNumber" type="text" class="inp" dir="ltr"></div>
+            <div class="inp-group"><label class="inp-label">اسم المستفيد VF</label><input id="setVfName" type="text" class="inp"></div>
+          </div>
+          <div class="inp-group"><label class="inp-label">رابط InstaPay</label><input id="setInstapayLink" type="text" class="inp" dir="ltr"></div>
+        </div>
+        <!-- Social -->
+        <div class="settings-group">
+          <h4><i class="fa-brands fa-facebook text-accent" style="margin-left:6px"></i> التواصل الاجتماعي</h4>
+          <div class="grid-2" style="gap:10px">
+            <div class="inp-group"><label class="inp-label">صفحة Facebook</label><input id="setFbPageLink" type="text" class="inp" dir="ltr"></div>
+            <div class="inp-group"><label class="inp-label">واتساب</label><input id="setWhatsappNum" type="text" class="inp" dir="ltr"></div>
+          </div>
+        </div>
+        <!-- Promo -->
+        <div class="settings-group">
+          <h4><i class="fa-solid fa-rectangle-ad text-accent" style="margin-left:6px"></i> الإعلانات والترويج</h4>
+          <div class="inp-group"><label class="inp-label">صورة الإعلان</label><input id="setPromoImg" type="text" class="inp" dir="ltr" placeholder="https://..."></div>
+          <div class="inp-group"><label class="inp-label">نص الإعلان</label><input id="setPromoText" type="text" class="inp" placeholder="نص الإعلان..."></div>
+          <div class="inp-group"><label class="inp-label">رابط الإعلان</label><input id="setPromoLink" type="text" class="inp" dir="ltr"></div>
+          <div class="inp-group"><label class="inp-label">Embed Code</label><textarea id="setPromoEmbed" class="inp" rows="2" placeholder="كود مدمج من فيسبوك أو يوتيوب..."></textarea></div>
+        </div>
+        <!-- Text & Rooms -->
+        <div class="settings-group">
+          <h4><i class="fa-solid fa-pen text-accent" style="margin-left:6px"></i> نصوص وخيارات</h4>
+          <div class="inp-group"><label class="inp-label">وصف التسعير</label><textarea id="settingDescription" class="inp" rows="2"></textarea></div>
+          <div class="inp-group"><label class="inp-label">نص برنامج الأختام</label><input id="settingLoyaltyText" type="text" class="inp"></div>
+          <div style="display:flex;align-items:center;gap:10px;background:#f8f7fc;border:1px solid var(--border);border-radius:10px;padding:10px 14px;margin-bottom:14px">
+            <input type="checkbox" id="setRoomsActive" style="width:16px;height:16px;accent-color:var(--brand)">
+            <label style="font-size:13px;font-weight:700">تفعيل نظام الغرف الخاصة</label>
+          </div>
+        </div>
+        <!-- Security -->
+        <div class="settings-group">
+          <h4><i class="fa-solid fa-lock text-accent" style="margin-left:6px"></i> الأمان</h4>
+          <div class="inp-group"><label class="inp-label">كلمة مرور الإدارة</label><input id="settingAdminPin" type="password" class="inp"></div>
+        </div>
+        <!-- Shift Managers -->
+        <div class="settings-group">
+          <h4><i class="fa-solid fa-user-tie text-accent" style="margin-left:6px"></i> مسؤولو الشفتات</h4>
+          <div id="managersList" style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px"></div>
+          <div style="display:flex;gap:8px">
+            <input id="newManagerName" type="text" class="inp" style="flex:1" placeholder="اسم المسؤول الجديد">
+            <button class="btn btn-primary" onclick="window.addShiftManager()"><i class="fa-solid fa-plus"></i></button>
+          </div>
+        </div>
+        <button class="btn btn-accent btn-full" onclick="window.saveSystemSettings()"><i class="fa-solid fa-floppy-disk"></i> حفظ جميع الإعدادات</button>
+      </div>
+    </div>
+
+  </div><!-- /view-wrap -->
+</div>
+
+<!-- ════════════════════════════════════════════════
+     MODALS
+════════════════════════════════════════════════ -->
+
+<!-- Admin Login -->
+<div id="adminLoginModal" class="modal-back hidden">
+  <div class="modal-box">
+    <div class="modal-head">
+      <h3><i class="fa-solid fa-shield-halved" style="margin-left:8px"></i> دخول الإدارة</h3>
+      <button class="modal-close" onclick="document.getElementById('adminLoginModal').classList.add('hidden')"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+    <div class="modal-body">
+      <div class="inp-group"><label class="inp-label">المسؤول</label>
+        <select id="adminShiftName" class="inp"></select>
+      </div>
+      <div class="inp-group"><label class="inp-label">كلمة المرور</label>
+        <input id="adminPinInput" type="password" class="inp" placeholder="••••••" onkeydown="if(event.key==='Enter')window.verifyAdminPin()">
+      </div>
+      <button class="btn btn-primary btn-full" onclick="window.verifyAdminPin()"><i class="fa-solid fa-right-to-bracket"></i> دخول</button>
+    </div>
+  </div>
+</div>
+
+<!-- Checkout -->
+<div id="checkoutModal" class="modal-back hidden">
+  <div class="modal-box">
+    <div class="modal-head">
+      <h3><i class="fa-solid fa-receipt" style="margin-left:8px"></i> إنهاء الجلسة</h3>
+      <button class="modal-close" onclick="window.closeCheckoutModal()"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+    <div class="modal-body">
+      <div style="background:#f8f7fc;border-radius:12px;padding:14px;margin-bottom:14px">
+        <div class="flex justify-between mb-2"><span style="font-size:13px;font-weight:700;color:var(--text-muted)">الوقت</span><span id="modalTime" style="font-weight:900;color:var(--brand)">00:00</span></div>
+        <div class="flex justify-between mb-2"><span style="font-size:13px;font-weight:700;color:var(--text-muted)">تكلفة الوقت</span><span id="modalTimeCost" style="font-weight:900">0 ج</span></div>
+        <div class="flex justify-between mb-2"><span style="font-size:13px;font-weight:700;color:var(--text-muted)">الطلبات</span><span id="modalItemsCost" style="font-weight:900">0 ج</span></div>
+        <div class="flex justify-between" style="border-top:1px solid var(--border);padding-top:8px;margin-top:4px"><span style="font-size:14px;font-weight:800">الإجمالي</span><span id="modalSubTotal" style="font-size:18px;font-weight:900;color:var(--brand)">0 ج</span></div>
+      </div>
+      <div class="inp-group"><label class="inp-label"><i class="fa-solid fa-tag text-accent" style="font-size:10px;margin-left:4px"></i> كود الخصم</label>
+        <div style="display:flex;gap:8px">
+          <input id="discountCode" type="text" class="inp" style="flex:1;font-family:'IBM Plex Mono'" placeholder="كود الخصم">
+          <button class="btn btn-outline" onclick="window.applyDiscountCode()"><i class="fa-solid fa-check"></i></button>
+        </div>
+        <div id="discountMsg" class="hidden" style="margin-top:6px;font-size:12px;font-weight:700;color:var(--green)"></div>
+      </div>
+      <div id="manualWalletDiv" class="hidden inp-group">
+        <label class="inp-label"><i class="fa-solid fa-wallet text-accent" style="font-size:10px;margin-left:4px"></i> خصم من المحفظة (<span id="checkoutWalletBalance">0</span> ج متاح)</label>
+        <input id="walletDeductInput" type="number" class="inp" min="0" value="0" oninput="window.handleWalletInput(this)">
+        <div id="walletError" class="hidden" style="color:var(--red);font-size:11px;font-weight:700;margin-top:4px"></div>
+        <div id="walletDeductionDiv" class="hidden flex justify-between mt-1"><span style="font-size:12px;color:var(--text-muted)">خصم المحفظة</span><span id="modalWalletDeduction" style="font-size:12px;font-weight:800;color:var(--green)">-0 ج</span></div>
+      </div>
+      <div style="background:linear-gradient(135deg,var(--brand),var(--brand-mid));border-radius:12px;padding:14px;text-align:center;margin-bottom:14px">
+        <div style="font-size:12px;color:rgba(255,255,255,0.6);font-weight:700;margin-bottom:4px">المطلوب دفعه</div>
+        <div id="modalFinalRequired" style="font-size:32px;font-weight:900;color:var(--accent-light)" data-sub-total="0" data-deduction="0">0 ج</div>
+      </div>
+      <!-- Payment Methods -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px">
+        <button class="btn btn-success btn-sm" onclick="window.toggleVfPay()"><i class="fa-solid fa-mobile-screen"></i> VF كاش</button>
+        <button class="btn btn-outline btn-sm" onclick="window.openInstapay()"><i class="fa-solid fa-bolt"></i> InstaPay</button>
+      </div>
+      <div id="vfPayDetails" class="hidden" style="background:#fff5eb;border:1px solid rgba(240,106,0,0.2);border-radius:10px;padding:12px;margin-bottom:12px;text-align:center">
+        <div style="font-size:11px;color:var(--text-muted);font-weight:700;margin-bottom:4px">تحويل على رقم</div>
+        <div id="vfPayNum" style="font-family:'IBM Plex Mono';font-size:18px;font-weight:900;color:var(--brand)"></div>
+        <div id="vfPayName" style="font-size:12px;color:var(--text-muted);font-weight:700;margin-top:4px"></div>
+        <div style="font-size:10px;color:var(--text-muted);margin-top:2px;display:none" id="vfPayNumFull"></div>
+      </div>
+      <button class="btn btn-accent btn-full" onclick="window.confirmCheckout()"><i class="fa-solid fa-check-double"></i> تأكيد الإنهاء</button>
+    </div>
+  </div>
+</div>
+
+<!-- Receipt -->
+<div id="clientReceiptModal" class="modal-back hidden">
+  <div class="modal-box">
+    <div class="modal-head" style="background:linear-gradient(135deg,#16a34a,#15803d)">
+      <h3 id="receiptTitle"><i class="fa-solid fa-circle-check" style="margin-left:8px"></i> تم إنهاء الجلسة</h3>
+      <button class="modal-close" onclick="window.closeReceiptModal()"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+    <div class="modal-body">
+      <div style="background:#f8f7fc;border-radius:12px;padding:14px;margin-bottom:14px">
+        <div class="flex justify-between mb-2"><span style="font-size:12px;font-weight:700;color:var(--text-muted)">بدأت</span><span id="receiptStartTime" style="font-weight:700;font-size:13px"></span></div>
+        <div class="flex justify-between mb-2"><span style="font-size:12px;font-weight:700;color:var(--text-muted)">انتهت</span><span id="receiptEndTime" style="font-weight:700;font-size:13px"></span></div>
+        <div class="flex justify-between mb-2"><span style="font-size:12px;font-weight:700;color:var(--text-muted)">المدة</span><span id="receiptDuration" style="font-weight:700;font-size:13px"></span></div>
+        <div class="flex justify-between mb-2"><span style="font-size:12px;font-weight:700;color:var(--text-muted)">الخصم</span><span id="receiptDiscount" style="font-weight:700;color:var(--green);font-size:13px"></span></div>
+        <div class="flex justify-between" style="border-top:1px solid var(--border);padding-top:8px;margin-top:4px"><span style="font-size:14px;font-weight:800">الإجمالي</span><span id="receiptFinalCost" style="font-size:22px;font-weight:900;color:var(--brand)"></span></div>
+      </div>
+      <div id="receiptItemsList" style="font-size:12px;color:var(--text-muted);margin-bottom:14px"></div>
+      <div style="display:flex;gap:8px">
+        <button class="btn btn-outline" style="flex:1" onclick="window.printInvoice(window.lastCompletedSessionId)"><i class="fa-solid fa-print"></i> طباعة فاتورة</button>
+        <button class="btn btn-primary" style="flex:1" onclick="window.closeReceiptModal()"><i class="fa-solid fa-check"></i> حسناً</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Admin Receipt -->
+<div id="adminReceiptModal" class="modal-back hidden">
+  <div class="modal-box">
+    <div class="modal-head">
+      <h3><i class="fa-solid fa-file-invoice" style="margin-left:8px"></i> فاتورة الإدارة</h3>
+      <button class="modal-close" onclick="document.getElementById('adminReceiptModal').classList.add('hidden')"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+    <div class="modal-body">
+      <div style="background:#f8f7fc;border-radius:12px;padding:14px;margin-bottom:14px">
+        <div class="flex justify-between mb-2"><span style="font-size:12px;font-weight:700;color:var(--text-muted)">العميل</span><span id="adminRecName" style="font-weight:900;font-size:13px"></span></div>
+        <div class="flex justify-between mb-2"><span style="font-size:12px;font-weight:700;color:var(--text-muted)">بدأت</span><span id="adminRecStart" style="font-weight:700;font-size:13px"></span></div>
+        <div class="flex justify-between mb-2"><span style="font-size:12px;font-weight:700;color:var(--text-muted)">انتهت</span><span id="adminRecEnd" style="font-weight:700;font-size:13px"></span></div>
+        <div class="flex justify-between mb-2"><span style="font-size:12px;font-weight:700;color:var(--text-muted)">المدة</span><span id="adminRecDuration" style="font-weight:700;font-size:13px"></span></div>
+        <div id="adminRecItems" style="font-size:12px;color:var(--text-muted);border-top:1px solid var(--border);padding-top:8px;margin-top:4px"></div>
+        <div class="flex justify-between mt-2" style="border-top:1px solid var(--border);padding-top:8px"><span style="font-size:14px;font-weight:800">المطلوب</span><span id="adminReceiptFinalCost" style="font-size:22px;font-weight:900;color:var(--accent)"></span></div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px">
+        <button class="btn btn-success btn-sm" onclick="window.setPayment('كاش')"><i class="fa-solid fa-money-bill"></i> كاش</button>
+        <button class="btn btn-outline btn-sm" onclick="window.setPayment('فودافون كاش')"><i class="fa-solid fa-mobile"></i> VF</button>
+        <button class="btn btn-outline btn-sm" onclick="window.setPayment('إنستاباي')"><i class="fa-solid fa-bolt"></i> Insta</button>
+      </div>
+      <div id="payRefDiv" class="hidden mt-3">
+        <div class="inp-group"><label class="inp-label">رقم المرجع / المحفظة</label><input id="payRefInput" type="text" class="inp" dir="ltr"></div>
+        <button class="btn btn-primary btn-full" onclick="window.confirmPaymentMethod()"><i class="fa-solid fa-check"></i> تأكيد</button>
+      </div>
+      <button class="btn btn-outline btn-full mt-2" onclick="window.printInvoice(window.lastAdminCompletedSessionId)"><i class="fa-solid fa-print"></i> طباعة فاتورة</button>
+    </div>
+  </div>
+</div>
+
+<!-- Admin Live Session -->
+<div id="adminLiveSessionModal" class="modal-back hidden">
+  <div class="modal-box">
+    <div class="modal-head">
+      <h3><i class="fa-solid fa-circle-dot" style="color:#22c55e;margin-left:8px"></i> إدارة الجلسة</h3>
+      <button class="modal-close" onclick="document.getElementById('adminLiveSessionModal').classList.add('hidden')"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+    <div class="modal-body">
+      <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px">
+        <div style="width:48px;height:48px;background:var(--accent);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:20px;font-weight:900;color:#fff;flex-shrink:0" id="liveSesAvatarDiv">ع</div>
+        <div><div id="liveSesName" style="font-size:16px;font-weight:900;color:var(--brand)"></div><div id="liveSesPhone" style="font-size:12px;color:var(--text-muted);font-weight:600"></div></div>
+        <div style="margin-right:auto;font-family:'IBM Plex Mono';font-size:22px;font-weight:700;color:var(--accent)" id="liveSesElapsed" data-start="0">00:00</div>
+      </div>
+      <div class="grid-3 mb-3">
+        <div class="g-card g-card-p" style="text-align:center"><div style="font-size:10px;font-weight:700;color:var(--text-muted)">الوقت</div><div style="font-size:16px;font-weight:900;color:var(--brand);margin-top:2px" id="liveSesTimeCost">0 ج</div></div>
+        <div class="g-card g-card-p" style="text-align:center"><div style="font-size:10px;font-weight:700;color:var(--text-muted)">الطلبات</div><div style="font-size:16px;font-weight:900;color:var(--accent);margin-top:2px" id="liveSesItemsCost">0 ج</div></div>
+        <div class="g-card g-card-p" style="text-align:center"><div style="font-size:10px;font-weight:700;color:var(--text-muted)">الإجمالي</div><div style="font-size:16px;font-weight:900;color:var(--green);margin-top:2px" id="liveSesTotal">0 ج</div></div>
+      </div>
+      <div class="g-card g-card-p mb-3">
+        <div class="sec-title">الطلبات</div>
+        <div id="liveSesItemsList" style="display:grid;gap:6px"></div>
+      </div>
+      <div style="display:flex;gap:8px">
+        <button class="btn btn-outline" style="flex:1" onclick="window.openUserDetails(document.getElementById('liveSesPhone').innerText)"><i class="fa-solid fa-user"></i> ملف العميل</button>
+        <button class="btn btn-danger" style="flex:1" id="liveSesEndBtn"><i class="fa-solid fa-stop-circle"></i> إنهاء الجلسة</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Quick Book -->
+<div id="quickBookModal" class="modal-back hidden">
+  <div class="modal-box">
+    <div class="modal-head"><h3><i class="fa-solid fa-bolt" style="margin-left:8px"></i> حجز سريع</h3><button class="modal-close" onclick="document.getElementById('quickBookModal').classList.add('hidden')"><i class="fa-solid fa-xmark"></i></button></div>
+    <div class="modal-body">
+      <div class="inp-group"><label class="inp-label">رقم الهاتف</label><input id="quickBookPhone" type="tel" class="inp" dir="ltr" placeholder="01XXXXXXXXX"></div>
+      <div class="inp-group"><label class="inp-label">نوع الحجز</label><select id="quickBookType" class="inp"><option value="seat">مقعد عادي</option><option value="room">غرفة خاصة</option></select></div>
+      <div class="inp-group"><label class="inp-label">ملاحظات (اختياري)</label><input id="quickBookNote" type="text" class="inp" placeholder="أي تفاصيل..."></div>
+      <button class="btn btn-accent btn-full" onclick="window.submitQuickBook()"><i class="fa-solid fa-bolt"></i> تأكيد الحجز السريع</button>
+    </div>
+  </div>
+</div>
+
+<!-- Subscription Modal -->
+<div id="subscriptionModal" class="modal-back hidden">
+  <div class="modal-box">
+    <div class="modal-head"><h3><i class="fa-solid fa-crown" style="margin-left:8px"></i> الاشتراك</h3><button class="modal-close" onclick="document.getElementById('subscriptionModal').classList.add('hidden')"><i class="fa-solid fa-xmark"></i></button></div>
+    <div class="modal-body">
+      <div id="subscriptionPlansList" class="space-y-3 mb-3"></div>
+      <div id="subscriptionFormDiv" class="hidden">
+        <div style="background:linear-gradient(135deg,var(--brand),var(--brand-mid));border-radius:12px;padding:12px;text-align:center;margin-bottom:14px;color:#fff">
+          <div style="font-size:11px;color:rgba(255,255,255,0.5)">الباقة المختارة</div>
+          <div id="selectedPlanTitle" style="font-size:16px;font-weight:900;color:var(--accent-light)"></div>
+        </div>
+        <input type="hidden" id="subPlanId">
+        <div id="subFormLoggedHint" class="hidden" style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:10px;padding:10px;margin-bottom:12px;font-size:12px;font-weight:700;color:var(--green)"><i class="fa-solid fa-circle-check" style="margin-left:4px"></i> بياناتك مسجلة تلقائياً</div>
+        <div class="inp-group"><label class="inp-label">الاسم</label><input id="subName" type="text" class="inp" placeholder="اسمك الكريم"></div>
+        <div class="inp-group"><label class="inp-label">الهاتف</label><input id="subPhone" type="tel" class="inp" dir="ltr" placeholder="01XXXXXXXXX"></div>
+        <button class="btn btn-accent btn-full" onclick="window.submitSubscription()"><i class="fa-solid fa-crown"></i> تقديم طلب الاشتراك</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Subscription Card Modal -->
+<div id="subscriptionCardModal" class="modal-back hidden">
+  <div class="modal-box">
+    <div class="modal-head"><h3 id="subCardTitle"><i class="fa-solid fa-id-card" style="margin-left:8px"></i> بطاقة الاشتراك</h3><button class="modal-close" onclick="document.getElementById('subscriptionCardModal').classList.add('hidden')"><i class="fa-solid fa-xmark"></i></button></div>
+    <div class="modal-body">
+      <div class="sub-card mb-3">
+        <div style="display:flex;justify-content:space-between;align-items:start;margin-bottom:12px">
+          <div><div style="font-size:10px;color:rgba(255,255,255,0.5)">الباقة</div><div id="subCardPlanName" style="font-size:16px;font-weight:900;color:var(--accent-light)"></div></div>
+          <span id="subCardStatus" class="badge badge-green"></span>
+        </div>
+        <div style="font-size:10px;color:rgba(255,255,255,0.5);margin-bottom:4px">كود الاشتراك</div>
+        <div id="subCardCode" class="sub-code"></div>
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-top:12px;background:rgba(255,255,255,0.1);padding:10px;border-radius:10px">
+          <div><div style="font-size:10px;color:rgba(255,255,255,0.5)">من</div><div style="font-size:12px;font-weight:700" id="subCardFrom"></div></div>
+          <div><div style="font-size:10px;color:rgba(255,255,255,0.5)">إلى</div><div style="font-size:12px;font-weight:700" id="subCardTo"></div></div>
+          <div><div style="font-size:10px;color:rgba(255,255,255,0.5)">الأيام</div><div style="font-size:18px;font-weight:900;color:var(--accent-light)" id="subCardDaysLeft"></div></div>
+        </div>
+        <div style="margin-top:10px;font-size:11px;color:rgba(255,255,255,0.4)"><span id="subCardHolderName"></span> · <span id="subCardHolderPhone"></span></div>
+      </div>
+      <div id="subCardPauseControls"><button class="btn btn-outline btn-full mb-2" onclick="window.pauseSubscriptionNow(window._currentSubCardId)"><i class="fa-solid fa-pause"></i> إيقاف مؤقت</button></div>
+      <div id="subCardResumeControls" class="hidden"><button class="btn btn-success btn-full mb-2" onclick="window.resumeSubscription(window._currentSubCardId)"><i class="fa-solid fa-play"></i> استئناف</button></div>
+      <button class="btn btn-outline btn-full" onclick="window.printSubCard()"><i class="fa-solid fa-print"></i> طباعة البطاقة</button>
+    </div>
+  </div>
+</div>
+<!-- Hidden print area for sub card -->
+<div id="subCardPrintArea" class="hidden" style="padding:20px">
+  <div style="background:linear-gradient(135deg,#1C0A2E,#2D1048);color:#fff;padding:24px;border-radius:16px;max-width:320px;margin:0 auto">
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px">
+      <img src="https://i.postimg.cc/rsLC5pbm/hola.png" style="width:40px;height:40px;border-radius:10px;object-fit:cover">
+      <div><div style="font-size:18px;font-weight:900;letter-spacing:2px">HOLA</div><div style="font-size:9px;color:rgba(255,255,255,0.4);letter-spacing:3px">WORKSPACE</div></div>
+    </div>
+    <div style="font-size:10px;color:rgba(255,255,255,0.5);margin-bottom:4px">الباقة</div>
+    <div id="subCardPrint_planName" style="font-size:15px;font-weight:900;color:#FF8A30;margin-bottom:10px"></div>
+    <div style="font-size:10px;color:rgba(255,255,255,0.5);margin-bottom:4px">كود الاشتراك</div>
+    <div id="subCardPrint_code" style="font-family:'IBM Plex Mono',monospace;font-size:20px;font-weight:900;letter-spacing:3px;color:#FF8A30;margin-bottom:12px"></div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;font-size:11px;margin-bottom:10px">
+      <div><div style="color:rgba(255,255,255,0.4)">من</div><div id="subCardPrint_from" style="font-weight:700"></div></div>
+      <div><div style="color:rgba(255,255,255,0.4)">إلى</div><div id="subCardPrint_to" style="font-weight:700"></div></div>
+    </div>
+    <div style="background:rgba(255,255,255,0.1);border-radius:8px;padding:8px;text-align:center">
+      <div style="font-size:10px;color:rgba(255,255,255,0.4)">الأيام المتبقية</div>
+      <div id="subCardPrint_daysLeft" style="font-size:24px;font-weight:900;color:#FF8A30"></div>
+    </div>
+    <div style="margin-top:10px;font-size:10px;color:rgba(255,255,255,0.3);text-align:center"><span id="subCardPrint_name"></span> · <span id="subCardPrint_phone"></span></div>
+  </div>
+</div>
+
+<!-- Add Plan Modal -->
+<div id="addPlanModal" class="modal-back hidden">
+  <div class="modal-box">
+    <div class="modal-head"><h3><i class="fa-solid fa-plus" style="margin-left:8px"></i> إضافة باقة جديدة</h3><button class="modal-close" onclick="document.getElementById('addPlanModal').classList.add('hidden')"><i class="fa-solid fa-xmark"></i></button></div>
+    <div class="modal-body">
+      <div class="inp-group"><label class="inp-label">اسم الباقة</label><input id="planName" type="text" class="inp" placeholder="مثال: باقة أسبوعية"></div>
+      <div class="grid-2">
+        <div class="inp-group"><label class="inp-label">مدة الباقة (يوم)</label><input id="planDays" type="number" class="inp" value="7"></div>
+        <div class="inp-group"><label class="inp-label">أيام الاستخدام</label><input id="planAllowedDays" type="number" class="inp" value="7"></div>
+      </div>
+      <div class="inp-group"><label class="inp-label">السعر (ج.م)</label><input id="planPrice" type="number" class="inp" value="0"></div>
+      <div class="inp-group"><label class="inp-label">وصف الباقة</label><input id="planDesc" type="text" class="inp" placeholder="وصف مختصر..."></div>
+      <button class="btn btn-accent btn-full" onclick="window.savePlan()"><i class="fa-solid fa-floppy-disk"></i> حفظ الباقة</button>
+    </div>
+  </div>
+</div>
+
+<!-- Generate Cards Modal -->
+<div id="generateCardsModal" class="modal-back hidden">
+  <div class="modal-box">
+    <div class="modal-head"><h3><i class="fa-solid fa-sim-card" style="margin-left:8px"></i> توليد كروت إنترنت</h3><button class="modal-close" onclick="document.getElementById('generateCardsModal').classList.add('hidden')"><i class="fa-solid fa-xmark"></i></button></div>
+    <div class="modal-body">
+      <div class="grid-2">
+        <div class="inp-group"><label class="inp-label">عدد الكروت</label><input id="genCardsCount" type="number" class="inp" value="1" min="1" max="100"></div>
+        <div class="inp-group"><label class="inp-label">الكوتا (GB)</label><input id="genCardsQuota" type="number" class="inp" value="5" min="1"></div>
+      </div>
+      <div class="grid-2">
+        <div class="inp-group"><label class="inp-label">الصلاحية (يوم)</label><input id="genCardsDays" type="number" class="inp" value="30" min="1"></div>
+        <div class="inp-group"><label class="inp-label">البادئة (Prefix)</label><input id="genCardsPrefix" type="text" class="inp" value="HOLA" maxlength="6" oninput="this.value=this.value.toUpperCase()"></div>
+      </div>
+      <!-- Preview -->
+      <div style="background:#f8f7fc;border-radius:10px;padding:12px;margin-bottom:14px;font-size:12px;font-weight:700;color:var(--text-muted)">
+        <div class="flex justify-between mb-1"><span>الكوتا:</span><span id="genPreviewQuota" style="color:var(--brand)">5 GB</span></div>
+        <div class="flex justify-between mb-1"><span>الصلاحية:</span><span id="genPreviewDays" style="color:var(--brand)">30 يوم</span></div>
+        <div class="flex justify-between"><span>ينتهي في:</span><span id="genPreviewExpiry" style="color:var(--brand)">---</span></div>
+      </div>
+      <button class="btn btn-accent btn-full mb-2" onclick="window.doGenerateCards()"><i class="fa-solid fa-wand-magic-sparkles"></i> توليد الكروت</button>
+      <div id="generatedCardsPreview" class="hidden">
+        <div class="sec-title mt-3">الكروت المُولَّدة</div>
+        <div id="generatedCardsList" style="display:grid;gap:6px;margin-bottom:10px"></div>
+        <button class="btn btn-outline btn-full" onclick="window.printGeneratedCards()"><i class="fa-solid fa-print"></i> طباعة الكروت</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Menu Modal -->
+<div id="menuModal" class="modal-back hidden">
+  <div class="modal-box">
+    <div class="modal-head"><h3><i class="fa-solid fa-plus" style="margin-left:8px"></i> إضافة للمنيو</h3><button class="modal-close" onclick="document.getElementById('menuModal').classList.add('hidden')"><i class="fa-solid fa-xmark"></i></button></div>
+    <div class="modal-body">
+      <div class="inp-group"><label class="inp-label">الاسم</label><input id="menuName" type="text" class="inp" placeholder="اسم المنتج"></div>
+      <div class="grid-2">
+        <div class="inp-group"><label class="inp-label">السعر (ج)</label><input id="menuPrice" type="number" class="inp"></div>
+        <div class="inp-group"><label class="inp-label">النوع</label><select id="menuType" class="inp"><option value="drink">مشروب</option><option value="wifi">واي فاي</option></select></div>
+      </div>
+      <div class="inp-group"><label class="inp-label">الأيقونة (Font Awesome)</label><input id="menuIcon" type="text" class="inp" placeholder="fa-mug-hot" dir="ltr"></div>
+      <button class="btn btn-accent btn-full" onclick="window.saveMenuItem()"><i class="fa-solid fa-floppy-disk"></i> حفظ</button>
+    </div>
+  </div>
+</div>
+
+<!-- Discount Modal -->
+<div id="discountModal" class="modal-back hidden">
+  <div class="modal-box">
+    <div class="modal-head"><h3><i class="fa-solid fa-tag" style="margin-left:8px"></i> كود خصم جديد</h3><button class="modal-close" onclick="document.getElementById('discountModal').classList.add('hidden')"><i class="fa-solid fa-xmark"></i></button></div>
+    <div class="modal-body">
+      <div class="inp-group"><label class="inp-label">الكود</label><input id="newDiscountCode" type="text" class="inp" style="font-family:'IBM Plex Mono';text-transform:uppercase;letter-spacing:2px" placeholder="SAVE20" oninput="this.value=this.value.toUpperCase()"></div>
+      <div class="grid-2">
+        <div class="inp-group"><label class="inp-label">القيمة</label><input id="newDiscountValue" type="number" class="inp"></div>
+        <div class="inp-group"><label class="inp-label">النوع</label><select id="newDiscountType" class="inp"><option value="percent">نسبة %</option><option value="fixed">مبلغ ثابت ج</option></select></div>
+      </div>
+      <button class="btn btn-accent btn-full" onclick="window.saveDiscount()"><i class="fa-solid fa-floppy-disk"></i> حفظ الكود</button>
+    </div>
+  </div>
+</div>
+
+<!-- User Manage Modal -->
+<div id="userManageModal" class="modal-back hidden">
+  <div class="modal-box">
+    <div class="modal-head"><h3 id="manageUserName">إجراء سريع</h3><button class="modal-close" onclick="document.getElementById('userManageModal').classList.add('hidden')"><i class="fa-solid fa-xmark"></i></button></div>
+    <div class="modal-body">
+      <div style="background:#f8f7fc;border-radius:10px;padding:10px;margin-bottom:14px;font-size:12px;font-weight:700;color:var(--text-muted)" id="manageUserPhone"></div>
+      <div class="inp-group"><label class="inp-label"><i class="fa-solid fa-wallet text-accent" style="font-size:10px;margin-left:4px"></i> رصيد المحفظة (ج)</label>
+        <div style="display:flex;gap:8px"><input id="manageUserWallet" type="number" class="inp" style="flex:1"><button class="btn btn-primary" onclick="window.saveUserWallet()"><i class="fa-solid fa-floppy-disk"></i></button></div>
+      </div>
+      <div class="inp-group"><label class="inp-label">رسالة للعميل</label>
+        <select id="manageUserNotifType" class="inp" style="margin-bottom:8px"><option value="normal">عادية</option><option value="high">تنبيه هام</option><option value="congrats">تهنئة 🎉</option></select>
+        <textarea id="manageUserMsg" class="inp" rows="2" placeholder="نص الرسالة..."></textarea>
+        <div style="display:grid;gap:6px;margin-top:6px">
+          <input id="manageUserImgUrl" type="text" class="inp" placeholder="رابط صورة (اختياري)" dir="ltr">
+          <input id="manageUserLinkUrl" type="text" class="inp" placeholder="رابط بوتن (اختياري)" dir="ltr" oninput="window.detectSocialPlatform&&(document.getElementById('manageUserLinkPreview').classList.remove('hidden'))">
+          <div id="manageUserLinkPreview" class="hidden badge badge-purple" style="padding:6px 10px;font-size:11px"></div>
+          <input id="manageUserEmbedUrl" type="text" class="inp" placeholder="Embed code (اختياري)">
+        </div>
+        <button class="btn btn-accent btn-full mt-2" onclick="window.sendUserMsgOnly()"><i class="fa-solid fa-paper-plane"></i> إرسال الإشعار</button>
+      </div>
+      <div class="inp-group">
+        <label class="inp-label">إرسال كود خصم خاص</label>
+        <div style="display:flex;gap:6px">
+          <input id="manageUserDiscountVal" type="number" class="inp" style="flex:1" placeholder="القيمة">
+          <select id="manageUserDiscountType" class="inp" style="flex:1"><option value="percent">%</option><option value="fixed">ج</option></select>
+          <button class="btn btn-primary" onclick="window.sendUserDiscountOnly()"><i class="fa-solid fa-gift"></i></button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- User Details Modal -->
+<div id="userDetailsModal" class="modal-back hidden">
+  <div class="modal-box">
+    <div class="modal-head"><h3><i class="fa-solid fa-user" style="margin-left:8px"></i> ملف العميل</h3><button class="modal-close" onclick="document.getElementById('userDetailsModal').classList.add('hidden')"><i class="fa-solid fa-xmark"></i></button></div>
+    <div class="modal-body">
+      <div style="display:flex;align-items:center;gap:12px;background:#f8f7fc;border-radius:12px;padding:14px;margin-bottom:14px">
+        <div style="width:48px;height:48px;background:var(--brand);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:20px;font-weight:900;color:#fff;flex-shrink:0">ع</div>
+        <div>
+          <div id="detailsName" style="font-size:16px;font-weight:900;color:var(--brand)"></div>
+          <div id="detailsPhone" style="font-size:12px;font-family:'IBM Plex Mono';color:var(--text-muted)"></div>
+          <div style="display:flex;gap:8px;margin-top:6px">
+            <span class="badge badge-green">محفظة: <span id="detailsWallet"></span></span>
+            <span class="badge badge-orange">أختام: <span id="detailsStamps"></span></span>
+          </div>
+        </div>
+        <a id="detailsWhatsapp" href="#" target="_blank" class="btn btn-success btn-sm" style="margin-right:auto"><i class="fa-brands fa-whatsapp"></i></a>
+      </div>
+      <div class="sec-title">الجلسات</div>
+      <div id="detailsSessionsList" class="space-y-2 mb-3"></div>
+      <div class="sec-title">أكواد الخصم</div>
+      <div id="detailsDiscountsList" style="display:grid;grid-template-columns:1fr 1fr;gap:8px"></div>
+    </div>
+  </div>
+</div>
+
+<!-- Bar Self Service -->
+<div id="barSelfServiceModal" class="modal-back hidden">
+  <div class="modal-box">
+    <div class="modal-head"><h3><i class="fa-solid fa-cocktail" style="margin-left:8px"></i> بوفيه ذاتي</h3><button class="modal-close" onclick="document.getElementById('barSelfServiceModal').classList.add('hidden')"><i class="fa-solid fa-xmark"></i></button></div>
+    <div class="modal-body">
+      <div id="barSelfMenuGrid" style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px"></div>
+      <div id="barSelfCart" class="hidden g-card g-card-p mb-3">
+        <div class="sec-title">سلة طلباتك</div>
+        <div id="barSelfCartItems" class="space-y-2 mb-2"></div>
+        <div class="flex justify-between" style="border-top:1px solid var(--border);padding-top:8px"><span style="font-weight:800">الإجمالي</span><span id="barSelfTotal" style="font-weight:900;color:var(--accent);font-size:18px">0 ج</span></div>
+      </div>
+      <p id="drinkNoteMsg" class="hidden" style="font-size:11px;color:var(--text-muted);font-weight:700;text-align:center;margin-bottom:10px">📍 اذهب للبار وأخبرهم بطلبك</p>
+      <button id="barSelfConfirmBtn" class="btn btn-accent btn-full hidden" onclick="window.confirmBarSelfService()"><i class="fa-solid fa-check"></i> تأكيد الطلب</button>
+    </div>
+  </div>
+</div>
+
+<!-- Client Chat -->
+<div id="clientChatModal" class="modal-back hidden">
+  <div class="modal-box">
+    <div class="modal-head"><h3 id="chatClientHeaderName"><i class="fa-solid fa-comment-dots" style="margin-left:8px"></i> شات مباشر</h3><button class="modal-close" onclick="window.closeClientChat()"><i class="fa-solid fa-xmark"></i></button></div>
+    <div style="height:300px;overflow-y:auto;padding:14px;display:flex;flex-direction:column;gap:8px" id="clientChatMessages"></div>
+    <div style="padding:12px;border-top:1px solid var(--border);display:flex;gap:8px">
+      <input id="clientChatInput" type="text" class="inp" style="flex:1" placeholder="اكتب رسالتك..." onkeydown="if(event.key==='Enter')window.sendClientMessage()">
+      <button class="btn btn-accent" onclick="window.sendClientMessage()"><i class="fa-solid fa-paper-plane"></i></button>
+    </div>
+  </div>
+</div>
+
+<!-- Client Notif Modal -->
+<div id="clientNotifModal" class="modal-back hidden">
+  <div style="background:rgba(28,10,46,0.7);width:100%;height:100%;display:flex;align-items:center;justify-content:center;padding:16px">
+    <div id="clientNotifBox" class="g-card g-card-p" style="max-width:340px;width:100%;text-align:center">
+      <div id="clientNotifIconBox" style="width:64px;height:64px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:28px;margin:0 auto 12px;background:#f3e8ff;color:var(--brand)">
+        <i id="clientNotifIcon" class="fa-solid fa-envelope-open-text"></i>
+      </div>
+      <h3 id="clientNotifTitle" style="font-size:18px;font-weight:900;color:var(--brand);margin-bottom:8px">إشعار جديد</h3>
+      <img id="clientNotifImg" src="" class="hidden" style="width:100%;border-radius:10px;margin-bottom:10px;max-height:160px;object-fit:cover">
+      <p id="clientNotifMsg" style="font-size:13px;font-weight:700;color:var(--text-muted);line-height:1.6;margin-bottom:14px"></p>
+      <a id="clientNotifLink" href="#" target="_blank" class="hidden btn btn-primary btn-full mb-2"><i class="fa-solid fa-arrow-up-right-from-square"></i> عرض</a>
+      <button class="btn btn-accent btn-full" onclick="window.closeClientNotif()"><i class="fa-solid fa-check"></i> حسناً</button>
+    </div>
+  </div>
+</div>
+
+<!-- End Day Modal -->
+<div id="endDayModal" class="modal-back hidden">
+  <div class="modal-box">
+    <div class="modal-head"><h3><i class="fa-solid fa-chart-pie" style="margin-left:8px"></i> تقرير اليوم</h3><button class="modal-close" onclick="window.closeEndDaySummary()"><i class="fa-solid fa-xmark"></i></button></div>
+    <div class="modal-body">
+      <div style="text-align:center;margin-bottom:14px"><div style="font-size:12px;font-weight:700;color:var(--text-muted)">تاريخ اليوم</div><div id="summaryDate" style="font-size:18px;font-weight:900;color:var(--brand)"></div></div>
+      <div class="grid-3 mb-3">
+        <div class="g-card g-card-p" style="text-align:center"><div style="font-size:10px;font-weight:700;color:var(--text-muted)">الإيرادات</div><div id="sumTotalRev" style="font-size:22px;font-weight:900;color:var(--green)">0</div><div style="font-size:10px;color:var(--text-muted)">ج.م</div></div>
+        <div class="g-card g-card-p" style="text-align:center"><div style="font-size:10px;font-weight:700;color:var(--text-muted)">الجلسات</div><div id="sumTotalSessions" style="font-size:22px;font-weight:900;color:var(--brand)">0</div></div>
+        <div class="g-card g-card-p" style="text-align:center"><div style="font-size:10px;font-weight:700;color:var(--text-muted)">البار</div><div id="sumTotalBar" style="font-size:22px;font-weight:900;color:var(--accent)">0</div><div style="font-size:10px;color:var(--text-muted)">ج.م</div></div>
+      </div>
+      <canvas id="dailySummaryChart" style="max-height:180px"></canvas>
+      <div style="display:flex;gap:8px;margin-top:14px">
+        <button class="btn btn-outline" style="flex:1" onclick="window.printEndDaySummary()"><i class="fa-solid fa-print"></i> طباعة</button>
+        <button class="btn btn-primary" style="flex:1" onclick="window.closeEndDaySummary()"><i class="fa-solid fa-check"></i> إغلاق</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Manual Sub Modal -->
+<div id="adminManualSubModal" class="modal-back hidden">
+  <div class="modal-box">
+    <div class="modal-head"><h3><i class="fa-solid fa-crown" style="margin-left:8px"></i> اشتراك يدوي</h3><button class="modal-close" onclick="document.getElementById('adminManualSubModal').classList.add('hidden')"><i class="fa-solid fa-xmark"></i></button></div>
+    <div class="modal-body">
+      <div class="inp-group"><label class="inp-label">رقم هاتف العميل</label>
+        <input id="manualSubPhone" type="tel" class="inp" dir="ltr" placeholder="01XXXXXXXXX" oninput="window.lookupManualSubUser(this.value)">
+        <div id="manualSubUserInfo" class="hidden mt-2 badge badge-green"><i class="fa-solid fa-user" style="margin-left:4px"></i> <span id="manualSubUserName"></span></div>
+      </div>
+      <div class="inp-group"><label class="inp-label">الباقة</label><select id="manualSubPlanSelect" class="inp"></select></div>
+      <button class="btn btn-accent btn-full" onclick="window.adminManualSubscribe()"><i class="fa-solid fa-crown"></i> تفعيل الاشتراك</button>
+    </div>
+  </div>
+</div>
+
+<!-- Event Details -->
+<div id="eventDetailsModal" class="modal-back hidden">
+  <div class="modal-box">
+    <div class="modal-head"><h3><i class="fa-solid fa-masks-theater" style="margin-left:8px"></i> تفاصيل الفعالية</h3><button class="modal-close" onclick="document.getElementById('eventDetailsModal').classList.add('hidden')"><i class="fa-solid fa-xmark"></i></button></div>
+    <div class="modal-body">
+      <div id="modalEventImgWrapper"><img id="modalEventImg" src="" style="width:100%;border-radius:12px;margin-bottom:14px;max-height:200px;object-fit:cover"></div>
+      <div id="noImgClose" class="hidden"></div>
+      <h3 id="modalEventTitle" style="font-size:18px;font-weight:900;color:var(--brand);margin-bottom:6px"></h3>
+      <p id="modalEventTime" style="font-size:12px;font-weight:700;color:var(--accent);margin-bottom:10px"><i class="fa-regular fa-clock" style="margin-left:4px"></i><span></span></p>
+      <p id="modalEventDesc" style="font-size:13px;font-weight:600;color:var(--text-muted);line-height:1.7;margin-bottom:14px"></p>
+      <a id="eventWhatsappBtn" href="#" target="_blank" class="btn btn-success btn-full mb-2"><i class="fa-brands fa-whatsapp"></i> تواصل عبر واتساب</a>
+      <button class="btn btn-accent btn-full" onclick="window.attendEvent(window._currentPublicEvSlot||1)"><i class="fa-solid fa-hand-sparkles"></i> تسجيل الحضور</button>
+    </div>
+  </div>
+</div>
+
+<!-- Event Share Modal -->
+<div id="eventShareModal" class="modal-back hidden">
+  <div class="modal-box">
+    <div class="modal-head"><h3><i class="fa-solid fa-share-nodes" style="margin-left:8px"></i> مشاركة الفعالية</h3><button class="modal-close" onclick="document.getElementById('eventShareModal').classList.add('hidden')"><i class="fa-solid fa-xmark"></i></button></div>
+    <div class="modal-body">
+      <div style="text-align:center;margin-bottom:14px"><div id="shareModalTitle" style="font-size:16px;font-weight:900;color:var(--brand)"></div><div id="shareModalDesc" style="font-size:12px;color:var(--text-muted);font-weight:600;margin-top:4px"></div></div>
+      <div style="background:#f8f7fc;border-radius:10px;padding:10px;margin-bottom:14px;font-family:'IBM Plex Mono';font-size:11px;word-break:break-all" id="shareEventUrl"></div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+        <button id="shareFbBtn" class="btn btn-primary btn-sm"><i class="fa-brands fa-facebook"></i> فيسبوك</button>
+        <button class="btn btn-success btn-sm" onclick="window.doShareWhatsapp()"><i class="fa-brands fa-whatsapp"></i> واتساب</button>
+        <button class="btn btn-outline btn-sm" onclick="window.copyShareLink()"><i class="fa-solid fa-copy"></i> نسخ الرابط</button>
+        <button class="btn btn-outline btn-sm" onclick="document.getElementById('eventShareModal').classList.add('hidden')"><i class="fa-solid fa-xmark"></i> إغلاق</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Event Landing Modal -->
+<div id="eventLandingModal" class="modal-back hidden">
+  <div class="modal-box">
+    <div class="modal-head"><h3><i class="fa-solid fa-masks-theater" style="margin-left:8px"></i> <span id="landingEvStatus">تسجيل حضور</span></h3><button class="modal-close" onclick="document.getElementById('eventLandingModal').classList.add('hidden')"><i class="fa-solid fa-xmark"></i></button></div>
+    <div class="modal-body">
+      <div id="landingImgWrap"><img id="landingEvImg" src="" style="width:100%;border-radius:12px;margin-bottom:12px;max-height:180px;object-fit:cover"></div>
+      <h3 id="landingEvTitle" style="font-size:18px;font-weight:900;color:var(--brand);margin-bottom:4px"></h3>
+      <p id="landingEvTime" style="font-size:12px;font-weight:700;color:var(--accent);margin-bottom:8px"></p>
+      <p id="landingEvDesc" style="font-size:13px;color:var(--text-muted);font-weight:600;line-height:1.7;margin-bottom:14px"></p>
+      <div id="landingRegisterDiv">
+        <div class="inp-group"><label class="inp-label">اسمك</label><input id="landingName" type="text" class="inp" placeholder="اسمك الكريم"></div>
+        <div class="inp-group"><label class="inp-label">رقم هاتفك</label><input id="landingPhone" type="tel" class="inp" dir="ltr" placeholder="01XXXXXXXXX"></div>
+        <div style="display:flex;align-items:center;gap:8px;background:#f8f7fc;border:1px solid var(--border);border-radius:10px;padding:10px;margin-bottom:12px">
+          <input type="checkbox" id="landingHasAccount" style="width:16px;height:16px;accent-color:var(--brand)">
+          <label style="font-size:12px;font-weight:700">لديّ حساب في Hola</label>
+        </div>
+        <button class="btn btn-accent btn-full mb-2" onclick="window.submitLandingAttend()"><i class="fa-solid fa-hand-sparkles"></i> تأكيد الحضور</button>
+      </div>
+      <div id="landingRegMsg" class="hidden" style="font-size:12px;font-weight:700;color:var(--green);text-align:center;margin-top:8px"></div>
+      <div style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap">
+        <a id="landingWaBtn" href="#" target="_blank" class="btn btn-success btn-sm hidden"><i class="fa-brands fa-whatsapp"></i> واتساب</a>
+        <a id="landingFbBtn" href="#" target="_blank" class="btn btn-primary btn-sm hidden"><i class="fa-brands fa-facebook"></i> فيسبوك</a>
+        <button class="btn btn-outline btn-sm" onclick="window.toggleLandingEmbed()"><i class="fa-solid fa-code"></i> كود التضمين</button>
+      </div>
+      <div id="landingEmbedDiv" class="hidden mt-3">
+        <label class="inp-label">كود التضمين</label>
+        <textarea id="landingEmbedCode" class="inp" rows="3" dir="ltr" style="font-family:'IBM Plex Mono';font-size:11px" onclick="this.select()"></textarea>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Full Image Modal -->
+<div id="fullImgModal" class="modal-back hidden" onclick="document.getElementById('fullImgModal').classList.add('hidden')">
+  <img id="fullImgContent" src="" style="max-width:90vw;max-height:90vh;border-radius:12px;object-fit:contain">
+</div>
+
+<!-- Payment Method Modal -->
+<div id="paymentMethodModal" class="modal-back hidden">
+  <div class="modal-box">
+    <div class="modal-head"><h3><i class="fa-solid fa-credit-card" style="margin-left:8px"></i> تسجيل طريقة الدفع</h3><button class="modal-close" onclick="document.getElementById('paymentMethodModal').classList.add('hidden')"><i class="fa-solid fa-xmark"></i></button></div>
+    <div class="modal-body">
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:14px">
+        <button class="btn btn-success btn-sm" style="flex-direction:column;gap:4px;height:64px" onclick="window.setPayment('كاش')"><i class="fa-solid fa-money-bill" style="font-size:20px"></i>كاش</button>
+        <button class="btn btn-outline btn-sm" style="flex-direction:column;gap:4px;height:64px;color:#dc2626;border-color:#dc2626" onclick="window.setPayment('فودافون كاش')"><i class="fa-solid fa-mobile-screen" style="font-size:20px"></i>VF كاش</button>
+        <button class="btn btn-outline btn-sm" style="flex-direction:column;gap:4px;height:64px;color:var(--brand);border-color:var(--brand)" onclick="window.setPayment('إنستاباي')"><i class="fa-solid fa-bolt" style="font-size:20px"></i>InstaPay</button>
+      </div>
+      <div id="payRefDiv" class="hidden">
+        <div class="inp-group"><label class="inp-label">رقم المرجع / المحفظة</label><input id="payRefInput" type="text" class="inp" dir="ltr"></div>
+        <button class="btn btn-primary btn-full" onclick="window.confirmPaymentMethod()"><i class="fa-solid fa-check"></i> تأكيد</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Cards Print Area -->
+<div id="cardsPrintArea" class="hidden">
+  <div style="text-align:center;margin-bottom:20px">
+    <img src="https://i.postimg.cc/rsLC5pbm/hola.png" style="height:40px;margin-bottom:8px">
+    <div style="font-size:12px;color:#666" id="cardsPrintDate"></div>
+  </div>
+  <div id="cardsPrintGrid" style="display:grid;grid-template-columns:1fr 1fr;gap:16px;padding:0 20px"></div>
+</div>
+
+<!-- Invoice Print Area -->
+<div id="invoicePrintArea" class="hidden" style="padding:20px;font-family:'Cairo',sans-serif">
+  <div style="text-align:center;margin-bottom:20px;border-bottom:2px solid #1C0A2E;padding-bottom:16px">
+    <img src="https://i.postimg.cc/rsLC5pbm/hola.png" style="height:48px;margin-bottom:8px">
+    <div style="font-size:22px;font-weight:900;color:#1C0A2E">HOLA Workspace</div>
+    <div style="font-size:12px;color:#666" id="printDate"></div>
+  </div>
+  <div style="display:flex;justify-content:space-between;margin-bottom:12px">
+    <div><div style="font-size:11px;color:#666">العميل</div><div style="font-weight:900;font-size:15px" id="printClientName"></div><div style="font-size:12px;color:#666" id="printClientPhone"></div></div>
+    <div style="text-align:left"><div style="font-size:11px;color:#666">المسؤول</div><div style="font-weight:700" id="printAdminName"></div></div>
+  </div>
+  <div style="background:#f8f7fc;border-radius:10px;padding:12px;margin-bottom:12px">
+    <div style="display:flex;justify-content:space-between;margin-bottom:6px"><span style="color:#666">مدة الجلسة</span><span id="printDuration" style="font-weight:700"></span></div>
+    <div style="display:flex;justify-content:space-between;margin-bottom:6px"><span style="color:#666">تكلفة الوقت</span><span id="printTimeCost" style="font-weight:700"></span></div>
+    <div style="display:flex;justify-content:space-between;margin-bottom:6px"><span style="color:#666">إجمالي الطلبات</span><span id="printItemsTotal" style="font-weight:700"></span></div>
+    <div style="display:flex;justify-content:space-between;margin-bottom:6px"><span style="color:#666">الخصم</span><span id="printDiscount" style="font-weight:700;color:#16a34a"></span></div>
+  </div>
+  <table style="width:100%;border-collapse:collapse;margin-bottom:12px;font-size:13px">
+    <thead><tr><th style="background:#1C0A2E;color:#fff;padding:8px;text-align:right">الطلب</th><th style="background:#1C0A2E;color:#fff;padding:8px;text-align:center">السعر (ج)</th></tr></thead>
+    <tbody id="printItemsList"></tbody>
+  </table>
+  <div style="background:#1C0A2E;color:#fff;border-radius:10px;padding:14px;display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+    <span style="font-size:14px;font-weight:700">الإجمالي المدفوع</span>
+    <span id="printFinalCost" style="font-size:24px;font-weight:900;color:#FF8A30"></span>
+  </div>
+  <div style="text-align:center;font-size:11px;color:#666">طريقة الدفع: <span id="printPaymentMethod" style="font-weight:700"></span></div>
+  <div style="text-align:center;margin-top:20px;font-size:11px;color:#aaa">شكراً لزيارتكم Hola Workspace 🧡</div>
+</div>
+
+<!-- Audio Elements -->
+<audio id="alertSound" src="" preload="none"></audio>
+<audio id="soundHigh" src="" preload="none"></audio>
+<audio id="soundCongrats" src="" preload="none"></audio>
+
+<!-- Chart.js -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
+
+<!-- Firebase -->
+<script type="module">
+// ── Expose switchView / switchClientTab / switchAdminTab immediately ──
+window.switchView = function(viewName) {
+  ['viewPublic','viewClient','viewAdmin'].forEach(id => {
+    const el = document.getElementById(id);
+    if(el) { el.style.display = 'none'; el.classList.remove('active'); }
   });
+  const map = {public:'viewPublic', client:'viewClient', admin:'viewAdmin'};
+  const tgt = document.getElementById(map[viewName]);
+  if(tgt) { tgt.style.display = 'block'; tgt.classList.add('active'); }
+  // Show/hide navs
+  const navPub = document.getElementById('navPublic');
+  const navCli = document.getElementById('navClient');
+  if(viewName === 'public') { if(navPub) navPub.style.display='flex'; if(navCli) navCli.style.display='none'; }
+  else if(viewName === 'client') { if(navPub) navPub.style.display='none'; if(navCli) navCli.style.display='flex'; }
+  else { if(navPub) navPub.style.display='none'; if(navCli) navCli.style.display='none'; }
+};
 
-  /* ── Auto-fill saved phone ── */
-  const savedPhone = localStorage.getItem('hola_bound_phone');
-  if (savedPhone) {
-    const pi = document.getElementById('phoneInput');
-    if (pi) pi.value = savedPhone;
-    /* If previously was inside, auto-fill and assume has account */
-    document.getElementById('hasAccount').checked = true;
-  }
+window.switchClientTab = function(tabName) {
+  document.querySelectorAll('.tab-panel').forEach(el => el.classList.remove('active'));
+  document.querySelectorAll('#clientTabsContainer .tab-btn').forEach(el => el.classList.remove('active'));
+  const panel = document.getElementById('client-' + tabName);
+  const btn = document.getElementById('c-tab-' + tabName);
+  if(panel) panel.classList.add('active');
+  if(btn) btn.classList.add('active');
+};
+
+window.switchAdminTab = function(tabName) {
+  document.querySelectorAll('.admin-tab-content').forEach(el => { el.classList.remove('active'); el.classList.add('hidden'); });
+  document.querySelectorAll('#adminTabsContainer .tab-btn').forEach(el => el.classList.remove('active'));
+  const panel = document.getElementById('admin-' + tabName);
+  const btn = document.getElementById('tab-' + tabName);
+  if(panel) { panel.classList.remove('hidden'); panel.classList.add('active'); }
+  if(btn) btn.classList.add('active');
+  // Update admin stats for live tab
+  if(tabName === 'live' && window._updateDashboardNumbers) window._updateDashboardNumbers();
+};
+
+// Clock
+function updateClock() {
+  const now = new Date();
+  const el = document.getElementById('headerClock');
+  if(el) el.textContent = now.toLocaleTimeString('ar-EG', {hour:'2-digit', minute:'2-digit', hour12:false});
+}
+updateClock();
+setInterval(updateClock, 10000);
+
+// Show public view on load
+window.switchView('public');
+
+// Load JS modules
 </script>
+
+<script type="module" src="../js/firebase.js"></script>
+<script type="module" src="../js/app.js"></script>
+<script type="module" src="../js/cards-controller.js"></script>
+<script type="module" src="../js/event-delegation.js"></script>
 
 </body>
 </html>
