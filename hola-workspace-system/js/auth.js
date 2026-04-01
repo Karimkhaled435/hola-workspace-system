@@ -46,8 +46,12 @@ export function checkLocationForLogin() {
             if (dist <= radius) {
                 document.getElementById('locationCheckState')?.classList.add('hidden');
                 document.getElementById('loginForm')?.classList.remove('hidden');
+                localStorage.setItem('hola_inside_workspace', '1');
+                localStorage.setItem('hola_last_workspace_lat', String(lat));
+                localStorage.setItem('hola_last_workspace_lng', String(lng));
                 showMsg("تم التأكد من موقعك بنجاح! تفضل بتسجيل الدخول.", "success");
             } else {
+                localStorage.removeItem('hola_inside_workspace');
                 // Outside workspace — offer remote login
                 showOutsideLoginOption(dist);
             }
@@ -64,19 +68,23 @@ function showOutsideLoginOption(dist) {
     document.getElementById('preBookingForm')?.classList.add('hidden');
     const container = document.getElementById('authContainer');
     if (!container) return;
+    const lastPhone = localStorage.getItem('hola_bound_phone') || '';
+    const hasLinked = !!(lastPhone && _profiles[lastPhone]);
     container.innerHTML = `
         <div class="bg-gradient-to-br from-gray-700 to-gray-900 p-5 text-white text-center">
             <div class="w-14 h-14 bg-white/20 rounded-full flex items-center justify-center text-2xl mx-auto mb-2"><i class="fa-solid fa-location-dot-slash"></i></div>
             <h3 class="font-black text-lg">أنت خارج المكان</h3>
-            <p class="text-xs text-gray-300">تبعد ${Math.round(dist)} متر — صلاحيات عرض فقط</p>
+            <p class="text-xs text-gray-300">تبعد ${Math.round(dist)} متر — عرض فقط من الحساب المرتبط</p>
         </div>
         <div class="p-5 space-y-3">
-            <p class="text-xs text-gray-500 text-center font-bold">يمكنك عرض فاتورتك، اشتراكاتك، والفعاليات فقط</p>
+            <p class="text-xs text-gray-500 text-center font-bold">التسجيل الجديد غير متاح خارج المكان</p>
             <div>
-                <label class="block text-xs font-bold text-gray-700 mb-1">رقم هاتفك المسجّل</label>
-                <input type="tel" id="remoteLoginPhone" class="w-full border-2 border-gray-200 rounded-xl px-4 py-3 font-mono font-bold text-center focus:outline-none focus:border-gray-500" placeholder="010..." dir="ltr">
+                <label class="block text-xs font-bold text-gray-700 mb-1">الحساب المرتبط بهذا الجهاز</label>
+                <input type="tel" id="remoteLoginPhone" value="${hasLinked ? lastPhone : ''}" ${hasLinked ? 'readonly' : ''}
+                    class="w-full border-2 border-gray-200 rounded-xl px-4 py-3 font-mono font-bold text-center focus:outline-none focus:border-gray-500 ${hasLinked ? 'bg-gray-100 text-gray-500' : ''}"
+                    placeholder="${hasLinked ? '' : 'لا يوجد حساب مرتبط'}" dir="ltr">
             </div>
-            <button onclick="window.handleRemoteLogin()" class="w-full bg-gray-800 text-white font-black py-3.5 rounded-xl shadow-lg hover:bg-gray-900 transition">
+            <button onclick="window.handleRemoteLogin()" class="w-full bg-gray-800 text-white font-black py-3.5 rounded-xl shadow-lg hover:bg-gray-900 transition ${hasLinked ? '' : 'opacity-50 pointer-events-none'}">
                 <i class="fa-solid fa-eye ml-2"></i>عرض ملفي
             </button>
             <div class="border-t pt-3 space-y-2">
@@ -125,14 +133,16 @@ export function resetLocationCheck() {
     document.getElementById('preBookingForm')?.classList.add('hidden');
     document.getElementById('loginForm')?.classList.add('hidden');
     document.getElementById('locationCheckState')?.classList.remove('hidden');
+    localStorage.removeItem('hola_inside_workspace');
 }
 
 export function checkNewUser(val, _profiles) {
     const p = val.trim();
     const nField = document.getElementById('nameField');
+    const hasAccount = document.getElementById('loginHasAccount')?.checked;
     if (nField) {
-        if (p.length >= 10 && !_profiles[p]) nField.classList.remove('hidden');
-        else nField.classList.add('hidden');
+        if (hasAccount || (p.length >= 10 && _profiles[p])) nField.classList.add('hidden');
+        else nField.classList.remove('hidden');
     }
 }
 
@@ -185,10 +195,15 @@ export async function submitInternalPreBooking(type, db, appId, myProfile) {
 // ─── Login ────────────────────────────────────────────────────────────────────
 export async function handleLogin(db, appId, _profiles, _sessions, sysSettings) {
     if (!db) return showMsg("غير متصل بقاعدة البيانات", "error");
+    if (localStorage.getItem('hola_inside_workspace') !== '1') return showMsg("يجب التحقق من الموقع أولاً", "error");
     const p = document.getElementById('loginPhone')?.value.trim();
     const n = document.getElementById('loginName')?.value.trim();
+    const wifiCode = document.getElementById('loginWifiCode')?.value.trim().toUpperCase();
+    const hasAccount = !!document.getElementById('loginHasAccount')?.checked;
+    if (!wifiCode) return showMsg("أدخل كود كارت الواي فاي أولاً", "error");
     if (!p || p.length < 10) return showMsg("برجاء إدخال رقم موبايل صحيح", "error");
     if (window._bannedPhones && window._bannedPhones[p]) { playAlertSound('high'); return showMsg("تم حظر هذا الرقم أمنياً. راجع الإدارة.", "error"); }
+    if (hasAccount && !_profiles[p]) return showMsg("هذا الرقم غير مسجل. أزل علامة (لدي حساب بالفعل) للتسجيل لأول مرة.", "error");
 
     // reCAPTCHA check (graceful)
     if (typeof window.grecaptcha !== 'undefined') {
@@ -209,12 +224,22 @@ export async function handleLogin(db, appId, _profiles, _sessions, sysSettings) 
     try {
         let prof;
         if (!_profiles[p]) {
-            const newProfile = { name: n, phone: p, walletBalance: 0, stamps: [], joinedAt: Date.now() };
+            const newProfile = {
+                name: n, phone: p, walletBalance: 0, stamps: [], joinedAt: Date.now(),
+                wifiCardCode: wifiCode,
+                homeLat: parseFloat(localStorage.getItem('hola_last_workspace_lat') || `${sysSettings.workspaceLat}`),
+                homeLng: parseFloat(localStorage.getItem('hola_last_workspace_lng') || `${sysSettings.workspaceLng}`)
+            };
             await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'profiles', p), newProfile);
             prof = newProfile; _profiles[p] = newProfile; showMsg("تم إنشاء حسابك بنجاح!", "success");
         } else {
+            if (!(_profiles[p].wifiCardCode)) {
+                await updateDoc(doc(db, 'artifacts', appId, 'public', 'data', 'profiles', p), { wifiCardCode: wifiCode });
+                _profiles[p].wifiCardCode = wifiCode;
+            }
             prof = _profiles[p]; showMsg(`أهلاً بك مجدداً يا ${prof.name}!`, "success");
         }
+        localStorage.setItem('hola_bound_phone', p);
         setMyProfile(prof);
         delete window._loginAttempts[p];
         if (typeof window.grecaptcha !== 'undefined') { try { window.grecaptcha.reset(); } catch(e) {} }
@@ -253,6 +278,22 @@ export async function handleLogin(db, appId, _profiles, _sessions, sysSettings) 
         // بدء تتبع الموقع كل 5 دقائق
         if (window.startLocationTracking) window.startLocationTracking();
     } catch (e) { console.error(e); showMsg("خطأ أثناء تسجيل الدخول", "error"); }
+}
+
+export function enterGuestMode() {
+    if (localStorage.getItem('hola_inside_workspace') !== '1') return showMsg("وضع الضيف يتطلب التواجد داخل المكان", "error");
+    const guestName = `ضيف ${new Date().toLocaleTimeString('ar-EG', { hour: '2-digit', minute: '2-digit' })}`;
+    setMyProfile({ name: guestName, phone: 'guest', walletBalance: 0, stamps: [], isGuest: true, isRemote: true });
+    window._currentUserIsRemote = true;
+    document.getElementById('navPublic')?.classList.add('hidden');
+    document.getElementById('navClient')?.classList.remove('hidden');
+    window.switchView && window.switchView('client');
+    window.switchClientTab && window.switchClientTab('ads');
+    document.getElementById('c-tab-session')?.classList.add('hidden');
+    document.getElementById('c-tab-prebook')?.classList.add('hidden');
+    document.getElementById('c-tab-internet')?.classList.add('hidden');
+    document.getElementById('c-tab-subscriptions')?.classList.add('hidden');
+    showMsg("تم الدخول كضيف بصلاحيات محدودة", "info");
 }
 
 // ─── Admin Auth ───────────────────────────────────────────────────────────────

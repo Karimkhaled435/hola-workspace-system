@@ -189,48 +189,46 @@
                 <!-- Login & Pre-booking Side -->
                 <div class="glass-card bg-white/60 relative overflow-hidden rounded-2xl shadow-xl" id="authContainer">
 
-                    <!-- STEP 1: Main Entry -->
+                    <!-- STEP 1: Landing Gate -->
                     <div id="locationCheckState" class="transition-all duration-500">
-                        <div class="bg-gradient-to-br from-hola-purple via-purple-800 to-hola-dark px-6 pt-7 pb-8 text-white text-center relative overflow-hidden">
+                        <div class="bg-gradient-to-br from-hola-purple via-purple-800 to-hola-dark px-5 pt-6 pb-6 text-white text-center relative overflow-hidden">
                             <div class="absolute inset-0 opacity-10" style="background-image:radial-gradient(circle at 20% 50%, white 1px, transparent 1px),radial-gradient(circle at 80% 20%, white 1px, transparent 1px);background-size:30px 30px;"></div>
                             <div class="relative z-10">
-                                <div class="w-16 h-16 bg-white/15 rounded-2xl flex items-center justify-center text-3xl mx-auto mb-3 shadow-inner border border-white/20">
+                                <p class="text-[11px] text-purple-100 font-black mb-2">أهلاً في Hola ابدأ جلستك</p>
+                                <div class="w-14 h-14 bg-white/15 rounded-2xl flex items-center justify-center text-2xl mx-auto mb-2.5 shadow-inner border border-white/20">
                                     <i aria-hidden="true" class="fa-solid fa-mug-hot text-hola-orange"></i>
                                 </div>
-                                <h3 class="text-xl font-black mb-1">أهلاً بك في Hola ☀️</h3>
-                                <p class="text-xs text-purple-200 font-bold">ابدأ جلستك أو سجّل اهتمامك</p>
+                                <h3 class="text-lg font-black mb-1">بوابة الدخول الذكية</h3>
+                                <p class="text-[11px] text-purple-200 font-bold">تأكيد الموقع مطلوب قبل تفعيل الدخول</p>
                             </div>
                         </div>
-                        <div class="p-5 space-y-2.5 mt-2">
-                            <!-- PRIMARY CTA -->
+                        <div class="p-4 space-y-2 mt-1.5">
                             <button onclick="window.checkLocationForLogin()"
-                                class="w-full bg-hola-purple hover:bg-hola-dark text-white font-black py-4 rounded-2xl shadow-lg transition-all active:scale-95 flex items-center justify-center gap-3">
-                                <div class="w-8 h-8 bg-white/20 rounded-xl flex items-center justify-center">
+                                class="w-full bg-hola-purple hover:bg-hola-dark text-white font-black py-3.5 rounded-2xl shadow-lg transition-all active:scale-95 flex items-center justify-center gap-2.5 text-sm">
+                                <div class="w-7 h-7 bg-white/20 rounded-xl flex items-center justify-center">
                                     <i aria-hidden="true" class="fa-solid fa-location-crosshairs text-sm"></i>
                                 </div>
                                 تحقق من موقعي وسجّل الدخول
                             </button>
-                            <!-- Divider -->
                             <div class="flex items-center gap-3 py-0.5" aria-hidden="true">
                                 <div class="flex-1 h-px bg-gray-200"></div>
                                 <span class="text-[10px] text-gray-400 font-bold tracking-wider">خيارات أخرى</span>
                                 <div class="flex-1 h-px bg-gray-200"></div>
                             </div>
-                            <!-- 3 secondary options -->
-                            <div class="grid grid-cols-3 gap-2" role="group" aria-label="خيارات الخدمات">
+                            <div class="grid grid-cols-3 gap-1.5" role="group" aria-label="خيارات الخدمات">
                                 <button onclick="window.showPreBookingFallback('حجز مسبق')"
-                                    class="bg-orange-50 border-2 border-orange-100 text-hola-orange font-bold py-3.5 rounded-xl hover:bg-orange-100 transition-all text-[11px] flex flex-col items-center gap-1.5 active:scale-95">
-                                    <i aria-hidden="true" class="fa-solid fa-calendar-check text-base"></i>
+                                    class="bg-orange-50 border border-orange-100 text-hola-orange font-bold py-2.5 rounded-xl hover:bg-orange-100 transition-all text-[10px] flex flex-col items-center gap-1 active:scale-95">
+                                    <i aria-hidden="true" class="fa-solid fa-calendar-check text-sm"></i>
                                     حجز مسبق
                                 </button>
                                 <button onclick="window.showQuickBookModal()"
-                                    class="bg-gray-50 border-2 border-gray-200 text-gray-600 font-bold py-3.5 rounded-xl hover:bg-gray-100 transition-all text-[11px] flex flex-col items-center gap-1.5 active:scale-95">
-                                    <i aria-hidden="true" class="fa-solid fa-bolt text-base text-hola-orange"></i>
+                                    class="bg-gray-50 border border-gray-200 text-gray-600 font-bold py-2.5 rounded-xl hover:bg-gray-100 transition-all text-[10px] flex flex-col items-center gap-1 active:scale-95">
+                                    <i aria-hidden="true" class="fa-solid fa-bolt text-sm text-hola-orange"></i>
                                     حجز سريع
                                 </button>
                                 <button onclick="document.getElementById('cardLoginModal').classList.remove('hidden')"
-                                    class="bg-blue-50 border-2 border-blue-100 text-blue-600 font-bold py-3.5 rounded-xl hover:bg-blue-100 transition-all text-[11px] flex flex-col items-center gap-1.5 active:scale-95">
-                                    <i aria-hidden="true" class="fa-solid fa-wifi text-base"></i>
+                                    class="bg-blue-50 border border-blue-100 text-blue-600 font-bold py-2.5 rounded-xl hover:bg-blue-100 transition-all text-[10px] flex flex-col items-center gap-1 active:scale-95">
+                                    <i aria-hidden="true" class="fa-solid fa-wifi text-sm"></i>
                                     كرت إنترنت
                                 </button>
                             </div>
@@ -241,7 +239,7 @@
                         </div>
                     </div>
 
-                    <!-- STEP 2: Login Form -->
+                    <!-- STEP 2: New Login Gate Form -->
                     <div id="loginForm" class="hidden transition-all duration-500">
                         <div class="bg-gradient-to-r from-green-500 to-green-600 p-3.5 text-white text-center flex items-center justify-center gap-2">
                             <div class="w-7 h-7 bg-white/20 rounded-full flex items-center justify-center">
@@ -249,39 +247,47 @@
                             </div>
                             <span class="font-black text-sm">✓ تم تأكيد موقعك بنجاح</span>
                         </div>
-                        <div class="p-5 space-y-4">
+                        <div class="p-4 space-y-3.5">
                             <div>
-                                <label for="loginPhone" class="block text-xs font-black text-gray-600 mb-2 flex items-center gap-1.5">
+                                <label for="loginWifiCode" class="block text-xs font-black text-gray-600 mb-1.5 flex items-center gap-1.5">
+                                    <i aria-hidden="true" class="fa-solid fa-wifi text-hola-purple"></i> كود كارت الواي فاي
+                                </label>
+                                <input type="text" id="loginWifiCode"
+                                    class="w-full border-2 border-gray-200 rounded-xl px-3 py-2.5 focus:outline-none focus:border-hola-orange transition text-center font-mono tracking-[0.2em] font-bold text-sm bg-gray-50 uppercase"
+                                    placeholder="HOLA-XXXX-XXXX" dir="ltr" oninput="this.value=this.value.toUpperCase()">
+                            </div>
+                            <div>
+                                <label for="loginPhone" class="block text-xs font-black text-gray-600 mb-1.5 flex items-center gap-1.5">
                                     <i aria-hidden="true" class="fa-solid fa-mobile-screen text-hola-purple"></i> رقم الموبايل
                                 </label>
                                 <input type="tel" id="loginPhone" oninput="window.checkNewUser(this.value)"
-                                    class="w-full border-2 border-gray-200 rounded-xl px-4 py-3.5 focus:outline-none focus:border-hola-orange transition text-left font-mono tracking-widest font-bold text-xl bg-gray-50 focus:bg-white"
+                                    class="w-full border-2 border-gray-200 rounded-xl px-3 py-2.5 focus:outline-none focus:border-hola-orange transition text-left font-mono tracking-wider font-bold text-base bg-gray-50 focus:bg-white"
                                     placeholder="010..." dir="ltr">
                             </div>
+                            <div class="bg-gray-50 border border-gray-200 rounded-xl p-2.5 flex items-center gap-2">
+                                <input type="checkbox" id="loginHasAccount" onchange="window.checkNewUser(document.getElementById('loginPhone')?.value || '')" class="w-4 h-4 accent-hola-purple">
+                                <label for="loginHasAccount" class="text-xs font-bold text-gray-600">لدي حساب بالفعل</label>
+                            </div>
                             <div id="nameField" class="hidden transition-all duration-300">
-                                <div class="bg-amber-50 border-2 border-amber-200 rounded-xl p-2.5 mb-2 flex items-center gap-2">
-                                    <i aria-hidden="true" class="fa-solid fa-user-plus text-amber-500 text-sm"></i>
-                                    <span class="text-xs font-bold text-amber-700">مرحباً لأول مرة! أدخل اسمك الثنائي</span>
+                                <div class="bg-amber-50 border border-amber-200 rounded-xl p-2 mb-1.5 flex items-center gap-2">
+                                    <i aria-hidden="true" class="fa-solid fa-user-plus text-amber-500 text-xs"></i>
+                                    <span class="text-[11px] font-bold text-amber-700">أول مرة؟ أدخل اسمك</span>
                                 </div>
                                 <label for="loginName" class="sr-only">الاسم</label>
                                 <input type="text" id="loginName"
-                                    class="w-full border-2 border-amber-200 rounded-xl px-4 py-3 focus:outline-none focus:border-hola-purple transition font-bold bg-white"
+                                    class="w-full border-2 border-amber-200 rounded-xl px-3 py-2.5 focus:outline-none focus:border-hola-purple transition font-bold bg-white text-sm"
                                     placeholder="مثال: أحمد محمد">
-                            </div>
-                            <div id="subCodeField">
-                                <label for="loginSubCode" class="block text-[10px] font-bold text-gray-400 mb-1.5 flex items-center gap-1">
-                                    <i aria-hidden="true" class="fa-solid fa-tag text-hola-orange text-xs"></i> كود اشتراك (اختياري)
-                                </label>
-                                <input type="text" id="loginSubCode"
-                                    class="w-full border-2 border-gray-200 rounded-xl px-4 py-2 focus:outline-none focus:border-hola-orange font-mono uppercase text-center tracking-[0.3em] text-sm bg-gray-50"
-                                    placeholder="SUB-XXXX">
                             </div>
                             <div class="flex justify-center overflow-hidden scale-90 origin-center" dir="ltr">
                                 <div class="g-recaptcha" id="recaptcha-login" data-sitekey="6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI"></div>
                             </div>
-                            <button onclick="window.handleLogin()"
-                                class="w-full bg-hola-purple hover:bg-hola-dark text-white font-black py-4 rounded-2xl shadow-xl transition-all active:scale-95 flex items-center justify-center gap-2">
+                            <button onclick="window.handleLogin()" id="btnLoginSubmit"
+                                class="w-full bg-hola-purple hover:bg-hola-dark text-white font-black py-3.5 rounded-2xl shadow-xl transition-all active:scale-95 flex items-center justify-center gap-2 text-sm">
                                 <i aria-hidden="true" class="fa-solid fa-arrow-right-to-bracket"></i> تأكيد الدخول وبدء الجلسة
+                            </button>
+                            <button onclick="window.enterGuestMode()" id="btnGuestMode"
+                                class="w-full bg-white border-2 border-hola-purple/20 text-hola-purple font-black py-3 rounded-2xl shadow-sm transition-all active:scale-95 flex items-center justify-center gap-2 text-sm">
+                                <i aria-hidden="true" class="fa-solid fa-user-secret"></i> الدخول كضيف
                             </button>
                             <button onclick="window.resetLocationCheck()"
                                 class="w-full text-gray-400 font-bold text-xs hover:text-gray-600 transition flex items-center justify-center gap-1 py-1">
@@ -379,6 +385,8 @@
                 <button role="tab" aria-selected="false" aria-controls="client-prebook" onclick="window.switchClientTab('prebook')" id="c-tab-prebook" class="text-gray-600 px-4 py-2 text-sm font-bold hover:text-hola-purple transition whitespace-nowrap"><i aria-hidden="true" class="fa-solid fa-calendar-plus ml-1"></i> حجز قادم</button>
                 <button role="tab" aria-selected="false" aria-controls="client-subscriptions" onclick="window.switchClientTab('subscriptions')" id="c-tab-subscriptions" class="text-gray-600 px-4 py-2 text-sm font-bold hover:text-hola-purple transition whitespace-nowrap"><i aria-hidden="true" class="fa-solid fa-crown ml-1 text-hola-orange"></i> اشتراكاتي</button>
                 <button role="tab" aria-selected="false" aria-controls="client-internet" onclick="window.switchClientTab('internet')" id="c-tab-internet" class="text-gray-600 px-4 py-2 text-sm font-bold hover:text-hola-purple transition whitespace-nowrap"><i aria-hidden="true" class="fa-solid fa-wifi ml-1 text-hola-orange"></i> باقتي</button>
+                <button role="tab" aria-selected="false" aria-controls="client-profile" onclick="window.switchClientTab('profile')" id="c-tab-profile" class="text-gray-600 px-4 py-2 text-sm font-bold hover:text-hola-purple transition whitespace-nowrap"><i aria-hidden="true" class="fa-solid fa-id-card ml-1"></i> الملف الشخصي</button>
+                <button role="tab" aria-selected="false" aria-controls="client-ads" onclick="window.switchClientTab('ads')" id="c-tab-ads" class="text-gray-600 px-4 py-2 text-sm font-bold hover:text-hola-purple transition whitespace-nowrap"><i aria-hidden="true" class="fa-solid fa-bullhorn ml-1 text-hola-orange"></i> الإعلانات والفعاليات</button>
                 <button role="tab" aria-selected="false" aria-controls="client-remote" onclick="window.switchClientTab('remote')" id="c-tab-remote" class="hidden text-gray-600 px-4 py-2 text-sm font-bold hover:text-gray-800 transition whitespace-nowrap"><i aria-hidden="true" class="fa-solid fa-eye ml-1"></i> ملف بعيد</button>
             </div>
             
@@ -614,6 +622,43 @@
                 <button onclick="window.clientLogout()" class="w-full py-2.5 rounded-xl border-2 border-red-200 text-red-500 font-bold text-sm hover:bg-red-50 transition flex items-center justify-center gap-2">
                     <i aria-hidden="true" class="fa-solid fa-right-from-bracket"></i> تسجيل الخروج من الملف البعيد
                 </button>
+            </div>
+            <!-- CLIENT TAB 9: Profile -->
+            <div id="client-profile" role="tabpanel" aria-labelledby="c-tab-profile" class="client-tab-content hidden max-w-2xl mx-auto">
+                <div class="glass-card p-5 border-t-4 border-hola-purple">
+                    <div class="flex items-center justify-between mb-4">
+                        <h3 class="text-lg font-black text-hola-purple"><i aria-hidden="true" class="fa-solid fa-id-card text-hola-orange ml-2"></i>بيانات الدخول</h3>
+                        <span class="text-[10px] bg-purple-100 text-hola-purple px-2 py-1 rounded-full font-bold">قابلة للتعديل</span>
+                    </div>
+                    <div class="grid sm:grid-cols-2 gap-3">
+                        <div class="sm:col-span-2">
+                            <label for="profileNameInput" class="block text-xs font-bold text-gray-600 mb-1">الاسم</label>
+                            <input type="text" id="profileNameInput" class="w-full border-2 border-gray-200 rounded-xl px-3 py-2.5 font-bold text-sm focus:border-hola-purple outline-none" placeholder="اسمك">
+                        </div>
+                        <div>
+                            <label for="profilePhoneInput" class="block text-xs font-bold text-gray-600 mb-1">رقم الهاتف</label>
+                            <input type="tel" id="profilePhoneInput" class="w-full border-2 border-gray-200 rounded-xl px-3 py-2.5 font-mono font-bold text-sm bg-gray-100 text-gray-500" dir="ltr" readonly>
+                        </div>
+                        <div>
+                            <label for="profileWifiCardInput" class="block text-xs font-bold text-gray-600 mb-1">كود كارت الواي فاي</label>
+                            <input type="text" id="profileWifiCardInput" class="w-full border-2 border-gray-200 rounded-xl px-3 py-2.5 font-mono font-bold text-sm uppercase tracking-wide focus:border-hola-orange outline-none" dir="ltr" placeholder="HOLA-XXXX-XXXX" oninput="this.value=this.value.toUpperCase()">
+                        </div>
+                    </div>
+                    <button onclick="window.saveProfileData()" class="w-full mt-4 bg-hola-purple text-white py-3 rounded-xl font-black hover:bg-hola-dark transition text-sm">
+                        حفظ بيانات الملف الشخصي
+                    </button>
+                </div>
+            </div>
+            <!-- CLIENT TAB 10: Ads & Events -->
+            <div id="client-ads" role="tabpanel" aria-labelledby="c-tab-ads" class="client-tab-content hidden max-w-3xl mx-auto space-y-3">
+                <div class="glass-card p-4 border-t-4 border-hola-orange">
+                    <h3 class="text-base font-black text-hola-purple mb-3"><i aria-hidden="true" class="fa-solid fa-bullhorn text-hola-orange ml-2"></i>الإعلانات</h3>
+                    <div id="adsCardsWrap" class="grid sm:grid-cols-2 gap-3"></div>
+                </div>
+                <div class="glass-card p-4 border-t-4 border-hola-purple">
+                    <h3 class="text-base font-black text-hola-purple mb-3"><i aria-hidden="true" class="fa-solid fa-masks-theater text-hola-orange ml-2"></i>الفعاليات</h3>
+                    <div id="eventsCardsWrap" class="grid sm:grid-cols-2 gap-3"></div>
+                </div>
             </div>
             <!-- CLIENT TAB 7: Subscriptions -->
             <div id="client-subscriptions" role="tabpanel" aria-labelledby="c-tab-subscriptions" class="client-tab-content hidden space-y-4">
