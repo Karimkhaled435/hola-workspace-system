@@ -25,6 +25,7 @@ import {
 import {
     checkLocationForLogin, showPreBookingFallback, resetLocationCheck, checkNewUser,
     submitPreBooking, submitInternalPreBooking, handleLogin, showAdminLoginModal,
+    enterGuestMode,
     verifyAdminPin, logoutAdmin
 } from "./auth.js";
 import {
@@ -1126,7 +1127,12 @@ window.sendClientMessage = async () => {
 window.openAdminChat = (phone) => {
     setCurrentChatPhone(phone);
     const name = _profiles[phone]?.name || phone;
-    document.getElementById('adminChatHeader').innerHTML = `<i class="fa-solid fa-headset text-hola-orange"></i> محادثة مع: <span class="text-hola-orange">${name}</span>`;
+    const header = document.getElementById('adminChatHeader');
+    if (header) {
+        header.innerHTML = `<i class="fa-solid fa-headset text-hola-orange"></i> محادثة مع: <span class="text-hola-orange"></span>`;
+        const nameSpan = header.querySelector('span');
+        if (nameSpan) nameSpan.textContent = name;
+    }
     document.getElementById('adminChatInput').disabled = false;
     document.getElementById('adminChatBtn').disabled = false;
     renderAdminChatUsersList(_chats, _profiles, phone);
@@ -1162,8 +1168,16 @@ window.switchView = (viewName) => {
     } else if (remoteTab && viewName !== 'client') {
         remoteTab.classList.add('hidden');
     }
+    if (viewName === 'client') {
+        if (window.renderProfileData) window.renderProfileData();
+        if (window.renderAdsEventsPanel) window.renderAdsEventsPanel();
+    }
 };
-window.switchClientTab = switchClientTab;
+window.switchClientTab = (tabName) => {
+    switchClientTab(tabName);
+    if (tabName === 'profile' && window.renderProfileData) window.renderProfileData();
+    if (tabName === 'ads' && window.renderAdsEventsPanel) window.renderAdsEventsPanel();
+};
 window.switchAdminTab = switchAdminTab;
 window.checkLocationForLogin = checkLocationForLogin;
 window.showPreBookingFallback = showPreBookingFallback;
@@ -1172,6 +1186,7 @@ window.checkNewUser = (val) => checkNewUser(val, _profiles);
 window.submitPreBooking = () => submitPreBooking(db, appId);
 window.submitInternalPreBooking = (type) => submitInternalPreBooking(type, db, appId, myProfile);
 window.handleLogin = () => handleLogin(db, appId, _profiles, _sessions, sysSettings);
+window.enterGuestMode = enterGuestMode;
 window.showAdminLoginModal = showAdminLoginModal;
 window.verifyAdminPin = () => verifyAdminPin(db, appId, sysSettings, activeSessionId);
 window.logoutAdmin = () => logoutAdmin(activeSessionId, currentShiftAdmin, db, appId);
@@ -1773,6 +1788,8 @@ window.clientLogout = () => {
     // Show normal tabs, hide remote tab
     document.getElementById('c-tab-session')?.classList.remove('hidden');
     document.getElementById('c-tab-prebook')?.classList.remove('hidden');
+    document.getElementById('c-tab-internet')?.classList.remove('hidden');
+    document.getElementById('c-tab-subscriptions')?.classList.remove('hidden');
     document.getElementById('c-tab-remote')?.classList.add('hidden');
     // Reset login form
     const loginPhone = document.getElementById('loginPhone'); if (loginPhone) loginPhone.value = '';
@@ -1780,6 +1797,70 @@ window.clientLogout = () => {
     document.getElementById('nameField')?.classList.add('hidden');
     switchView('public');
     showMsg('تم تسجيل الخروج', 'info');
+};
+
+window.renderProfileData = () => {
+    if (!myProfile || myProfile.phone === 'guest') return;
+    const prof = _profiles[myProfile.phone] || myProfile;
+    safeSet('profileNameInput', 'value', prof.name || '');
+    safeSet('profilePhoneInput', 'value', prof.phone || '');
+    safeSet('profileWifiCardInput', 'value', prof.wifiCardCode || '');
+};
+
+window.saveProfileData = async () => {
+    if (!db || !myProfile || myProfile.phone === 'guest') return showMsg("غير متاح في وضع الضيف", "error");
+    const newName = document.getElementById('profileNameInput')?.value.trim();
+    const newWifi = document.getElementById('profileWifiCardInput')?.value.trim().toUpperCase();
+    if (!newName || newName.length < 2) return showMsg("أدخل اسمًا صحيحًا", "error");
+    if (!newWifi) return showMsg("أدخل كود كارت الواي فاي", "error");
+    try {
+        await updateDoc(doc(db, 'artifacts', appId, 'public', 'data', 'profiles', myProfile.phone), {
+            name: newName,
+            wifiCardCode: newWifi
+        });
+        if (_profiles[myProfile.phone]) {
+            _profiles[myProfile.phone].name = newName;
+            _profiles[myProfile.phone].wifiCardCode = newWifi;
+        }
+        setMyProfile({ ...myProfile, name: newName, wifiCardCode: newWifi });
+        updateClientHeaderUI({ ...myProfile, name: newName }, _profiles, sysSettings);
+        showMsg("تم حفظ بيانات الملف الشخصي", "success");
+    } catch (e) { showMsg("تعذر حفظ البيانات", "error"); }
+};
+
+window.renderAdsEventsPanel = () => {
+    const adsWrap = document.getElementById('adsCardsWrap');
+    const eventsWrap = document.getElementById('eventsCardsWrap');
+    if (adsWrap) {
+        if (sysSettings.promoImg || sysSettings.promoText || sysSettings.promoLink || sysSettings.promoEmbed) {
+            const body = sysSettings.promoEmbed
+                ? `<div class="overflow-hidden rounded-xl border">${sysSettings.promoEmbed}</div>`
+                : `
+                    ${sysSettings.promoImg ? `<img src="${sysSettings.promoImg}" class="w-full h-36 object-cover rounded-xl border mb-2" alt="إعلان">` : ''}
+                    <p class="text-xs font-bold text-gray-700 mb-2">${sysSettings.promoText || 'إعلان مميز من Hola'}</p>
+                    ${sysSettings.promoLink ? `<a href="${sysSettings.promoLink}" target="_blank" class="inline-flex items-center gap-1 text-xs font-black bg-hola-purple text-white px-3 py-2 rounded-lg">عرض التفاصيل <i class="fa-solid fa-arrow-up-right-from-square"></i></a>` : ''}
+                `;
+            adsWrap.innerHTML = `<div class="bg-white border border-purple-100 rounded-2xl p-3 shadow-sm sm:col-span-2">${body}</div>`;
+        } else {
+            adsWrap.innerHTML = '<div class="bg-gray-50 border border-gray-200 rounded-xl p-3 text-xs text-gray-500 font-bold sm:col-span-2 text-center">لا توجد إعلانات حالياً</div>';
+        }
+    }
+    if (eventsWrap) {
+        const cards = [];
+        for (let slot = 1; slot <= 3; slot++) {
+            const k = (x) => slot === 1 ? x : `ev${slot}_${x}`;
+            if (sysSettings[k('evActive')] && sysSettings[k('evTitle')]) {
+                cards.push(`
+                    <button onclick="window.openEventLanding(${slot})" class="text-right bg-white border border-orange-100 rounded-2xl p-3 shadow-sm hover:shadow-md transition">
+                        <p class="text-[10px] font-black text-hola-orange mb-1">فعالية</p>
+                        <p class="font-black text-hola-purple text-sm mb-1">${sysSettings[k('evTitle')]}</p>
+                        <p class="text-[11px] text-gray-500 font-bold">${sysSettings[k('evTime')] || 'قريباً'}</p>
+                    </button>
+                `);
+            }
+        }
+        eventsWrap.innerHTML = cards.length ? cards.join('') : '<div class="bg-gray-50 border border-gray-200 rounded-xl p-3 text-xs text-gray-500 font-bold sm:col-span-2 text-center">لا توجد فعاليات نشطة حالياً</div>';
+    }
 };
 
 

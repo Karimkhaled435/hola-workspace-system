@@ -196,6 +196,30 @@ select {
     #viewPublic .glass-card {
         padding: 1rem;
     }
+
+    /* Login gate compact mobile layout */
+    #authContainer {
+        border-radius: 1rem;
+    }
+
+    #locationCheckState .grid.grid-cols-3 {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 0.35rem;
+    }
+
+    #locationCheckState button,
+    #loginForm button {
+        font-size: 0.78rem;
+    }
+
+    #loginForm input {
+        font-size: 0.9rem;
+    }
+
+    #viewClient [id^="c-tab-"] {
+        padding: 0.5rem 0.75rem;
+        font-size: 0.75rem;
+    }
 }
 
 /* ── Client session panel — stack on mobile ─────────── */
