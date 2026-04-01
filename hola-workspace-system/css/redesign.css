@@ -17,6 +17,17 @@ body {
     color: var(--text-main);
 }
 
+body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    background:
+        radial-gradient(circle at 85% 10%, rgba(241, 114, 0, 0.08), transparent 34%),
+        radial-gradient(circle at 10% 85%, rgba(48, 16, 67, 0.08), transparent 38%);
+    z-index: -1;
+}
+
 header {
     border-bottom: 1px solid rgba(255, 255, 255, 0.12);
     backdrop-filter: blur(8px);
@@ -68,6 +79,24 @@ a[href]:active {
 #clientTabsContainer > button,
 #adminTabsContainer > button {
     border-radius: 0.75rem;
+    font-weight: 800;
+}
+
+.client-tab-active,
+.tab-active {
+    background: linear-gradient(135deg, #301043, #4a1a67);
+    color: #fff !important;
+    box-shadow: 0 6px 16px rgba(48, 16, 67, 0.22);
+}
+
+#viewPublic .glass-card,
+#viewClient .glass-card,
+#viewAdmin .glass-card {
+    backdrop-filter: blur(6px);
+}
+
+main#mainContent {
+    padding-bottom: 4.5rem;
 }
 
 #msgBox > div {
@@ -111,6 +140,21 @@ a[href]:active {
     #navPublic,
     #navClient {
         font-size: 0.8rem;
+    }
+
+    #navPublic {
+        position: fixed;
+        right: 0.55rem;
+        left: 0.55rem;
+        bottom: 0.5rem;
+        z-index: 60;
+        justify-content: space-around;
+        padding: 0.4rem 0.45rem;
+        border-radius: 1rem;
+        border: 1px solid rgba(255, 255, 255, 0.65);
+        background: rgba(255, 255, 255, 0.88);
+        backdrop-filter: blur(12px);
+        box-shadow: 0 8px 30px rgba(48, 16, 67, 0.2);
     }
 
     #navAdminBtn,
@@ -169,6 +213,12 @@ a[href]:active {
     #viewClient #clientHeaderCard {
         padding: 0.8rem !important;
         border-radius: 1rem;
+    }
+
+    #viewClient .client-tab-content,
+    #viewAdmin .admin-tab-content,
+    #viewPublic .glass-card {
+        box-shadow: 0 10px 28px rgba(17, 24, 39, 0.08);
     }
 
     #viewClient #clientWelcomeName {
