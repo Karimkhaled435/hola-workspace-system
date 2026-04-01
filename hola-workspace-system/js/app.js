@@ -1127,7 +1127,12 @@ window.sendClientMessage = async () => {
 window.openAdminChat = (phone) => {
     setCurrentChatPhone(phone);
     const name = _profiles[phone]?.name || phone;
-    document.getElementById('adminChatHeader').innerHTML = `<i class="fa-solid fa-headset text-hola-orange"></i> محادثة مع: <span class="text-hola-orange">${name}</span>`;
+    const header = document.getElementById('adminChatHeader');
+    if (header) {
+        header.innerHTML = `<i class="fa-solid fa-headset text-hola-orange"></i> محادثة مع: <span class="text-hola-orange"></span>`;
+        const nameSpan = header.querySelector('span');
+        if (nameSpan) nameSpan.textContent = name;
+    }
     document.getElementById('adminChatInput').disabled = false;
     document.getElementById('adminChatBtn').disabled = false;
     renderAdminChatUsersList(_chats, _profiles, phone);

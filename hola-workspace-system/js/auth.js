@@ -47,8 +47,7 @@ export function checkLocationForLogin() {
                 document.getElementById('locationCheckState')?.classList.add('hidden');
                 document.getElementById('loginForm')?.classList.remove('hidden');
                 localStorage.setItem('hola_inside_workspace', '1');
-                localStorage.setItem('hola_last_workspace_lat', String(lat));
-                localStorage.setItem('hola_last_workspace_lng', String(lng));
+                window._verifiedLoginLocation = { lat, lng };
                 showMsg("تم التأكد من موقعك بنجاح! تفضل بتسجيل الدخول.", "success");
             } else {
                 localStorage.removeItem('hola_inside_workspace');
@@ -227,8 +226,8 @@ export async function handleLogin(db, appId, _profiles, _sessions, sysSettings) 
             const newProfile = {
                 name: n, phone: p, walletBalance: 0, stamps: [], joinedAt: Date.now(),
                 wifiCardCode: wifiCode,
-                homeLat: parseFloat(localStorage.getItem('hola_last_workspace_lat') || `${sysSettings.workspaceLat}`),
-                homeLng: parseFloat(localStorage.getItem('hola_last_workspace_lng') || `${sysSettings.workspaceLng}`)
+                homeLat: parseFloat(window._verifiedLoginLocation?.lat || `${sysSettings.workspaceLat}`),
+                homeLng: parseFloat(window._verifiedLoginLocation?.lng || `${sysSettings.workspaceLng}`)
             };
             await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'profiles', p), newProfile);
             prof = newProfile; _profiles[p] = newProfile; showMsg("تم إنشاء حسابك بنجاح!", "success");
