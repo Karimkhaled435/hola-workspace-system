@@ -1765,8 +1765,16 @@ async function _unregisterAdminSession() {
 }
 
 
-// ─── Live client tab rendering from Firestore snapshots (no manual sync) ─────
-window._syncTab = () => {};
+// ─── Live client sync bridge (fallback sync across views/tabs) ───────────────
+window._syncTab = () => {
+    if (typeof window._syncAllClientTabs === 'function') {
+        window._syncAllClientTabs();
+    }
+};
+document.addEventListener('visibilitychange', () => {
+    if (!document.hidden) window._syncTab();
+});
+window.addEventListener('focus', () => window._syncTab());
 
 
 // ─── Client Logout ────────────────────────────────────────────────────────────
