@@ -7,12 +7,19 @@ import { _sessions } from "./sessions.js";
 
 function calculateTimeCost(diffMs, sysSettings) {
     if (diffMs <= 0) return 0;
-    const hours = Math.ceil(diffMs / 3600000);
-    let cost = 0;
-    if (hours >= 1) cost += sysSettings.pricingTier1;
-    if (hours >= 2) cost += sysSettings.pricingTier2;
-    if (hours >= 3) cost += sysSettings.pricingTier3;
-    return cost;
+    const totalHours = diffMs / 3600000;
+    const includedHours = Math.max(0, Number(sysSettings.pricingIncludedHours ?? 3));
+    const extraHourPrice = Math.max(0, Number(sysSettings.pricingExtraHourPrice ?? 5));
+    const roundingMode = String(sysSettings.pricingExtraHourRounding || "started_hour");
+    const baseCost =
+        Number(sysSettings.pricingTier1 || 0) +
+        Number(sysSettings.pricingTier2 || 0) +
+        Number(sysSettings.pricingTier3 || 0);
+    const extraRawHours = Math.max(0, totalHours - includedHours);
+    const extraHours = roundingMode === "exact"
+        ? extraRawHours
+        : Math.ceil(extraRawHours);
+    return Math.round(baseCost + (extraHours * extraHourPrice));
 }
 
 export function printInvoice(id, _sessions, sysSettings) {

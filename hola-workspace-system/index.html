@@ -176,7 +176,7 @@
                             <span class="text-hola-orange">الساعة الأولى:</span> <span id="pubT1">25</span> ج.م<br>
                             <span class="text-hola-orange">الساعة الثانية:</span> <span id="pubT2">15</span> ج.م<br>
                             <span class="text-hola-orange">الساعة الثالثة:</span> <span id="pubT3">10</span> ج.م<br>
-                            <strong class="text-green-600 font-black mt-2 inline-block">بعد الساعة الثالثة: بقية اليوم مجاناً! 🎉</strong><br>
+                            <strong class="text-green-600 font-black mt-2 inline-block">بعد <span id="pubIncludedHours">3</span> ساعات: كل ساعة إضافية <span id="pubExtraHourPrice">5</span> ج.م</strong><br>
                             <strong class="text-hola-purple font-black mt-1 inline-block">🥤 ملاحظة: مشروب مجاني لكل عميل!</strong>
                         </div>
                         <p id="publicDescription" class="text-xs text-gray-500 mb-4"></p>
@@ -1041,6 +1041,9 @@
                             <div><label for="setT1" class="block text-xs text-gray-600 mb-1">الساعة الأولى (ج.م)</label><input type="number" id="setT1" class="w-full border-2 p-2.5 rounded-xl text-center font-black text-lg text-hola-purple focus:border-hola-orange outline-none"></div>
                             <div><label for="setT2" class="block text-xs text-gray-600 mb-1">الساعة الثانية (ج.م)</label><input type="number" id="setT2" class="w-full border-2 p-2.5 rounded-xl text-center font-black text-lg text-hola-purple focus:border-hola-orange outline-none"></div>
                             <div><label for="setT3" class="block text-xs text-gray-600 mb-1">الساعة الثالثة (ج.م)</label><input type="number" id="setT3" class="w-full border-2 p-2.5 rounded-xl text-center font-black text-lg text-hola-purple focus:border-hola-orange outline-none"></div>
+                            <div><label for="setIncludedHours" class="block text-xs text-gray-600 mb-1">عدد الساعات الأساسية</label><input type="number" id="setIncludedHours" class="w-full border-2 p-2.5 rounded-xl text-center font-black text-lg text-hola-purple focus:border-hola-orange outline-none"></div>
+                            <div><label for="setExtraHourPrice" class="block text-xs text-gray-600 mb-1">سعر كل ساعة إضافية (ج.م)</label><input type="number" id="setExtraHourPrice" class="w-full border-2 p-2.5 rounded-xl text-center font-black text-lg text-hola-purple focus:border-hola-orange outline-none"></div>
+                            <div><label for="setExtraRounding" class="block text-xs text-gray-600 mb-1">طريقة الحساب</label><select id="setExtraRounding" class="w-full border-2 p-2.5 rounded-xl text-center font-black text-sm text-hola-purple focus:border-hola-orange outline-none"><option value="started_hour">كل ساعة تبدأ تتحسب كاملة</option><option value="exact">حساب دقيق بالساعة</option></select></div>
                         </div>
                     </div>
                     <!-- Card 2: Place & Loyalty -->
