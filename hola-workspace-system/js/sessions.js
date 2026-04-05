@@ -124,10 +124,18 @@ export function setupListeners(db, appId) {
             if (sysSettings.voteLoud === undefined) sysSettings.voteLoud = 0;
             if (sysSettings.voteBad === undefined) sysSettings.voteBad = 0;
             if (!sysSettings.musicVoteRound) sysSettings.musicVoteRound = 1;
+            if (!sysSettings.pricingIncludedHours) sysSettings.pricingIncludedHours = 3;
+            if (sysSettings.pricingExtraHourPrice === undefined) sysSettings.pricingExtraHourPrice = 5;
+            if (!sysSettings.pricingExtraHourRounding) sysSettings.pricingExtraHourRounding = "started_hour";
 
             safeSet('pubT1','innerText',sysSettings.pricingTier1); safeSet('pubT2','innerText',sysSettings.pricingTier2); safeSet('pubT3','innerText',sysSettings.pricingTier3);
             safeSet('hintT1','innerText',sysSettings.pricingTier1); safeSet('hintT2','innerText',sysSettings.pricingTier2); safeSet('hintT3','innerText',sysSettings.pricingTier3);
             safeSet('setT1','value',sysSettings.pricingTier1); safeSet('setT2','value',sysSettings.pricingTier2); safeSet('setT3','value',sysSettings.pricingTier3);
+            safeSet('setIncludedHours','value',sysSettings.pricingIncludedHours);
+            safeSet('setExtraHourPrice','value',sysSettings.pricingExtraHourPrice);
+            safeSet('setExtraRounding','value',sysSettings.pricingExtraHourRounding);
+            safeSet('pubIncludedHours','innerText',sysSettings.pricingIncludedHours);
+            safeSet('pubExtraHourPrice','innerText',sysSettings.pricingExtraHourPrice);
             safeSet('setMaxCap','value',sysSettings.maxCapacity); safeSet('setStampsReq','value',sysSettings.stampsRequired);
             safeSet('settingAdminPin','value',sysSettings.adminPin);
             safeSet('publicDescription','innerText',sysSettings.description); safeSet('settingDescription','value',sysSettings.description);

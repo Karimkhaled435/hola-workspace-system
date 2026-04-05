@@ -64,12 +64,19 @@ export async function logOperation(db, appId, adminName, actionType, details) {
 // ─── Time Cost Calculation ────────────────────────────────────────────────────
 function calculateTimeCost(diffMs) {
     if (diffMs <= 0) return 0;
-    const hours = Math.ceil(diffMs / 3600000);
-    let cost = 0;
-    if (hours >= 1) cost += sysSettings.pricingTier1;
-    if (hours >= 2) cost += sysSettings.pricingTier2;
-    if (hours >= 3) cost += sysSettings.pricingTier3;
-    return cost;
+    const totalHours = diffMs / 3600000;
+    const includedHours = Math.max(0, Number(sysSettings.pricingIncludedHours ?? 3));
+    const extraHourPrice = Math.max(0, Number(sysSettings.pricingExtraHourPrice ?? 5));
+    const roundingMode = String(sysSettings.pricingExtraHourRounding || "started_hour");
+    const baseCost =
+        Number(sysSettings.pricingTier1 || 0) +
+        Number(sysSettings.pricingTier2 || 0) +
+        Number(sysSettings.pricingTier3 || 0);
+    const extraRawHours = Math.max(0, totalHours - includedHours);
+    const extraHours = roundingMode === "exact"
+        ? extraRawHours
+        : Math.ceil(extraRawHours);
+    return Math.round(baseCost + (extraHours * extraHourPrice));
 }
 
 // ─── Timer & Dashboard ────────────────────────────────────────────────────────
@@ -629,6 +636,9 @@ window.saveSystemSettings = async () => {
         pricingTier1: parseInt(getVal('setT1')) || 25,
         pricingTier2: parseInt(getVal('setT2')) || 15,
         pricingTier3: parseInt(getVal('setT3')) || 10,
+        pricingIncludedHours: parseInt(getVal('setIncludedHours')) || 3,
+        pricingExtraHourPrice: parseInt(getVal('setExtraHourPrice')) || 5,
+        pricingExtraHourRounding: getVal('setExtraRounding') || "started_hour",
         stampsRequired: parseInt(getVal('setStampsReq')) || 7,
         promoImg: getVal('setPromoImg'), promoText: getVal('setPromoText'), promoLink: getVal('setPromoLink'),
         promoEmbed: getVal('setPromoEmbed'),
