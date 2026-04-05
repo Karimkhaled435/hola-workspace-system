@@ -43,7 +43,7 @@ window.lastCompletedSessionId = null;
 window.lastAdminCompletedSessionId = null;
 window.currentPaymentSessionId = null;
 window.currentPaymentType = null;
-window._currentShiftAdmin = window._currentShiftAdmin || "مدير النظام";
+window._currentShiftAdmin = "مدير النظام";
 window._currentEvSlot = 1; // Current event slot being edited
 
 // ─── Sound Alerts ─────────────────────────────────────────────────────────────
