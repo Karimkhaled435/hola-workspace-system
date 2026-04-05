@@ -1,0 +1,1926 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hola Workspace | #Your digital gateway</title>
+    <!-- Favicon -->
+    <link rel="icon" href="https://i.postimg.cc/rsLC5pbm/hola.png" type="image/png">
+    <link rel="shortcut icon" type="image/x-icon" href="data:image/x-icon;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAAFElEQVR42gENAP7/AP///wAAAAAAAAAAAM4BAwAAAABJRU5ErkJggg==">
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts: Cairo -->
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Google reCAPTCHA -->
+    <script src="https://www.google.com/recaptcha/api.js" async defer></script>
+    <!-- Project CSS -->
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/admin.css">
+    <link rel="stylesheet" href="css/print.css">
+    <link rel="stylesheet" href="css/mobile.css">
+    <link rel="stylesheet" href="css/redesign.css">
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        hola: { purple: '#301043', orange: '#f17200', light: '#f8f9fa', dark: '#1a0826' }
+                    },
+                    fontFamily: { sans: ['Cairo', 'sans-serif'] }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="text-gray-800 antialiased min-h-screen flex flex-col relative">
+
+    <!-- Skip to main content (accessibility) -->
+    <a href="#mainContent" class="skip-to-main">تخطى للمحتوى الرئيسي</a>
+
+    <!-- Sound Alerts -->
+    <audio id="alertSound" src="https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3" preload="auto"></audio>
+    <audio id="soundCongrats" src="https://assets.mixkit.co/active_storage/sfx/2018/2018-preview.mp3" preload="auto"></audio>
+    <audio id="soundHigh" src="https://assets.mixkit.co/active_storage/sfx/2868/2868-preview.mp3" preload="auto"></audio>
+
+    <!-- Normal Invoice Print Area -->
+    <div id="invoicePrintArea" class="hidden w-full max-w-2xl mx-auto p-8 bg-white relative">
+        <div class="flex justify-between items-center border-b-2 border-gray-200 pb-4 mb-6">
+            <div class="flex items-center gap-3">
+                <img src="https://i.postimg.cc/rsLC5pbm/hola.png" alt="" aria-hidden="true" class="h-16">
+                <div>
+                    <h1 class="text-2xl font-black text-hola-purple tracking-wide">HOLA WORKSPACE</h1>
+                    <p class="text-xs text-hola-orange font-bold uppercase">#Your digital gateway</p>
+                </div>
+            </div>
+            <div class="text-left">
+                <h2 class="text-xl font-bold text-gray-700">فاتورة حساب</h2>
+                <p class="text-sm font-mono text-gray-500" id="printDate">--/--/----</p>
+            </div>
+        </div>
+        <div class="mb-4 flex justify-between bg-gray-50 p-4 rounded-lg border border-gray-200">
+            <div>
+                <p class="text-sm text-gray-500 font-bold">بيانات العميل:</p>
+                <p class="font-bold text-lg text-hola-purple" id="printClientName">الاسم</p>
+                <p class="font-mono text-sm" id="printClientPhone">010...</p>
+            </div>
+            <div class="text-left">
+                <p class="text-sm text-gray-500 font-bold">مدة الجلسة:</p>
+                <p class="font-bold text-lg text-hola-orange" id="printDuration">00:00</p>
+            </div>
+        </div>
+        <div class="text-sm text-gray-500 font-bold mb-6 border-b pb-2">مسؤول الشفت: <span id="printAdminName" class="text-hola-purple">---</span>
+            <span class="float-left font-black bg-purple-100 px-3 py-1 rounded text-hola-purple" id="printPaymentMethod"></span>
+        </div>
+        <table class="w-full text-right mb-6 border-collapse">
+            <thead>
+                <tr class="bg-hola-purple text-white">
+                    <th class="p-2 border" scope="col">البيان</th>
+                    <th class="p-2 border w-32" scope="col">السعر (ج.م)</th>
+                </tr>
+            </thead>
+            <tbody id="printItemsList" class="text-sm"></tbody>
+            <tfoot>
+                <tr class="bg-gray-100 font-bold"><td class="p-2 border text-left">إجمالي تكلفة الوقت:</td><td class="p-2 border text-hola-purple" id="printTimeCost">0</td></tr>
+                <tr class="bg-gray-100 font-bold"><td class="p-2 border text-left">إجمالي الطلبات:</td><td class="p-2 border text-hola-purple" id="printItemsTotal">0</td></tr>
+                <tr class="bg-orange-50 font-bold text-hola-orange"><td class="p-2 border text-left">الخصومات / فكة مستخدمة:</td><td class="p-2 border" id="printDiscount">- 0</td></tr>
+                <tr class="bg-hola-purple text-white font-black text-lg"><td class="p-3 border text-left">الإجمالي النهائي المسدد:</td><td class="p-3 border" id="printFinalCost">0 ج.م</td></tr>
+            </tfoot>
+        </table>
+        <div class="text-center mt-10 text-gray-500 text-sm font-bold border-t pt-4">
+            <p>شكراً لزيارتك مساحة العمل الخاصة بك 💜</p>
+            <p class="text-xs mt-1 uppercase tracking-widest font-mono">Hola Workspace - Meetings & Courses</p>
+        </div>
+    </div>
+
+    <!-- Header -->
+    <header class="bg-hola-purple text-white shadow-xl sticky top-0 z-50 no-print">
+        <div class="container mx-auto px-4 py-3 flex justify-between items-center">
+            <div class="flex items-center gap-3">
+                <img src="https://i.postimg.cc/rsLC5pbm/hola.png" alt="Hola Workspace Logo" class="h-12 bg-white p-1 rounded-xl shadow-inner">
+                <div>
+                    <h1 class="text-2xl font-black tracking-wide leading-none">HOLA</h1>
+                    <p class="text-[10px] text-hola-orange italic font-bold tracking-widest uppercase">#Your digital gateway</p>
+                </div>
+            </div>
+            <div class="flex gap-4 items-center" role="group" aria-label="القائمة الرئيسية">
+                <button id="navPublic" class="hover:text-hola-orange transition font-bold" onclick="window.switchView('public')">الرئيسية</button>
+                <button id="navClient" class="hidden hover:text-hola-orange transition font-bold" onclick="window.switchView('client')">مساحتي</button>
+                <button id="navAdminBtn" class="hover:bg-hola-orange hover:text-white transition font-bold border border-hola-orange text-hola-orange px-4 py-1.5 rounded-full text-sm" onclick="window.showAdminLoginModal()">
+                    <i aria-hidden="true" class="fa-solid fa-lock text-xs ml-1"></i> الإدارة
+                </button>
+                <button id="navAdminActiveBtn" class="hidden bg-hola-purple border border-white hover:bg-hola-dark text-white font-bold px-4 py-1.5 rounded-full text-sm transition" onclick="window.switchView('admin')">
+                    <i aria-hidden="true" class="fa-solid fa-clipboard-list text-xs ml-1"></i> لوحة التحكم
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content Area -->
+    <main id="mainContent" class="flex-grow container mx-auto px-4 py-8 no-print">
+
+        <!-- ================= PUBLIC VIEW ================= -->
+        <section id="viewPublic" class="fade-in">
+            <div class="text-center max-w-2xl mx-auto mb-10">
+                <h2 class="text-4xl font-extrabold text-hola-purple mb-4">أهلاً بك في مساحة الإبداع</h2>
+                <p class="text-lg text-gray-500 font-semibold">تأكد من تواجدك في المكان وسجل دخولك فوراً. HOLA</p>
+            </div>
+            <div class="grid md:grid-cols-2 gap-8 max-w-5xl mx-auto">
+                <!-- Info Side -->
+                <div class="space-y-6">
+                    <!-- FB Promo Card -->
+                    <div id="fbPromoCard" class="hidden glass-card p-4 border-2 border-blue-100 shadow-md relative overflow-hidden transition transform hover:scale-[1.02]">
+                        <div class="absolute top-0 right-0 bg-blue-600 text-white text-[10px] px-3 py-1 rounded-bl-lg font-bold"><i aria-hidden="true" class="fa-brands fa-facebook mr-1"></i> جديدنا</div>
+                        <img id="pubPromoImg" src="" alt="صورة الإعلان" class="w-full h-auto max-h-64 object-contain rounded-lg mb-3 mt-4 shadow-sm border bg-gray-50">
+                        <p id="pubPromoText" class="text-sm font-bold text-gray-700 text-center mb-3 leading-relaxed hidden"></p>
+                        <a id="pubPromoLink" href="#" target="_blank" class="block w-full bg-blue-600 text-white text-center py-2 rounded-lg text-sm font-bold hover:bg-blue-700 transition">
+                            عرض التفاصيل على فيسبوك <i aria-hidden="true" class="fa-solid fa-arrow-up-right-from-square ml-1 text-xs"></i>
+                        </a>
+                    </div>
+                    <!-- Capacity Gauge -->
+                    <div class="glass-card p-6 border-r-4 border-hola-orange">
+                        <h3 class="text-xl font-bold mb-1">حالة المكان الآن</h3>
+                        <p class="text-sm font-bold" id="publicStatusText">جاري الحساب...</p>
+                        <div class="w-full h-5 bg-gray-200 rounded-full overflow-hidden mt-4 relative shadow-inner" aria-hidden="true">
+                            <div id="capacityGauge" class="h-full bg-gradient-to-l from-red-500 via-yellow-400 to-green-500 transition-all duration-1000 w-0 relative">
+                                <div class="absolute right-0 top-0 bottom-0 w-2 bg-white/50 animate-pulse"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Events Public Banner -->
+                    <div id="publicEventsBanners" class="space-y-2"></div>
+                    
+                    <!-- Subscription Teaser -->
+                    <button class="w-full text-right glass-card p-4 border-r-4 border-hola-orange bg-gradient-to-l from-orange-50 to-white cursor-pointer hover:shadow-md transition" onclick="window.showSubscriptionModal()">
+                        <div class="flex items-center gap-3">
+                            <div class="w-10 h-10 bg-hola-orange text-white rounded-full flex items-center justify-center text-lg flex-shrink-0"><i aria-hidden="true" class="fa-solid fa-crown"></i></div>
+                            <div>
+                                <p class="font-black text-hola-purple text-sm">الباقات الاشتراكية</p>
+                                <p class="text-xs text-gray-500 font-bold">باقات أسبوعية وشهرية بأسعار مميزة — اشترك الآن!</p>
+                            </div>
+                            <i aria-hidden="true" class="fa-solid fa-arrow-left text-hola-orange mr-auto"></i>
+                        </div>
+                    </button>
+
+                    <!-- Pricing Card -->
+                    <div class="glass-card p-6 border-r-4 border-hola-purple">
+                        <div class="flex items-center gap-3 mb-3">
+                            <i aria-hidden="true" class="fa-solid fa-clock text-2xl text-hola-purple"></i>
+                            <h3 class="text-xl font-bold">نظام الحساب المَرن</h3>
+                        </div>
+                        <div class="text-sm font-bold text-gray-700 bg-purple-50 p-4 rounded-lg border border-purple-100 mb-3 leading-relaxed">
+                            <span class="text-hola-orange">الساعة الأولى:</span> <span id="pubT1">25</span> ج.م<br>
+                            <span class="text-hola-orange">الساعة الثانية:</span> <span id="pubT2">15</span> ج.م<br>
+                            <span class="text-hola-orange">الساعة الثالثة:</span> <span id="pubT3">10</span> ج.م<br>
+                            <strong class="text-green-600 font-black mt-2 inline-block">بعد الساعة الثالثة: بقية اليوم مجاناً! 🎉</strong><br>
+                            <strong class="text-hola-purple font-black mt-1 inline-block">🥤 ملاحظة: مشروب مجاني لكل عميل!</strong>
+                        </div>
+                        <p id="publicDescription" class="text-xs text-gray-500 mb-4"></p>
+                        <div class="bg-gray-50 p-3 rounded-lg border border-gray-100 text-sm font-semibold flex items-center gap-2">
+                            <i aria-hidden="true" class="fa-solid fa-stamp text-hola-purple"></i>
+                            <span id="publicLoyaltyText">اجمع 7 أختام = كود خصم 100%!</span>
+                        </div>
+                    </div>
+                </div>
+                <!-- Login & Pre-booking Side -->
+                <div class="glass-card bg-white/60 relative overflow-hidden rounded-2xl shadow-xl" id="authContainer">
+
+                    <!-- STEP 1: Landing Gate -->
+                    <div id="locationCheckState" class="transition-all duration-500">
+                        <div class="bg-gradient-to-br from-hola-purple via-purple-800 to-hola-dark px-5 pt-6 pb-6 text-white text-center relative overflow-hidden">
+                            <div class="absolute inset-0 opacity-10" style="background-image:radial-gradient(circle at 20% 50%, white 1px, transparent 1px),radial-gradient(circle at 80% 20%, white 1px, transparent 1px);background-size:30px 30px;"></div>
+                            <div class="relative z-10">
+                                <p class="text-[11px] text-purple-100 font-black mb-2">أهلاً في Hola ابدأ جلستك</p>
+                                <div class="w-14 h-14 bg-white/15 rounded-2xl flex items-center justify-center text-2xl mx-auto mb-2.5 shadow-inner border border-white/20">
+                                    <i aria-hidden="true" class="fa-solid fa-mug-hot text-hola-orange"></i>
+                                </div>
+                                <h3 class="text-lg font-black mb-1">بوابة الدخول الذكية</h3>
+                                <p class="text-[11px] text-purple-200 font-bold">تأكيد الموقع مطلوب قبل تفعيل الدخول</p>
+                            </div>
+                        </div>
+                        <div class="p-4 space-y-2 mt-1.5">
+                            <button onclick="window.checkLocationForLogin()"
+                                class="w-full bg-hola-purple hover:bg-hola-dark text-white font-black py-3.5 rounded-2xl shadow-lg transition-all active:scale-95 flex items-center justify-center gap-2.5 text-sm">
+                                <div class="w-7 h-7 bg-white/20 rounded-xl flex items-center justify-center">
+                                    <i aria-hidden="true" class="fa-solid fa-location-crosshairs text-sm"></i>
+                                </div>
+                                تحقق من موقعي وسجّل الدخول
+                            </button>
+                            <div class="flex items-center gap-3 py-0.5" aria-hidden="true">
+                                <div class="flex-1 h-px bg-gray-200"></div>
+                                <span class="text-[10px] text-gray-400 font-bold tracking-wider">خيارات أخرى</span>
+                                <div class="flex-1 h-px bg-gray-200"></div>
+                            </div>
+                            <div class="grid grid-cols-3 gap-1.5" role="group" aria-label="خيارات الخدمات">
+                                <button onclick="window.showPreBookingFallback('حجز مسبق')"
+                                    class="bg-orange-50 border border-orange-100 text-hola-orange font-bold py-2.5 rounded-xl hover:bg-orange-100 transition-all text-[10px] flex flex-col items-center gap-1 active:scale-95">
+                                    <i aria-hidden="true" class="fa-solid fa-calendar-check text-sm"></i>
+                                    حجز مسبق
+                                </button>
+                                <button onclick="window.showQuickBookModal()"
+                                    class="bg-gray-50 border border-gray-200 text-gray-600 font-bold py-2.5 rounded-xl hover:bg-gray-100 transition-all text-[10px] flex flex-col items-center gap-1 active:scale-95">
+                                    <i aria-hidden="true" class="fa-solid fa-bolt text-sm text-hola-orange"></i>
+                                    حجز سريع
+                                </button>
+                                <button onclick="document.getElementById('cardLoginModal').classList.remove('hidden')"
+                                    class="bg-blue-50 border border-blue-100 text-blue-600 font-bold py-2.5 rounded-xl hover:bg-blue-100 transition-all text-[10px] flex flex-col items-center gap-1 active:scale-95">
+                                    <i aria-hidden="true" class="fa-solid fa-wifi text-sm"></i>
+                                    كرت إنترنت
+                                </button>
+                            </div>
+                            <p class="text-center text-[10px] text-gray-400 font-bold pt-0.5">
+                                <i aria-hidden="true" class="fa-solid fa-circle-info ml-1 text-gray-300"></i>
+                                تسجيل الدخول يتطلب تواجدك داخل المكان
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- STEP 2: New Login Gate Form -->
+                    <div id="loginForm" class="hidden transition-all duration-500">
+                        <div class="bg-gradient-to-r from-green-500 to-green-600 p-3.5 text-white text-center flex items-center justify-center gap-2">
+                            <div class="w-7 h-7 bg-white/20 rounded-full flex items-center justify-center">
+                                <i aria-hidden="true" class="fa-solid fa-circle-check text-sm"></i>
+                            </div>
+                            <span class="font-black text-sm">✓ تم تأكيد موقعك بنجاح</span>
+                        </div>
+                        <div class="p-4 space-y-3.5">
+                            <div>
+                                <label for="loginWifiCode" class="block text-xs font-black text-gray-600 mb-1.5 flex items-center gap-1.5">
+                                    <i aria-hidden="true" class="fa-solid fa-wifi text-hola-purple"></i> كود كارت الواي فاي
+                                </label>
+                                <input type="text" id="loginWifiCode"
+                                    class="w-full border-2 border-gray-200 rounded-xl px-3 py-2.5 focus:outline-none focus:border-hola-orange transition text-center font-mono tracking-[0.2em] font-bold text-sm bg-gray-50 uppercase"
+                                    placeholder="HOLA-XXXX-XXXX" dir="ltr" oninput="this.value=this.value.toUpperCase()">
+                            </div>
+                            <div>
+                                <label for="loginPhone" class="block text-xs font-black text-gray-600 mb-1.5 flex items-center gap-1.5">
+                                    <i aria-hidden="true" class="fa-solid fa-mobile-screen text-hola-purple"></i> رقم الموبايل
+                                </label>
+                                <input type="tel" id="loginPhone" oninput="window.checkNewUser(this.value)"
+                                    class="w-full border-2 border-gray-200 rounded-xl px-3 py-2.5 focus:outline-none focus:border-hola-orange transition text-left font-mono tracking-wider font-bold text-base bg-gray-50 focus:bg-white"
+                                    placeholder="010..." dir="ltr">
+                            </div>
+                            <div class="bg-gray-50 border border-gray-200 rounded-xl p-2.5 flex items-center gap-2">
+                                <input type="checkbox" id="loginHasAccount" onchange="window.checkNewUser(document.getElementById('loginPhone')?.value || '')" class="w-4 h-4 accent-hola-purple">
+                                <label for="loginHasAccount" class="text-xs font-bold text-gray-600">لدي حساب بالفعل</label>
+                            </div>
+                            <div id="nameField" class="hidden transition-all duration-300">
+                                <div class="bg-amber-50 border border-amber-200 rounded-xl p-2 mb-1.5 flex items-center gap-2">
+                                    <i aria-hidden="true" class="fa-solid fa-user-plus text-amber-500 text-xs"></i>
+                                    <span class="text-[11px] font-bold text-amber-700">أول مرة؟ أدخل اسمك</span>
+                                </div>
+                                <label for="loginName" class="sr-only">الاسم</label>
+                                <input type="text" id="loginName"
+                                    class="w-full border-2 border-amber-200 rounded-xl px-3 py-2.5 focus:outline-none focus:border-hola-purple transition font-bold bg-white text-sm"
+                                    placeholder="مثال: أحمد محمد">
+                            </div>
+                            <div class="flex justify-center overflow-hidden scale-90 origin-center" dir="ltr">
+                                <div class="g-recaptcha" id="recaptcha-login" data-sitekey="6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI"></div>
+                            </div>
+                            <button onclick="window.handleLogin()" id="btnLoginSubmit"
+                                class="w-full bg-hola-purple hover:bg-hola-dark text-white font-black py-3.5 rounded-2xl shadow-xl transition-all active:scale-95 flex items-center justify-center gap-2 text-sm">
+                                <i aria-hidden="true" class="fa-solid fa-arrow-right-to-bracket"></i> تأكيد الدخول وبدء الجلسة
+                            </button>
+                            <button onclick="window.enterGuestMode()" id="btnGuestMode"
+                                class="w-full bg-white border-2 border-hola-purple/20 text-hola-purple font-black py-3 rounded-2xl shadow-sm transition-all active:scale-95 flex items-center justify-center gap-2 text-sm">
+                                <i aria-hidden="true" class="fa-solid fa-user-secret"></i> الدخول كضيف
+                            </button>
+                            <button onclick="window.resetLocationCheck()"
+                                class="w-full text-gray-400 font-bold text-xs hover:text-gray-600 transition flex items-center justify-center gap-1 py-1">
+                                <i aria-hidden="true" class="fa-solid fa-chevron-right text-xs"></i> العودة
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- STEP 3: Pre-booking Form -->
+                    <div id="preBookingForm" class="hidden transition-all duration-500">
+                        <div class="bg-gradient-to-br from-hola-orange to-orange-600 p-4 text-white text-center">
+                            <div class="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center text-xl mx-auto mb-1.5">
+                                <i aria-hidden="true" class="fa-solid fa-calendar-check"></i>
+                            </div>
+                            <h3 class="font-black text-base">حجز مسبق</h3>
+                            <p class="text-xs text-orange-100">احجز مقعدك وسننتظرك!</p>
+                        </div>
+                        <div class="p-5 space-y-3">
+                            <div><label for="pbName" class="block text-xs font-bold text-gray-600 mb-1">الاسم بالكامل</label><input type="text" id="pbName" class="w-full border-2 border-gray-200 rounded-xl px-3 py-2.5 focus:outline-none focus:border-hola-orange font-bold bg-gray-50" placeholder="اسمك الكريم"></div>
+                            <div><label for="pbPhone" class="block text-xs font-bold text-gray-600 mb-1">رقم الموبايل</label><input type="tel" id="pbPhone" class="w-full border-2 border-gray-200 rounded-xl px-3 py-2.5 focus:outline-none focus:border-hola-orange text-left font-mono font-bold bg-gray-50" placeholder="010..." dir="ltr"></div>
+                            <div><label for="pbTime" class="block text-xs font-bold text-gray-600 mb-1">موعد الوصول المتوقع</label><input type="datetime-local" id="pbTime" class="w-full border-2 border-gray-200 rounded-xl px-3 py-2.5 focus:outline-none focus:border-hola-orange text-sm font-bold bg-gray-50"></div>
+                            <div class="flex justify-center scale-90 origin-center" dir="ltr">
+                                <div class="g-recaptcha" id="recaptcha-prebook" data-sitekey="6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI"></div>
+                            </div>
+                            <button onclick="window.submitPreBooking()" class="w-full bg-hola-orange hover:bg-orange-600 text-white font-black py-3.5 rounded-2xl shadow-lg transition-all active:scale-95">تأكيد الحجز المسبق <i aria-hidden="true" class="fa-solid fa-check ml-1"></i></button>
+                            <button onclick="window.resetLocationCheck()" class="w-full text-gray-400 font-bold text-xs hover:text-gray-600 transition flex items-center justify-center gap-1 py-1"><i aria-hidden="true" class="fa-solid fa-chevron-right text-xs"></i> العودة</button>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </section>
+
+        <!-- ================= CLIENT VIEW ================= -->
+        <section id="viewClient" class="hidden fade-in">
+            <!-- Event Banner -->
+            <div id="eventBanner" class="hidden bg-gradient-to-r from-purple-800 to-hola-purple text-white p-4 rounded-2xl mb-6 shadow-xl flex flex-col md:flex-row justify-between items-center gap-4 relative overflow-hidden border border-purple-400">
+                <div class="absolute -right-10 -top-10 opacity-10 text-9xl"><i aria-hidden="true" class="fa-solid fa-masks-theater"></i></div>
+                <div class="flex items-center gap-4 z-10 w-full md:w-auto cursor-pointer group" onclick="window.openEventDetails()">
+                    <img id="eventBannerImg" src="" class="w-16 h-16 md:w-20 md:h-20 rounded-xl object-contain border-2 border-hola-orange shadow-md bg-white animate-pulse" alt="صورة الفعالية">
+                    <div>
+                        <h4 id="eventBannerTitle" class="font-black text-xl md:text-2xl text-hola-orange mb-1 group-hover:underline"></h4>
+                        <p id="eventBannerDate" class="text-xs md:text-sm text-purple-200 font-bold"><i aria-hidden="true" class="fa-regular fa-clock ml-1"></i> <span>اضغط لمعرفة التفاصيل</span></p>
+                    </div>
+                </div>
+                <button onclick="window.attendEvent()" class="z-10 w-full md:w-auto bg-hola-orange hover:bg-orange-600 text-white px-6 py-3 rounded-xl font-black shadow-lg transition transform hover:scale-105 whitespace-nowrap">
+                    انوي الحضور <i aria-hidden="true" class="fa-solid fa-hand-sparkles ml-1"></i>
+                </button>
+            </div>
+            <!-- Client Header -->
+            <div id="clientHeaderCard" class="glass-card p-4 mb-6 flex flex-wrap justify-between items-center gap-4 bg-gradient-to-l from-white to-purple-50">
+                <div class="flex items-center gap-4">
+                    <div id="clientAvatarDiv" class="w-12 h-12 bg-hola-purple text-white rounded-full flex items-center justify-center text-xl font-bold shadow-md"><i aria-hidden="true" class="fa-solid fa-user"></i></div>
+                    <div>
+                        <div class="flex items-center gap-2">
+                            <h2 class="text-xl font-bold text-hola-purple" id="clientWelcomeName">أهلاً، العميل</h2>
+                            <span id="remoteBadge" class="hidden bg-gray-700 text-white text-[9px] px-2 py-0.5 rounded-full font-bold animate-pulse">🌐 بعيد</span>
+                        </div>
+                        <p class="text-sm text-gray-500 font-mono" id="clientWelcomePhone">010...</p>
+                    </div>
+                </div>
+                <div class="flex items-center gap-2 md:gap-3">
+                    <button aria-label="الأختام والمكافآت" onclick="window.switchClientTab('loyalty')" class="text-center bg-orange-50 px-3 md:px-4 py-2 rounded-xl border border-orange-100 shadow-sm cursor-pointer hover:bg-orange-100 transition transform hover:-translate-y-1 block w-full">
+                        <p class="text-[10px] text-hola-orange font-black mb-1"><i aria-hidden="true" class="fa-solid fa-stamp"></i> الأختام والمكافآت</p>
+                        <p class="font-bold text-gray-700 text-xs"><span id="clientHeaderStampsCount" class="text-lg font-black text-hola-orange">0</span> / <span id="clientHeaderStampsReq">7</span></p>
+                    </button>
+                    <div class="text-center bg-white px-3 md:px-4 py-2 rounded-xl border shadow-sm">
+                        <p class="text-[10px] text-gray-500 font-bold mb-1">المحفظة (الفكة)</p>
+                        <p class="font-black text-green-600 text-lg"><span id="clientWallet">0</span> <span class="text-xs">ج.م</span></p>
+                    </div>
+                    <button id="clientLogoutBtn" onclick="window.clientLogout()" class="w-9 h-9 rounded-full bg-red-50 border border-red-100 text-red-500 hover:bg-red-100 transition flex items-center justify-center text-sm" aria-label="تسجيل الخروج" title="تسجيل الخروج">
+                        <i aria-hidden="true" class="fa-solid fa-right-from-bracket"></i>
+                    </button>
+                </div>
+            </div>
+            <!-- Music Voting Widget -->
+            <div class="glass-card p-4 mb-6 flex flex-col md:flex-row justify-between items-center gap-4 bg-white border border-gray-100">
+                <div class="flex items-center gap-2 text-hola-purple font-bold text-sm"><i aria-hidden="true" class="fa-solid fa-music animate-pulse text-hola-orange"></i> رأيك في الموسيقى؟</div>
+                <div class="flex gap-2">
+                    <button onclick="window.voteMusic('loud')" class="bg-red-50 text-red-600 border border-red-100 px-3 py-1.5 rounded-lg text-xs font-bold hover:bg-red-100 transition flex items-center gap-1">صوتها عالي <span class="bg-red-200 px-1.5 py-0.5 rounded" id="voteCountLoud">0</span></button>
+                    <button onclick="window.voteMusic('bad')" class="bg-gray-100 text-gray-700 border border-gray-200 px-3 py-1.5 rounded-lg text-xs font-bold hover:bg-gray-200 transition flex items-center gap-1">الموسيقى سيئة <span class="bg-gray-300 px-1.5 py-0.5 rounded" id="voteCountBad">0</span></button>
+                </div>
+                <div class="flex gap-2 w-full md:w-auto mt-2 md:mt-0">
+                    <label for="suggestSongInput" class="sr-only">اقترح أغنية</label>
+                    <input type="text" id="suggestSongInput" class="w-full md:w-48 border-2 border-gray-100 bg-gray-50 rounded-lg px-3 py-1.5 text-xs font-bold focus:border-hola-purple outline-none" placeholder="اقترح أغنية لتشغيلها...">
+                    <button onclick="window.suggestSong()" class="bg-hola-purple text-white px-3 py-1.5 rounded-lg text-xs font-bold shadow hover:bg-hola-dark transition">إرسال</button>
+                </div>
+            </div>
+            <!-- Client Sub-Tabs -->
+            <div class="flex gap-2 mb-6 bg-white p-2 rounded-xl shadow-sm border overflow-x-auto no-scrollbar" role="tablist" aria-label="أقسام مساحتي">
+                <button role="tab" aria-selected="true" aria-controls="client-session" onclick="window.switchClientTab('session')" id="c-tab-session" class="client-tab-active px-4 py-2 text-sm font-bold transition whitespace-nowrap"><i aria-hidden="true" class="fa-solid fa-clock ml-1"></i> الجلسة الحالية</button>
+                <button role="tab" aria-selected="false" aria-controls="client-history" onclick="window.switchClientTab('history')" id="c-tab-history" class="text-gray-600 px-4 py-2 text-sm font-bold hover:text-hola-purple transition whitespace-nowrap"><i aria-hidden="true" class="fa-solid fa-file-invoice ml-1"></i> السجل والفواتير</button>
+                <button role="tab" aria-selected="false" aria-controls="client-loyalty" onclick="window.switchClientTab('loyalty')" id="c-tab-loyalty" class="text-gray-600 px-4 py-2 text-sm font-bold hover:text-hola-purple transition whitespace-nowrap"><i aria-hidden="true" class="fa-solid fa-stamp ml-1"></i> الأختام والمكافآت</button>
+                <button role="tab" aria-selected="false" aria-controls="client-notifications" onclick="window.switchClientTab('notifications')" id="c-tab-notifications" class="text-gray-600 px-4 py-2 text-sm font-bold hover:text-hola-purple transition whitespace-nowrap"><i aria-hidden="true" class="fa-solid fa-bell ml-1"></i> الإشعارات</button>
+                <button role="tab" aria-selected="false" aria-controls="client-prebook" onclick="window.switchClientTab('prebook')" id="c-tab-prebook" class="text-gray-600 px-4 py-2 text-sm font-bold hover:text-hola-purple transition whitespace-nowrap"><i aria-hidden="true" class="fa-solid fa-calendar-plus ml-1"></i> حجز قادم</button>
+                <button role="tab" aria-selected="false" aria-controls="client-subscriptions" onclick="window.switchClientTab('subscriptions')" id="c-tab-subscriptions" class="text-gray-600 px-4 py-2 text-sm font-bold hover:text-hola-purple transition whitespace-nowrap"><i aria-hidden="true" class="fa-solid fa-crown ml-1 text-hola-orange"></i> اشتراكاتي</button>
+                <button role="tab" aria-selected="false" aria-controls="client-internet" onclick="window.switchClientTab('internet')" id="c-tab-internet" class="text-gray-600 px-4 py-2 text-sm font-bold hover:text-hola-purple transition whitespace-nowrap"><i aria-hidden="true" class="fa-solid fa-wifi ml-1 text-hola-orange"></i> باقتي</button>
+                <button role="tab" aria-selected="false" aria-controls="client-profile" onclick="window.switchClientTab('profile')" id="c-tab-profile" class="text-gray-600 px-4 py-2 text-sm font-bold hover:text-hola-purple transition whitespace-nowrap"><i aria-hidden="true" class="fa-solid fa-id-card ml-1"></i> الملف الشخصي</button>
+                <button role="tab" aria-selected="false" aria-controls="client-ads" onclick="window.switchClientTab('ads')" id="c-tab-ads" class="text-gray-600 px-4 py-2 text-sm font-bold hover:text-hola-purple transition whitespace-nowrap"><i aria-hidden="true" class="fa-solid fa-bullhorn ml-1 text-hola-orange"></i> الإعلانات والفعاليات</button>
+                <button role="tab" aria-selected="false" aria-controls="client-remote" onclick="window.switchClientTab('remote')" id="c-tab-remote" class="hidden text-gray-600 px-4 py-2 text-sm font-bold hover:text-gray-800 transition whitespace-nowrap"><i aria-hidden="true" class="fa-solid fa-eye ml-1"></i> ملف بعيد</button>
+            </div>
+            
+            <!-- CLIENT TAB 1: Session & Menu -->
+            <div id="client-session" role="tabpanel" aria-labelledby="c-tab-session" class="client-tab-content grid lg:grid-cols-3 gap-6">
+                <div class="glass-card p-6 border-t-4 border-hola-purple flex flex-col justify-between h-full">
+                    <div>
+                        <div class="flex justify-between items-center mb-4">
+                            <span class="text-sm font-bold text-gray-500">الدخول: <span id="clientStartTime" class="text-hola-purple font-mono">--:--</span></span>
+                            <strong class="text-[10px] bg-green-100 text-green-700 px-2 py-1 rounded-full font-bold animate-pulse">جلسة نشطة</strong>
+                        </div>
+                        <div class="text-center mb-4 py-4 bg-gray-50 rounded-2xl border border-gray-100 shadow-inner" dir="ltr">
+                            <p class="text-gray-500 text-sm font-bold mb-1 font-sans">الوقت المنقضي</p>
+                            <div id="clientElapsedTime" class="text-5xl font-black text-hola-purple font-mono flex items-baseline justify-center">00:00<span class="text-xl text-gray-400 ml-1 font-bold">:00</span></div>
+                        </div>
+                        <div class="space-y-3 mb-6 bg-white p-4 rounded-xl border border-gray-50 shadow-sm">
+                            <div class="flex justify-between text-sm"><span class="text-gray-600 font-bold">تكلفة الوقت:</span><strong class="font-black text-gray-800" id="clientTimeCost">0 ج</strong></div>
+                            <div class="flex justify-between text-sm"><span class="text-gray-600 font-bold">الطلبات:</span><strong class="font-black text-gray-800" id="clientItemsCost">0 ج</strong></div>
+                            <div class="h-px bg-gray-200 my-2"></div>
+                            <div class="flex justify-between text-xl text-hola-orange"><strong class="font-black">الإجمالي:</strong><strong class="font-black" id="clientTotalCost">0 ج</strong></div>
+                        </div>
+                    </div>
+                    <div class="flex gap-2">
+                        <button onclick="window.showCheckoutModal()" class="flex-1 bg-red-500 hover:bg-red-600 text-white font-bold py-3.5 rounded-xl shadow-md transition transform hover:-translate-y-1">طلب الحساب والإنهاء</button>
+                    </div>
+                </div>
+                <div class="lg:col-span-2 space-y-6">
+                    <div class="glass-card p-6">
+                        <div class="flex justify-between items-center mb-4">
+                            <h3 class="text-xl font-bold text-hola-purple"><i aria-hidden="true" class="fa-solid fa-mug-hot text-hola-orange ml-2"></i>البوفيه والمشروبات</h3>
+                            <button onclick="window.openBarSelfService()" class="bg-orange-50 text-hola-orange border-2 border-orange-200 font-bold text-xs px-3 py-2 rounded-xl hover:bg-orange-100 transition flex items-center gap-1">
+                                <i aria-hidden="true" class="fa-solid fa-person-walking-to-door"></i> تسجيل مشروب ذاتي
+                            </button>
+                        </div>
+                        <div class="bg-orange-50 border border-orange-100 rounded-xl p-3 mb-4 text-xs text-hola-orange font-bold flex items-center gap-2">
+                            <i aria-hidden="true" class="fa-solid fa-circle-info"></i>
+                            <span>اذهب للبوفيه، اصنع مشروبك، ثم سجله هنا في حسابك</span>
+                        </div>
+                        <div id="dynamicMenuGrid" class="grid grid-cols-2 md:grid-cols-3 gap-4"></div>
+                        <div id="activeSessionItemsDiv" class="mt-6 pt-4 border-t border-gray-100 hidden">
+                            <h4 class="font-bold text-sm text-gray-500 mb-3">مشروبات الجلسة المسجلة:</h4>
+                            <div id="activeSessionItemsList" class="flex flex-wrap gap-2"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- CLIENT TAB 2: History -->
+            <div id="client-history" role="tabpanel" aria-labelledby="c-tab-history" class="client-tab-content hidden glass-card p-6">
+                <div class="flex justify-between items-center mb-4">
+                    <h3 class="font-black text-hola-purple"><i aria-hidden="true" class="fa-solid fa-file-invoice ml-2 text-hola-orange"></i>السجل والفواتير</h3>
+                </div>
+                <div class="flex justify-between items-center mb-4"><h3 class="text-lg font-bold text-hola-purple"><i aria-hidden="true" class="fa-solid fa-file-invoice text-hola-orange ml-2"></i>سجل زياراتي والفواتير</h3></div>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-right text-sm">
+                        <thead class="bg-gray-50 text-gray-600 border-b"><tr><th scope="col" class="p-3">التاريخ</th><th scope="col" class="p-3">المدة</th><th scope="col" class="p-3">المدفوع</th><th scope="col" class="p-3">الدفع</th><th scope="col" class="p-3">التفاصيل</th><th scope="col" class="p-3 text-center">الفاتورة</th></tr></thead>
+                        <tbody id="clientHistoryTableList" class="divide-y divide-gray-100 font-semibold"></tbody>
+                    </table>
+                </div>
+            </div>
+            <!-- CLIENT TAB 3: Loyalty -->
+            <div id="client-loyalty" role="tabpanel" aria-labelledby="c-tab-loyalty" class="client-tab-content hidden space-y-6">
+                <div class="flex justify-between items-center">
+                    <h3 class="font-black text-hola-purple"><i aria-hidden="true" class="fa-solid fa-stamp ml-2 text-hola-orange"></i>الأختام والمكافآت</h3>
+                </div>
+                <div class="glass-card p-6 text-center">
+                    <h3 class="text-xl font-black text-hola-purple mb-2"><i aria-hidden="true" class="fa-solid fa-stamp text-hola-orange ml-2"></i>أختام الحضور</h3>
+                    <p class="text-sm text-gray-500 font-bold mb-6" id="clientStampsGoalText">اجمع الأختام لتحصل على مكافأة خصم تلقائية!</p>
+                    <div class="flex flex-wrap justify-center gap-4" id="stampsContainer" dir="ltr"></div>
+                </div>
+                <div class="glass-card p-6">
+                    <h3 class="text-lg font-bold text-hola-purple mb-4"><i aria-hidden="true" class="fa-solid fa-ticket text-hola-orange ml-2"></i>أكواد الخصم الخاصة بي</h3>
+                    <div id="clientDiscountsList" class="grid md:grid-cols-2 gap-4"></div>
+                </div>
+            </div>
+            <!-- CLIENT TAB 4: Notifications -->
+            <div id="client-notifications" role="tabpanel" aria-labelledby="c-tab-notifications" class="client-tab-content hidden glass-card p-6">
+                <div class="flex justify-between items-center mb-4">
+                    <h3 class="font-black text-hola-purple"><i aria-hidden="true" class="fa-solid fa-bell ml-2 text-hola-orange"></i>إشعاراتي</h3>
+                </div>
+                <h3 class="text-lg font-bold text-hola-purple mb-4"><i aria-hidden="true" class="fa-solid fa-bell text-hola-orange ml-2"></i>سجل الإشعارات</h3>
+                <div id="clientNotifsList" class="space-y-4"></div>
+            </div>
+            <!-- CLIENT TAB 5: Pre-book & Rooms -->
+            <div id="client-prebook" role="tabpanel" aria-labelledby="c-tab-prebook" class="client-tab-content hidden glass-card p-6 max-w-xl mx-auto border-t-4 border-hola-orange">
+                <!-- Private Rooms - Always visible -->
+                <div class="mb-6 p-5 bg-purple-50 rounded-xl border border-purple-100">
+                    <h4 class="font-black text-hola-purple mb-2 text-center"><i aria-hidden="true" class="fa-solid fa-door-closed text-hola-orange ml-1"></i> الغرف الخاصة (للكورسات والدروس)</h4>
+                    <div id="roomsAvailableDiv">
+                        <p class="text-xs text-gray-600 font-bold mb-3 text-center">الغرف الخاصة متاحة. اطلب حجز غرفتك وسيتم التواصل معك للتنسيق.</p>
+                        <div class="space-y-3">
+                            <div><label for="roomBookPhone" class="block text-xs font-bold text-gray-700 mb-1">رقم هاتفك للتواصل</label><input type="tel" id="roomBookPhone" class="w-full border-2 border-purple-200 rounded-lg px-3 py-2 font-mono font-bold text-sm focus:border-hola-purple outline-none text-left" placeholder="010..." dir="ltr"></div>
+                            <div><label for="roomBookNote" class="block text-xs font-bold text-gray-700 mb-1">ملاحظة أو متطلبات خاصة</label><input type="text" id="roomBookNote" class="w-full border-2 border-purple-200 rounded-lg px-3 py-2 font-bold text-sm focus:border-hola-purple outline-none" placeholder="مثال: عدد الأشخاص، المدة..."></div>
+                            <button onclick="window.submitRoomBooking()" class="w-full bg-hola-purple hover:bg-hola-dark text-white font-bold py-2.5 rounded-lg shadow transition text-sm">طلب حجز الغرفة <i aria-hidden="true" class="fa-solid fa-chalkboard-user ml-1"></i></button>
+                        </div>
+                    </div>
+                    <div id="roomsUnavailableDiv" class="hidden text-center">
+                        <div class="w-12 h-12 bg-red-100 text-red-500 rounded-full flex items-center justify-center text-2xl mx-auto mb-2"><i aria-hidden="true" class="fa-solid fa-door-closed"></i></div>
+                        <p class="text-sm font-bold text-red-600">الغرف الخاصة ممتلئة أو غير متاحة حالياً</p>
+                        <p class="text-xs text-gray-500 mt-1">يمكنك تسجيل اهتمامك وسنتواصل معك عند توفر مكان</p>
+                        <div class="mt-3 space-y-2">
+                            <label for="roomWaitPhone" class="sr-only">رقم الهاتف</label>
+                            <input type="tel" id="roomWaitPhone" class="w-full border-2 border-red-200 rounded-lg px-3 py-2 font-mono font-bold text-sm text-center focus:border-red-400 outline-none" placeholder="رقم هاتفك للتواصل" dir="ltr">
+                            <button onclick="window.submitRoomWaitlist()" class="w-full bg-red-500 text-white font-bold py-2 rounded-lg text-sm hover:bg-red-600 transition">إضافتي لقائمة الانتظار</button>
+                        </div>
+                    </div>
+                </div>
+                <h3 class="text-xl font-bold text-hola-purple mb-2 text-center"><i aria-hidden="true" class="fa-solid fa-calendar-plus text-hola-orange ml-2"></i>حجز موعد قادم</h3>
+                <p class="text-sm text-gray-500 font-bold mb-6 text-center">قم بجدولة زيارتك القادمة ليتم تجهيز مقعدك وتجنب الانتظار.</p>
+                <div class="space-y-4 mb-6">
+                    <div><label for="internalPbTime" class="block text-sm font-bold text-gray-700 mb-2">موعد الحضور والتاريخ</label><input type="datetime-local" id="internalPbTime" class="w-full border-2 border-gray-200 rounded-xl px-4 py-3 focus:outline-none focus:border-hola-purple font-bold text-sm bg-gray-50 text-center"></div>
+                </div>
+                <button onclick="window.submitInternalPreBooking('seat')" class="w-full bg-hola-orange hover:bg-orange-600 text-white font-bold py-3.5 rounded-xl shadow-lg transition text-lg">تأكيد حجز الموعد <i aria-hidden="true" class="fa-solid fa-check ml-1"></i></button>
+            </div>
+            <!-- CLIENT TAB 7: Internet Card / My Package -->
+            <div id="client-internet" role="tabpanel" aria-labelledby="c-tab-internet" class="client-tab-content hidden space-y-4">
+                <!-- Card Entry -->
+                <div class="glass-card p-5 border-t-4 border-hola-orange">
+                    <div class="flex justify-between items-center mb-4">
+                        <h3 class="font-black text-hola-purple"><i aria-hidden="true" class="fa-solid fa-wifi text-hola-orange ml-2"></i>باقتي (كرت الإنترنت)</h3>
+                    </div>
+                    <!-- Active Card Display (shown when card is loaded) -->
+                    <div id="myCardDisplay" class="hidden">
+                        <div class="bg-gradient-to-br from-hola-purple to-hola-dark text-white rounded-2xl p-5 shadow-xl mb-4">
+                            <div class="flex justify-between items-start mb-3">
+                                <div>
+                                    <p class="text-xs text-purple-300 mb-1">كرت الإنترنت</p>
+                                    <p class="font-mono font-black text-lg tracking-widest" id="myCardCode">HOLA-XXXX-XXXX</p>
+                                </div>
+                                <span id="myCardStatusBadge" class="bg-green-500 text-white text-xs px-2 py-1 rounded-full font-bold">نشط</span>
+                            </div>
+                            <!-- Quota Bar -->
+                            <div class="mb-3">
+                                <div class="flex justify-between text-xs text-purple-300 mb-1">
+                                    <span>الكوتا المستخدمة</span>
+                                    <span id="myCardUsedGB">0 GB / 0 GB</span>
+                                </div>
+                                <div class="w-full bg-white/20 rounded-full h-3">
+                                    <div id="myCardQuotaBar" class="bg-hola-orange h-3 rounded-full transition-all" style="width:0%"></div>
+                                </div>
+                            </div>
+                            <div class="grid grid-cols-3 gap-2 text-center">
+                                <div class="bg-white/10 rounded-xl p-2">
+                                    <p class="text-[10px] text-purple-300">المتبقي</p>
+                                    <p class="font-black text-green-300 text-lg" id="myCardRemainGB">0 GB</p>
+                                </div>
+                                <div class="bg-white/10 rounded-xl p-2">
+                                    <p class="text-[10px] text-purple-300">مُستخدم</p>
+                                    <p class="font-black text-hola-orange text-lg" id="myCardUsedGBStat">0 GB</p>
+                                </div>
+                                <div class="bg-white/10 rounded-xl p-2">
+                                    <p class="text-[10px] text-purple-300">ينتهي</p>
+                                    <p class="font-black text-white text-sm" id="myCardExpiry">--</p>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Device Binding Info -->
+                        <div id="myCardDeviceInfo" class="bg-blue-50 border border-blue-200 rounded-xl p-3 text-xs text-blue-700 font-bold flex items-center gap-2">
+                            <i aria-hidden="true" class="fa-solid fa-mobile-screen"></i>
+                            <span id="myCardDeviceText">الكرت مرتبط بهذا الجهاز</span>
+                        </div>
+                    </div>
+                    <!-- No Card State -->
+                    <div id="myCardEmpty" class="">
+                        <div class="text-center py-6">
+                            <div class="w-16 h-16 bg-orange-100 text-hola-orange rounded-full flex items-center justify-center text-3xl mx-auto mb-3">
+                                <i aria-hidden="true" class="fa-solid fa-wifi"></i>
+                            </div>
+                            <p class="font-bold text-gray-700 mb-1">لا يوجد كرت إنترنت مرتبط</p>
+                            <p class="text-xs text-gray-400 mb-4">أدخل كود الكرت الذي حصلت عليه من الإدارة</p>
+                            <div class="flex gap-2 max-w-xs mx-auto">
+                                <input type="text" id="myCardCodeInput" class="flex-1 border-2 border-gray-200 rounded-xl px-3 py-2.5 text-center font-mono font-bold text-sm uppercase tracking-widest focus:border-hola-orange outline-none" placeholder="HOLA-XXXX-XXXX" oninput="this.value=this.value.toUpperCase()">
+                                <button onclick="window.activateMyCard()" class="bg-hola-orange text-white font-bold px-4 rounded-xl hover:bg-orange-600 transition">
+                                    <i aria-hidden="true" class="fa-solid fa-check"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- Active Session Summary (shown when client has an active workspace session) -->
+                <div id="myPackageSessionCard" class="glass-card p-4 border-t-4 border-green-500 bg-green-50 hidden">
+                    <div class="flex items-center gap-2 mb-3">
+                        <span class="live-dot" aria-hidden="true"></span>
+                        <h4 class="font-bold text-green-800 text-sm">جلسة نشطة في المكان</h4>
+                    </div>
+                    <div class="grid grid-cols-3 gap-2 text-xs font-bold">
+                        <div class="bg-white rounded-lg p-2 border border-green-100 text-center">
+                            <p class="text-gray-500 mb-0.5">بدأت</p>
+                            <p class="text-green-700" id="myPackageSessionStart">--:--</p>
+                        </div>
+                        <div class="bg-white rounded-lg p-2 border border-green-100 text-center">
+                            <p class="text-gray-500 mb-0.5">المدة</p>
+                            <p class="text-green-700 font-mono" id="myPackageSessionElapsed">00:00</p>
+                        </div>
+                        <div class="bg-white rounded-lg p-2 border border-green-100 text-center">
+                            <p class="text-gray-500 mb-0.5">التكلفة</p>
+                            <p class="text-hola-orange" id="myPackageSessionCost">0 ج</p>
+                        </div>
+                    </div>
+                </div>
+                <!-- Quick Tips -->
+                <div class="glass-card p-4 bg-purple-50 border border-purple-100">
+                    <h4 class="font-bold text-hola-purple mb-3 text-sm"><i aria-hidden="true" class="fa-solid fa-circle-info text-hola-orange ml-1"></i> ملاحظات مهمة</h4>
+                    <ul class="text-xs text-gray-600 font-bold space-y-2">
+                        <li class="flex items-start gap-2"><i aria-hidden="true" class="fa-solid fa-circle-check text-green-500 mt-0.5 flex-shrink-0"></i> يُربط الكرت بجهازك عند أول استخدام</li>
+                        <li class="flex items-start gap-2"><i aria-hidden="true" class="fa-solid fa-circle-check text-green-500 mt-0.5 flex-shrink-0"></i> لا يمكن استخدام نفس الكرت على أكثر من جهاز</li>
+                        <li class="flex items-start gap-2"><i aria-hidden="true" class="fa-solid fa-triangle-exclamation text-hola-orange mt-0.5 flex-shrink-0"></i> عند انتهاء الكوتا أو المدة — تواصل مع الإدارة</li>
+                        <li class="flex items-start gap-2"><i aria-hidden="true" class="fa-solid fa-triangle-exclamation text-hola-orange mt-0.5 flex-shrink-0"></i> لا تشارك كود الكرت مع أحد</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- CLIENT TAB 8: Remote Profile -->
+            <div id="client-remote" role="tabpanel" aria-labelledby="c-tab-remote" class="client-tab-content hidden max-w-xl mx-auto space-y-4">
+                <!-- Remote Banner -->
+                <div class="bg-gradient-to-br from-gray-800 to-gray-900 text-white rounded-2xl p-5 flex items-center gap-4 shadow-xl">
+                    <div class="w-14 h-14 bg-white/15 rounded-full flex items-center justify-center text-2xl font-black" id="remoteAvatarInitial">?</div>
+                    <div>
+                        <p id="remoteNameDisplay" class="font-black text-lg text-white">اسمك هنا</p>
+                        <p id="remotePhoneDisplay" class="text-xs text-gray-300 font-mono">010...</p>
+                        <span class="inline-flex items-center gap-1 bg-gray-600 text-gray-200 text-[9px] px-2 py-0.5 rounded-full mt-1 font-bold">
+                            <span class="w-1.5 h-1.5 bg-amber-400 rounded-full inline-block"></span> خارج المكان — عرض فقط
+                        </span>
+                    </div>
+                </div>
+                <!-- Remote Profile Content -->
+                <div id="remoteProfileContent" class="space-y-3"></div>
+                <!-- Notice -->
+                <div class="bg-amber-50 border border-amber-200 p-3 rounded-xl text-xs text-amber-700 font-bold flex items-center gap-2">
+                    <i aria-hidden="true" class="fa-solid fa-triangle-exclamation"></i>
+                    <span>للحجز والطلبات يجب التواجد داخل المكان</span>
+                </div>
+                <!-- Logout -->
+                <button onclick="window.clientLogout()" class="w-full py-2.5 rounded-xl border-2 border-red-200 text-red-500 font-bold text-sm hover:bg-red-50 transition flex items-center justify-center gap-2">
+                    <i aria-hidden="true" class="fa-solid fa-right-from-bracket"></i> تسجيل الخروج من الملف البعيد
+                </button>
+            </div>
+            <!-- CLIENT TAB 9: Profile -->
+            <div id="client-profile" role="tabpanel" aria-labelledby="c-tab-profile" class="client-tab-content hidden max-w-2xl mx-auto">
+                <div class="glass-card p-5 border-t-4 border-hola-purple">
+                    <div class="flex items-center justify-between mb-4">
+                        <h3 class="text-lg font-black text-hola-purple"><i aria-hidden="true" class="fa-solid fa-id-card text-hola-orange ml-2"></i>بيانات الدخول</h3>
+                        <span class="text-[10px] bg-purple-100 text-hola-purple px-2 py-1 rounded-full font-bold">قابلة للتعديل</span>
+                    </div>
+                    <div class="grid sm:grid-cols-2 gap-3">
+                        <div class="sm:col-span-2">
+                            <label for="profileNameInput" class="block text-xs font-bold text-gray-600 mb-1">الاسم</label>
+                            <input type="text" id="profileNameInput" class="w-full border-2 border-gray-200 rounded-xl px-3 py-2.5 font-bold text-sm focus:border-hola-purple outline-none" placeholder="اسمك">
+                        </div>
+                        <div>
+                            <label for="profilePhoneInput" class="block text-xs font-bold text-gray-600 mb-1">رقم الهاتف</label>
+                            <input type="tel" id="profilePhoneInput" class="w-full border-2 border-gray-200 rounded-xl px-3 py-2.5 font-mono font-bold text-sm bg-gray-100 text-gray-500" dir="ltr" readonly>
+                        </div>
+                        <div>
+                            <label for="profileWifiCardInput" class="block text-xs font-bold text-gray-600 mb-1">كود كارت الواي فاي</label>
+                            <input type="text" id="profileWifiCardInput" class="w-full border-2 border-gray-200 rounded-xl px-3 py-2.5 font-mono font-bold text-sm uppercase tracking-wide focus:border-hola-orange outline-none" dir="ltr" placeholder="HOLA-XXXX-XXXX" oninput="this.value=this.value.toUpperCase()">
+                        </div>
+                    </div>
+                    <button onclick="window.saveProfileData()" class="w-full mt-4 bg-hola-purple text-white py-3 rounded-xl font-black hover:bg-hola-dark transition text-sm">
+                        حفظ بيانات الملف الشخصي
+                    </button>
+                </div>
+            </div>
+            <!-- CLIENT TAB 10: Ads & Events -->
+            <div id="client-ads" role="tabpanel" aria-labelledby="c-tab-ads" class="client-tab-content hidden max-w-3xl mx-auto space-y-3">
+                <div class="glass-card p-4 border-t-4 border-hola-orange">
+                    <h3 class="text-base font-black text-hola-purple mb-3"><i aria-hidden="true" class="fa-solid fa-bullhorn text-hola-orange ml-2"></i>الإعلانات</h3>
+                    <div id="adsCardsWrap" class="grid sm:grid-cols-2 gap-3"></div>
+                </div>
+                <div class="glass-card p-4 border-t-4 border-hola-purple">
+                    <h3 class="text-base font-black text-hola-purple mb-3"><i aria-hidden="true" class="fa-solid fa-masks-theater text-hola-orange ml-2"></i>الفعاليات</h3>
+                    <div id="eventsCardsWrap" class="grid sm:grid-cols-2 gap-3"></div>
+                </div>
+            </div>
+            <!-- CLIENT TAB 7: Subscriptions -->
+            <div id="client-subscriptions" role="tabpanel" aria-labelledby="c-tab-subscriptions" class="client-tab-content hidden space-y-4">
+                <div class="glass-card p-6 border-t-4 border-hola-orange">
+                    <div class="flex justify-between items-center mb-4">
+                        <h3 class="text-lg font-bold text-hola-purple"><i aria-hidden="true" class="fa-solid fa-crown text-hola-orange ml-2"></i>اشتراكاتي</h3>
+                        <div class="flex gap-2">
+                            <button onclick="window.showSubscriptionModal()" class="bg-hola-orange text-white font-bold text-sm px-4 py-2 rounded-xl hover:bg-orange-600 transition shadow">اشترك الآن</button>
+                        </div>
+                    </div>
+                    <div id="clientSubsList" class="space-y-3">
+                        <p class="text-center text-gray-400 text-sm py-4">لا توجد اشتراكات نشطة</p>
+                    </div>
+                </div>
+                <!-- Subscription History -->
+                <div class="glass-card p-6">
+                    <h4 class="font-bold text-hola-purple mb-4"><i aria-hidden="true" class="fa-solid fa-clock-rotate-left text-hola-orange ml-2"></i>تتبع الاشتراك</h4>
+                    <div id="clientSubsHistory" class="space-y-2">
+                        <p class="text-center text-gray-400 text-sm py-4">لا يوجد سجل اشتراكات</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Floating Chat Button -->
+            <button aria-label="محادثة الدعم" onclick="window.openClientChat()" class="fixed bottom-6 left-6 w-14 h-14 bg-hola-purple text-white rounded-full shadow-2xl flex items-center justify-center text-2xl hover:bg-hola-dark transition hover:scale-110 z-50 border-2 border-white/20">
+                <span class="live-dot absolute top-1 right-1 border-2 border-hola-purple"></span>
+                <i aria-hidden="true" class="fa-solid fa-comments"></i>
+                <span id="chatBadge" class="hidden absolute -top-1 -right-1 w-5 h-5 bg-red-500 rounded-full border-2 border-white flex items-center justify-center text-[10px] font-bold">!</span>
+            </button>
+        </section>
+
+        <!-- ================= ADMIN VIEW ================= -->
+        <section id="viewAdmin" class="hidden fade-in">
+            <div class="flex flex-col md:flex-row justify-between items-center mb-6 gap-4">
+                <div>
+                    <h2 class="text-2xl font-black text-hola-purple"><i aria-hidden="true" class="fa-solid fa-user-shield text-hola-orange ml-2"></i>لوحة التحكم الذكية</h2>
+                    <p class="text-sm text-gray-500 font-bold">المسؤول الحالي: <span id="currentAdminNameLabel" class="text-hola-orange font-black">مدير النظام</span></p>
+                </div>
+                <div class="flex gap-2 flex-wrap justify-center">
+                    <button onclick="window.resetMusicVotes()" class="bg-gray-100 text-gray-700 hover:bg-gray-200 font-bold text-sm px-4 py-2 rounded-lg transition border"><i aria-hidden="true" class="fa-solid fa-rotate-left ml-1"></i> تصفير تصويت الموسيقى</button>
+                    <button onclick="window.showEndDaySummary()" class="bg-purple-100 text-hola-purple hover:bg-purple-200 font-bold text-sm px-4 py-2 rounded-lg transition border border-purple-200"><i aria-hidden="true" class="fa-solid fa-chart-pie ml-1"></i> إنهاء العمل (تقرير)</button>
+                    <button onclick="window.logoutAdmin()" class="bg-red-500 text-white hover:bg-red-600 font-bold text-sm px-4 py-2 rounded-lg transition shadow-sm"><i aria-hidden="true" class="fa-solid fa-right-from-bracket ml-1"></i> تسليم الشفت</button>
+                </div>
+            </div>
+            <!-- Admin Tabs -->
+            <div class="flex overflow-x-auto border-b-2 border-gray-200 mb-6 font-bold text-gray-500 gap-6 pb-2 pt-4 no-scrollbar" id="adminTabsContainer" role="tablist" aria-label="أقسام الإدارة">
+                <button role="tab" aria-selected="true" aria-controls="admin-live" onclick="window.switchAdminTab('live')" id="tab-live" class="tab-active hover:text-hola-orange transition whitespace-nowrap">النشاط الحي</button>
+                <button role="tab" aria-selected="false" aria-controls="admin-chats" onclick="window.switchAdminTab('chats')" id="tab-chats" class="hover:text-hola-orange transition whitespace-nowrap relative">الدردشة <span id="adminChatBadge" class="hidden absolute -top-1 -right-3 bg-red-500 text-white text-[9px] px-1.5 rounded-full">!</span></button>
+                <button role="tab" aria-selected="false" aria-controls="admin-events" onclick="window.switchAdminTab('events')" id="tab-events" class="hover:text-hola-orange transition whitespace-nowrap">الفعاليات</button>
+                <button role="tab" aria-selected="false" aria-controls="admin-menu" onclick="window.switchAdminTab('menu')" id="tab-menu" class="hover:text-hola-orange transition whitespace-nowrap">المنيو والباقات</button>
+                <button role="tab" aria-selected="false" aria-controls="admin-discounts" onclick="window.switchAdminTab('discounts')" id="tab-discounts" class="hover:text-hola-orange transition whitespace-nowrap">الخصومات</button>
+                <button role="tab" aria-selected="false" aria-controls="admin-users" onclick="window.switchAdminTab('users')" id="tab-users" class="hover:text-hola-orange transition whitespace-nowrap">العملاء والحظر</button>
+                <button role="tab" aria-selected="false" aria-controls="admin-history" onclick="window.switchAdminTab('history')" id="tab-history" class="hover:text-hola-orange transition whitespace-nowrap">الأرشيف</button>
+                <button role="tab" aria-selected="false" aria-controls="admin-operations" onclick="window.switchAdminTab('operations')" id="tab-operations" class="hover:text-hola-orange transition whitespace-nowrap">العمليات</button>
+                <button role="tab" aria-selected="false" aria-controls="admin-subscriptions" onclick="window.switchAdminTab('subscriptions')" id="tab-subscriptions" class="hover:text-hola-orange transition whitespace-nowrap relative"><i aria-hidden="true" class="fa-solid fa-crown text-hola-orange"></i> الاشتراكات <span id="adminSubsBadge" class="hidden absolute -top-1 -right-3 bg-red-500 text-white text-[9px] px-1.5 rounded-full">!</span></button>
+                <button role="tab" aria-selected="false" aria-controls="admin-cards" onclick="window.switchAdminTab('cards')" id="tab-cards" class="hover:text-hola-orange transition whitespace-nowrap relative"><i aria-hidden="true" class="fa-solid fa-wifi text-hola-orange"></i> كروت الإنترنت</button>
+                <button role="tab" aria-selected="false" aria-controls="admin-settings" onclick="window.switchAdminTab('settings')" id="tab-settings" class="hover:text-hola-orange transition whitespace-nowrap"><i aria-hidden="true" class="fa-solid fa-gear"></i> الإعدادات</button>
+            </div>
+            
+            <!-- TAB: Live -->
+            <div id="admin-live" role="tabpanel" aria-labelledby="tab-live" class="admin-tab-content grid lg:grid-cols-3 gap-6">
+                <div class="glass-card p-6 lg:col-span-2 flex flex-col gap-6">
+                    <div>
+                        <div class="flex justify-between items-center mb-4">
+                            <h3 class="text-lg font-bold text-hola-purple">العملاء النشطين (اضغط للتحكم وإنهاء الجلسة)</h3>
+                            <div class="flex gap-2 text-xs font-bold bg-gray-50 px-3 py-1.5 rounded border border-gray-200">
+                                <span class="text-red-600"><i aria-hidden="true" class="fa-solid fa-volume-high"></i> عالي: <span id="adminVoteLoud">0</span></span>
+                                <span class="text-gray-400">|</span>
+                                <span class="text-gray-600"><i aria-hidden="true" class="fa-solid fa-thumbs-down"></i> سيء: <span id="adminVoteBad">0</span></span>
+                            </div>
+                        </div>
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-right text-sm">
+                                <thead class="bg-gray-50 text-gray-600 border-b border-gray-200"><tr><th scope="col" class="p-3">العميل</th><th scope="col" class="p-3">الدخول</th><th scope="col" class="p-3">الوقت المنقضي</th><th scope="col" class="p-3">الحالة</th></tr></thead>
+                                <tbody id="adminSessionsList" class="divide-y divide-gray-100 font-semibold cursor-pointer"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="border-t border-gray-200 pt-6">
+                        <h3 class="text-lg font-bold text-hola-purple mb-4"><i aria-hidden="true" class="fa-solid fa-calendar-check text-hola-orange ml-2"></i>عملاء اليوم المكتملين (اضغط لتحديد الدفع)</h3>
+                        <div class="overflow-x-auto max-h-60">
+                            <table class="w-full text-right text-sm">
+                                <thead class="bg-gray-50 text-gray-600 border-b border-gray-200"><tr><th scope="col" class="p-3">العميل</th><th scope="col" class="p-3">المدة</th><th scope="col" class="p-3">المدفوع</th><th scope="col" class="p-3">الدفع</th><th scope="col" class="p-3">الطلبات</th></tr></thead>
+                                <tbody id="adminTodayCompletedList" class="divide-y divide-gray-100 font-semibold"></tbody>
+                            </table>
+                        </div>
+                        <div class="mt-4 bg-purple-50 p-4 rounded-xl border border-purple-100 flex flex-col sm:flex-row justify-between items-center font-bold text-hola-purple shadow-sm gap-2">
+                            <span>إجمالي عملاء اليوم: <span id="adminTodayTotalUsers" class="text-hola-orange text-xl font-black mx-1">0</span> عميل</span>
+                            <span>كاش اليوم: <span id="adminTodayTotalCash" class="text-green-600 text-2xl font-black mx-1">0</span> ج.م</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="glass-card p-6 border-t-4 border-hola-orange flex flex-col gap-6">
+                    <div>
+                        <h3 class="text-lg font-bold text-hola-purple mb-4 flex justify-between"><span>الإشعارات الحية والمباشرة</span><i aria-hidden="true" class="fa-solid fa-bell text-hola-orange animate-bounce"></i></h3>
+                        <div id="adminGroupedAlertsList" class="space-y-4 max-h-64 overflow-y-auto pr-1"></div>
+                    </div>
+                    <div class="border-t border-orange-200 pt-6">
+                        <h3 class="text-lg font-bold text-orange-500 mb-3"><i aria-hidden="true" class="fa-solid fa-calendar-clock ml-1"></i> إشعارات الحجز المسبق</h3>
+                        <div class="overflow-x-auto max-h-48">
+                            <table class="w-full text-right text-sm">
+                                <thead class="bg-orange-50 text-orange-800 border-b border-orange-200"><tr><th scope="col" class="p-3">الاسم</th><th scope="col" class="p-3">الموعد/الطلب</th><th scope="col" class="p-3">إجراء</th></tr></thead>
+                                <tbody id="adminPreBookingsList" class="divide-y divide-orange-100 font-semibold"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <!-- Remote Users Panel -->
+                    <div class="border-t border-gray-200 pt-5">
+                        <h3 class="text-base font-bold text-gray-600 mb-3 flex items-center gap-2"><i aria-hidden="true" class="fa-solid fa-globe text-gray-400"></i> المستخدمون البعيدون <span class="text-[10px] bg-gray-200 text-gray-600 px-2 py-0.5 rounded-full font-bold">خارج المكان</span></h3>
+                        <div id="adminRemoteUsersList" class="space-y-2">
+                            <p class="text-xs text-gray-400 text-center py-3">لا يوجد مستخدمون بعيدون</p>
+                        </div>
+                    </div>
+                    <!-- Active Admins Panel -->
+                    <div class="border-t border-purple-100 pt-5">
+                        <h3 class="text-base font-bold text-hola-purple mb-3 flex items-center gap-2"><i aria-hidden="true" class="fa-solid fa-user-shield text-hola-orange"></i> المسؤولون النشطون</h3>
+                        <div id="activeAdminSessionsList" class="space-y-2">
+                            <p class="text-xs text-gray-400 text-center py-2">لا يوجد مسؤولون نشطون</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- TAB: Chats -->
+            <div id="admin-chats" role="tabpanel" aria-labelledby="tab-chats" class="admin-tab-content hidden glass-card p-6 grid md:grid-cols-3 gap-6 h-[70vh]">
+                <div class="border-l border-gray-200 pr-2 overflow-y-auto h-full flex flex-col gap-2" id="adminChatUsersList"></div>
+                <div class="md:col-span-2 flex flex-col h-full bg-gray-50 rounded-xl overflow-hidden border border-gray-200 relative">
+                    <div id="adminChatHeader" class="bg-white border-b p-4 font-bold text-hola-purple text-lg shadow-sm z-10 flex items-center gap-2"><i aria-hidden="true" class="fa-solid fa-headset text-hola-orange"></i> اختر محادثة للبدء</div>
+                    <div id="adminChatMessages" class="flex-grow p-4 overflow-y-auto flex flex-col gap-3"></div>
+                    <div class="bg-white border-t p-3 flex gap-2">
+                        <label for="adminChatInput" class="sr-only">اكتب رسالتك</label>
+                        <input type="text" id="adminChatInput" class="flex-grow border-2 p-2 rounded-lg text-sm focus:border-hola-purple outline-none" placeholder="اكتب ردك هنا..." disabled>
+                        <button id="adminChatBtn" aria-label="إرسال" onclick="window.sendAdminMessage()" class="bg-hola-purple text-white px-4 rounded-lg font-bold hover:bg-hola-dark transition" disabled><i aria-hidden="true" class="fa-solid fa-paper-plane"></i></button>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- TAB: Events -->
+            <div id="admin-events" role="tabpanel" aria-labelledby="tab-events" class="admin-tab-content hidden glass-card p-6">
+                <!-- Event Slots Tabs -->
+                <div class="flex gap-2 mb-6 border-b pb-3" role="tablist" aria-label="فتحات الفعاليات">
+                    <button role="tab" aria-selected="true" onclick="window.switchEventSlot(1)" id="ev-slot-1-btn" class="ev-slot-btn px-4 py-2 text-sm font-bold bg-hola-purple text-white rounded-lg shadow transition">🎉 الفعالية 1</button>
+                    <button role="tab" aria-selected="false" onclick="window.switchEventSlot(2)" id="ev-slot-2-btn" class="ev-slot-btn px-4 py-2 text-sm font-bold bg-gray-100 text-gray-600 rounded-lg transition hover:bg-gray-200">🎉 الفعالية 2</button>
+                    <button role="tab" aria-selected="false" onclick="window.switchEventSlot(3)" id="ev-slot-3-btn" class="ev-slot-btn px-4 py-2 text-sm font-bold bg-gray-100 text-gray-600 rounded-lg transition hover:bg-gray-200">🎉 الفعالية 3</button>
+                </div>
+                <div class="grid md:grid-cols-2 gap-8">
+                    <div>
+                        <h3 class="text-lg font-bold text-hola-purple mb-4">إعدادات الفعالية <span id="currentEvSlotLabel" class="text-hola-orange">(1)</span></h3>
+                        <div class="space-y-3 bg-purple-50 p-4 rounded-xl border border-purple-100">
+                            <div><label for="setEvTitle" class="block text-xs font-bold text-gray-700 mb-1">اسم الفعالية</label><input type="text" id="setEvTitle" class="w-full border p-2 rounded text-sm" placeholder="مثال: ورشة عمل التسويق"></div>
+                            <div><label for="setEvDesc" class="block text-xs font-bold text-gray-700 mb-1">وصف الفعالية</label><textarea id="setEvDesc" rows="2" class="w-full border p-2 rounded text-sm" placeholder="مثال: مجاناً للمشتركين..."></textarea></div>
+                            <div>
+                                <label for="setEvDate" class="block text-xs font-bold text-gray-700 mb-1">تاريخ الفعالية</label>
+                                <input type="date" id="setEvDate" class="w-full border p-2 rounded text-sm mb-2">
+                                <div class="flex gap-2">
+                                    <div class="flex-1"><label for="setEvTimeFrom" class="block text-[10px] text-gray-500 mb-1">من الساعة</label><input type="time" id="setEvTimeFrom" class="w-full border p-2 rounded text-sm"></div>
+                                    <div class="flex-1"><label for="setEvTimeTo" class="block text-[10px] text-gray-500 mb-1">إلى الساعة</label><input type="time" id="setEvTimeTo" class="w-full border p-2 rounded text-sm"></div>
+                                </div>
+                                <input type="hidden" id="setEvTime">
+                            </div>
+                            <div><label for="setEvImg" class="block text-xs font-bold text-gray-700 mb-1">رابط بوستر الفعالية (Postimg)</label><input type="text" id="setEvImg" class="w-full border p-2 rounded text-sm font-mono text-left" dir="ltr" placeholder="https://i.postimg.cc/..."></div>
+                            <div>
+                                <label for="setEvEmbed" class="block text-xs font-bold text-gray-700 mb-1">أو: كود Embed للفعالية (اختياري)</label>
+                                <textarea id="setEvEmbed" rows="2" class="w-full border p-2 rounded text-xs font-mono text-left" dir="ltr" placeholder="&lt;iframe title='محتوى مدمج' src=... &gt;&lt;/iframe&gt;"></textarea>
+                                <p class="text-[10px] text-gray-400 mt-1">يظهر بدلاً من الصورة إذا تم تعبئته</p>
+                            </div>
+                            <div class="flex items-center gap-2 mt-2 bg-white p-2 rounded border">
+                                <input type="checkbox" id="setEvActive" class="w-4 h-4 text-hola-orange">
+                                <label for="setEvActive" class="text-sm font-bold text-gray-700">تفعيل وإظهار الفعالية للعملاء</label>
+                            </div>
+                            <!-- Share Event -->
+                            <div class="bg-blue-50 p-3 rounded-lg border border-blue-100 mt-2">
+                                <p class="text-xs font-bold text-blue-700 mb-2"><i aria-hidden="true" class="fa-solid fa-share-nodes ml-1"></i> مشاركة رابط دعوة الفعالية</p>
+                                <div class="flex gap-2">
+                                    <button onclick="window.shareEventLink()" class="flex-1 bg-blue-600 text-white text-xs font-bold py-2 rounded-lg hover:bg-blue-700 flex items-center justify-center gap-1"><i aria-hidden="true" class="fa-brands fa-facebook"></i> مشاركة</button>
+                                    <button onclick="window.copyEventLink()" class="flex-1 bg-gray-600 text-white text-xs font-bold py-2 rounded-lg hover:bg-gray-700 flex items-center justify-center gap-1"><i aria-hidden="true" class="fa-solid fa-link"></i> نسخ الرابط</button>
+                                    <button onclick="window.shareEventWhatsapp()" class="flex-1 bg-green-600 text-white text-xs font-bold py-2 rounded-lg hover:bg-green-700 flex items-center justify-center gap-1"><i aria-hidden="true" class="fa-brands fa-whatsapp"></i> واتساب</button>
+                                </div>
+                            </div>
+                            <button onclick="window.saveEventSettings()" class="w-full bg-hola-orange text-white font-bold py-2.5 rounded-lg hover:bg-orange-600 shadow-md mt-2">حفظ ونشر الفعالية</button>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="flex justify-between items-center mb-4">
+                            <h3 class="text-lg font-bold text-hola-purple">قائمة الحضور المسجلين</h3>
+                            <button onclick="window.exportTableToCSV('adminEventAttendeesTable', 'Event_Attendees')" class="bg-green-600 text-white text-[10px] px-3 py-1.5 rounded shadow hover:bg-green-700"><i aria-hidden="true" class="fa-solid fa-file-excel mr-1"></i> تصدير إكسل</button>
+                        </div>
+                        <div class="overflow-x-auto max-h-96 border rounded-xl shadow-sm">
+                            <table class="w-full text-right text-sm" id="adminEventAttendeesTable">
+                                <thead class="bg-gray-50 text-gray-600 border-b"><tr><th scope="col" class="p-3">الاسم</th><th scope="col" class="p-3">الهاتف</th><th scope="col" class="p-3">الفعالية</th><th scope="col" class="p-3">وقت التسجيل</th><th scope="col" class="p-3">إجراء</th></tr></thead>
+                                <tbody id="adminEventAttendeesList" class="divide-y divide-gray-100 font-semibold"></tbody>
+                            </table>
+                        </div>
+                        <button onclick="window.clearEventAttendees()" class="mt-4 text-red-500 font-bold text-xs hover:underline"><i aria-hidden="true" class="fa-solid fa-trash"></i> مسح جميع المسجلين</button>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- TAB: Menu -->
+            <div id="admin-menu" role="tabpanel" aria-labelledby="tab-menu" class="admin-tab-content hidden glass-card p-6">
+                <div class="flex justify-between items-center mb-6"><h3 class="text-lg font-bold text-hola-purple">المنتجات والباقات</h3><button onclick="window.showMenuModal()" class="bg-hola-purple text-white px-4 py-2 rounded-lg text-sm font-bold hover:bg-hola-dark transition"><i aria-hidden="true" class="fa-solid fa-plus ml-1"></i> إضافة منتج</button></div>
+                <div class="grid md:grid-cols-3 lg:grid-cols-4 gap-4" id="adminMenuList"></div>
+            </div>
+            
+            <!-- TAB: Discounts -->
+            <div id="admin-discounts" role="tabpanel" aria-labelledby="tab-discounts" class="admin-tab-content hidden glass-card p-6">
+                <div class="flex justify-between items-center mb-6"><h3 class="text-lg font-bold text-hola-purple">أكواد الخصم</h3><button onclick="window.showDiscountModal()" class="bg-hola-orange text-white px-4 py-2 rounded-lg text-sm font-bold hover:bg-orange-600 transition"><i aria-hidden="true" class="fa-solid fa-plus ml-1"></i> إنشاء كود عام</button></div>
+                <div class="overflow-x-auto"><table class="w-full text-right text-sm"><thead class="bg-gray-50 text-gray-600 border-b"><tr><th scope="col" class="p-3">الكود</th><th scope="col" class="p-3">القيمة</th><th scope="col" class="p-3">مخصص لـ</th><th scope="col" class="p-3">الحالة</th><th scope="col" class="p-3">الإجراء</th></tr></thead><tbody id="adminDiscountsList" class="divide-y divide-gray-100 font-semibold"></tbody></table></div>
+            </div>
+            
+            <!-- TAB: Users -->
+            <div id="admin-users" role="tabpanel" aria-labelledby="tab-users" class="admin-tab-content hidden glass-card p-6">
+                <h3 class="text-lg font-bold text-hola-purple mb-6">إدارة العملاء والمحافظ</h3>
+                <div class="overflow-x-auto mb-8 border-b pb-6">
+                    <table class="w-full text-right text-sm"><thead class="bg-gray-50 text-gray-600 border-b"><tr><th scope="col" class="p-3">الاسم</th><th scope="col" class="p-3">رقم الموبايل</th><th scope="col" class="p-3">الأختام</th><th scope="col" class="p-3">المحفظة (فكة)</th><th scope="col" class="p-3">إجراءات</th></tr></thead><tbody id="adminUsersList" class="divide-y divide-gray-100 font-semibold"></tbody></table>
+                </div>
+                <div class="bg-red-50 p-6 rounded-xl border border-red-100">
+                    <h3 class="text-lg font-bold text-red-600 mb-4"><i aria-hidden="true" class="fa-solid fa-ban ml-1"></i> الأرقام المحظورة أمنياً (Spam)</h3>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-right text-sm">
+                            <thead class="bg-red-100 text-red-800 border-b border-red-200"><tr><th scope="col" class="p-3">رقم الموبايل</th><th scope="col" class="p-3">وقت الحظر</th><th scope="col" class="p-3">السبب</th><th scope="col" class="p-3">إجراء</th></tr></thead>
+                            <tbody id="adminBannedList" class="divide-y divide-red-200 font-semibold bg-white"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- TAB: History -->
+            <div id="admin-history" role="tabpanel" aria-labelledby="tab-history" class="admin-tab-content hidden glass-card p-6">
+                <h3 class="text-lg font-bold text-hola-purple mb-6">سجل الجلسات المكتملة والأرشيف</h3>
+                <div class="overflow-x-auto mb-8 border-b pb-6">
+                    <div class="flex justify-between items-center mb-3">
+                        <h4 class="font-bold text-hola-orange border-b pb-1"><i aria-hidden="true" class="fa-solid fa-clock-rotate-left ml-1"></i> الجلسات المكتملة</h4>
+                        <div class="flex gap-2">
+                            <button onclick="window.exportTableToCSV('adminHistoryTable', 'Completed_Sessions')" class="bg-green-600 text-white text-[10px] px-3 py-1.5 rounded shadow hover:bg-green-700"><i aria-hidden="true" class="fa-solid fa-file-excel mr-1"></i> تصدير إكسل</button>
+                            <button onclick="window.deleteAllHistory()" class="bg-red-500 text-white text-[10px] px-3 py-1.5 rounded shadow hover:bg-red-600"><i aria-hidden="true" class="fa-solid fa-trash mr-1"></i> تنظيف السجل</button>
+                        </div>
+                    </div>
+                    <table class="w-full text-right text-sm" id="adminHistoryTable">
+                        <thead class="bg-gray-50 text-gray-600 border-b"><tr><th scope="col" class="p-3">العميل</th><th scope="col" class="p-3">التاريخ</th><th scope="col" class="p-3">الشفت</th><th scope="col" class="p-3">المدة</th><th scope="col" class="p-3">المدفوع</th><th scope="col" class="p-3">طريقة الدفع</th><th scope="col" class="p-3 text-center no-print">طباعة</th></tr></thead>
+                        <tbody id="adminHistoryList" class="divide-y divide-gray-100 font-semibold"></tbody>
+                    </table>
+                </div>
+                <div class="overflow-x-auto">
+                    <div class="flex justify-between items-center mb-3">
+                        <h4 class="font-bold text-hola-orange border-b pb-1"><i aria-hidden="true" class="fa-solid fa-calendar-check ml-1"></i> أرشيف الحجوزات المسبقة</h4>
+                        <div class="flex gap-2">
+                            <button onclick="window.exportTableToCSV('adminArchivedBookingsTable', 'Archived_Bookings')" class="bg-green-600 text-white text-[10px] px-3 py-1.5 rounded shadow hover:bg-green-700"><i aria-hidden="true" class="fa-solid fa-file-excel mr-1"></i> تصدير إكسل</button>
+                            <button onclick="window.deleteAllArchivedBookings()" class="bg-red-500 text-white text-[10px] px-3 py-1.5 rounded shadow hover:bg-red-600"><i aria-hidden="true" class="fa-solid fa-trash mr-1"></i> تنظيف السجل</button>
+                        </div>
+                    </div>
+                    <table class="w-full text-right text-sm" id="adminArchivedBookingsTable"><thead class="bg-gray-50 text-gray-600 border-b"><tr><th scope="col" class="p-3">الاسم</th><th scope="col" class="p-3">الهاتف</th><th scope="col" class="p-3">موعد الوصول</th><th scope="col" class="p-3">الحالة</th></tr></thead><tbody id="adminArchivedPreBookingsList" class="divide-y divide-gray-100 font-semibold"></tbody></table>
+                </div>
+            </div>
+            
+            <!-- TAB: Operations -->
+            <div id="admin-operations" role="tabpanel" aria-labelledby="tab-operations" class="admin-tab-content hidden glass-card p-6">
+                <h3 class="text-lg font-bold text-hola-purple mb-6"><i aria-hidden="true" class="fa-solid fa-list-check ml-2"></i>سجلات عمليات النظام والتسليم</h3>
+                <div class="overflow-x-auto"><table class="w-full text-right text-sm"><thead class="bg-gray-50 text-gray-600 border-b"><tr><th scope="col" class="p-3">التاريخ والوقت</th><th scope="col" class="p-3">المسؤول</th><th scope="col" class="p-3">نوع العملية</th><th scope="col" class="p-3">التفاصيل</th></tr></thead><tbody id="adminOperationsList" class="divide-y divide-gray-100 font-semibold"></tbody></table></div>
+            </div>
+            
+            <!-- TAB: Subscriptions Admin -->
+            <div id="admin-subscriptions" role="tabpanel" aria-labelledby="tab-subscriptions" class="admin-tab-content hidden glass-card p-6">
+                <div class="flex justify-between items-center mb-6">
+                    <div class="flex justify-between items-center mb-2">
+                        <h3 class="text-lg font-bold text-hola-purple"><i aria-hidden="true" class="fa-solid fa-crown text-hola-orange ml-2"></i>إدارة الاشتراكات والباقات</h3>
+                        <button onclick="window.showAdminManualSubModal()" class="bg-hola-purple text-white px-4 py-2 rounded-lg text-sm font-bold hover:bg-hola-dark transition flex items-center gap-2">
+                            <i aria-hidden="true" class="fa-solid fa-plus"></i> اشتراك يدوي
+                        </button>
+                    </div>
+                    <button onclick="window.showAddPlanModal()" class="bg-hola-orange text-white font-bold text-sm px-4 py-2 rounded-xl hover:bg-orange-600 transition"><i aria-hidden="true" class="fa-solid fa-plus ml-1"></i> إضافة باقة</button>
+                </div>
+                <!-- Pending Subscriptions -->
+                <div class="mb-8">
+                    <h4 class="font-bold text-red-600 mb-3 border-b pb-2 flex items-center gap-2"><i aria-hidden="true" class="fa-solid fa-clock"></i> طلبات الاشتراك المعلقة (تحتاج موافقة)</h4>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-right text-sm">
+                            <thead class="bg-red-50 text-red-800 border-b"><tr><th scope="col" class="p-3">الاسم</th><th scope="col" class="p-3">الهاتف</th><th scope="col" class="p-3">الباقة</th><th scope="col" class="p-3">التاريخ</th><th scope="col" class="p-3">إجراء</th></tr></thead>
+                            <tbody id="adminPendingSubsList" class="divide-y divide-gray-100 font-semibold"></tbody>
+                        </table>
+                    </div>
+                </div>
+                <!-- Active Subscriptions -->
+                <div class="mb-8">
+                    <h4 class="font-bold text-green-600 mb-3 border-b pb-2 flex items-center gap-2"><i aria-hidden="true" class="fa-solid fa-circle-check"></i> الاشتراكات النشطة</h4>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-right text-sm">
+                            <thead class="bg-green-50 text-green-800 border-b"><tr><th scope="col" class="p-3">الاسم</th><th scope="col" class="p-3">الهاتف</th><th scope="col" class="p-3">الباقة</th><th scope="col" class="p-3">الكود</th><th scope="col" class="p-3">الأيام المتبقية</th><th scope="col" class="p-3">الانتهاء</th><th scope="col" class="p-3">إجراء</th></tr></thead>
+                            <tbody id="adminActiveSubsList" class="divide-y divide-gray-100 font-semibold"></tbody>
+                        </table>
+                    </div>
+                </div>
+                <!-- Plans Management -->
+                <div>
+                    <h4 class="font-bold text-hola-purple mb-3 border-b pb-2 flex items-center gap-2"><i aria-hidden="true" class="fa-solid fa-layer-group"></i> الباقات المتاحة للاشتراك</h4>
+                    <div id="adminPlansList" class="grid md:grid-cols-3 gap-4"></div>
+                </div>
+            </div>
+
+            <!-- TAB: Internet Cards -->
+            <div id="admin-cards" role="tabpanel" aria-labelledby="tab-cards" class="admin-tab-content hidden glass-card p-6">
+                <!-- Header -->
+                <div class="flex flex-wrap justify-between items-center mb-6 gap-3">
+                    <h3 class="text-lg font-bold text-hola-purple"><i aria-hidden="true" class="fa-solid fa-wifi text-hola-orange ml-2"></i>إدارة كروت الإنترنت</h3>
+                    <button onclick="window.showGenerateCardsModal()" class="bg-hola-purple text-white px-4 py-2 rounded-xl text-sm font-bold hover:bg-hola-dark transition flex items-center gap-2 shadow">
+                        <i aria-hidden="true" class="fa-solid fa-plus"></i> إنشاء كروت جديدة
+                    </button>
+                </div>
+
+                <!-- Stats Row -->
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+                    <div class="bg-green-50 border border-green-200 rounded-xl p-3 text-center">
+                        <p class="text-xs text-gray-500 font-bold mb-1">نشطة</p>
+                        <p class="text-2xl font-black text-green-600" id="cardStatActive">0</p>
+                    </div>
+                    <div class="bg-gray-50 border border-gray-200 rounded-xl p-3 text-center">
+                        <p class="text-xs text-gray-500 font-bold mb-1">موقوفة</p>
+                        <p class="text-2xl font-black text-gray-600" id="cardStatSuspended">0</p>
+                    </div>
+                    <div class="bg-red-50 border border-red-200 rounded-xl p-3 text-center">
+                        <p class="text-xs text-gray-500 font-bold mb-1">منتهية</p>
+                        <p class="text-2xl font-black text-red-500" id="cardStatExpired">0</p>
+                    </div>
+                    <div class="bg-blue-50 border border-blue-200 rounded-xl p-3 text-center">
+                        <p class="text-xs text-gray-500 font-bold mb-1">إجمالي</p>
+                        <p class="text-2xl font-black text-blue-600" id="cardStatTotal">0</p>
+                    </div>
+                </div>
+
+                <!-- Filter & Search -->
+                <div class="flex flex-wrap gap-2 mb-4">
+                    <select id="cardFilterStatus" onchange="window.filterAdminCards()" class="border-2 border-gray-200 rounded-xl px-3 py-2 text-sm font-bold focus:border-hola-orange outline-none">
+                        <option value="all">جميع الحالات</option>
+                        <option value="active">نشطة فقط</option>
+                        <option value="suspended">موقوفة</option>
+                        <option value="expired">منتهية</option>
+                        <option value="inactive">غير نشطة</option>
+                    </select>
+                    <input type="text" id="cardSearchInput" oninput="window.filterAdminCards()" class="border-2 border-gray-200 rounded-xl px-3 py-2 text-sm font-bold focus:border-hola-orange outline-none flex-1 min-w-0" placeholder="بحث بالكود...">
+                    <button onclick="window.printAllCards()" class="bg-gray-700 text-white text-sm font-bold px-4 py-2 rounded-xl hover:bg-gray-800 transition flex items-center gap-2">
+                        <i aria-hidden="true" class="fa-solid fa-print"></i> طباعة الكروت
+                    </button>
+                    <button onclick="window.exportTableToCSV('adminCardsTable','Internet_Cards')" class="bg-green-600 text-white text-sm font-bold px-4 py-2 rounded-xl hover:bg-green-700 transition flex items-center gap-2">
+                        <i aria-hidden="true" class="fa-solid fa-file-excel"></i> تصدير
+                    </button>
+                </div>
+
+                <!-- Cards Table -->
+                <div class="overflow-x-auto border rounded-xl shadow-sm">
+                    <table class="w-full text-right text-sm" id="adminCardsTable">
+                        <thead class="bg-gray-50 text-gray-600 border-b">
+                            <tr>
+                                <th scope="col" class="p-3">الكود</th>
+                                <th scope="col" class="p-3 text-center">الحالة</th>
+                                <th scope="col" class="p-3 text-center min-w-[160px]">الاستهلاك</th>
+                                <th scope="col" class="p-3 text-center">ينتهي</th>
+                                <th scope="col" class="p-3 text-center">الجهاز</th>
+                                <th scope="col" class="p-3 text-center">إجراء</th>
+                            </tr>
+                        </thead>
+                        <tbody id="adminCardsList" class="divide-y divide-gray-100 font-semibold">
+                            <tr><td colspan="6" class="text-center py-8 text-gray-400">جاري التحميل...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- TAB: Settings -->
+            <div id="admin-settings" role="tabpanel" aria-labelledby="tab-settings" class="admin-tab-content hidden">
+                <div class="flex items-center justify-between mb-6">
+                    <h3 class="text-lg font-bold text-hola-purple"><i aria-hidden="true" class="fa-solid fa-gear text-hola-orange ml-2"></i>إعدادات النظام</h3>
+                    <button onclick="window.saveSystemSettings()" class="bg-hola-purple text-white font-bold px-6 py-2.5 rounded-xl hover:bg-hola-dark shadow transition flex items-center gap-2"><i aria-hidden="true" class="fa-solid fa-floppy-disk"></i> حفظ وتطبيق</button>
+                </div>
+                <!-- Settings Grid -->
+                <div class="grid md:grid-cols-3 gap-4">
+                    <!-- Card 1: Pricing -->
+                    <div class="glass-card p-5 border-t-4 border-hola-orange">
+                        <h4 class="font-bold text-hola-orange mb-4 flex items-center gap-2"><i aria-hidden="true" class="fa-solid fa-coins"></i> التسعير المرن</h4>
+                        <div class="space-y-3">
+                            <div><label for="setT1" class="block text-xs text-gray-600 mb-1">الساعة الأولى (ج.م)</label><input type="number" id="setT1" class="w-full border-2 p-2.5 rounded-xl text-center font-black text-lg text-hola-purple focus:border-hola-orange outline-none"></div>
+                            <div><label for="setT2" class="block text-xs text-gray-600 mb-1">الساعة الثانية (ج.م)</label><input type="number" id="setT2" class="w-full border-2 p-2.5 rounded-xl text-center font-black text-lg text-hola-purple focus:border-hola-orange outline-none"></div>
+                            <div><label for="setT3" class="block text-xs text-gray-600 mb-1">الساعة الثالثة (ج.م)</label><input type="number" id="setT3" class="w-full border-2 p-2.5 rounded-xl text-center font-black text-lg text-hola-purple focus:border-hola-orange outline-none"></div>
+                        </div>
+                    </div>
+                    <!-- Card 2: Place & Loyalty -->
+                    <div class="glass-card p-5 border-t-4 border-hola-purple">
+                        <h4 class="font-bold text-hola-purple mb-4 flex items-center gap-2"><i aria-hidden="true" class="fa-solid fa-building"></i> المكان والمكافآت</h4>
+                        <div class="space-y-3">
+                            <div><label for="setMaxCap" class="block text-xs text-gray-600 mb-1">السعة القصوى (شخص)</label><input type="number" id="setMaxCap" class="w-full border-2 p-2 rounded-lg text-center font-bold focus:border-hola-purple outline-none"></div>
+                            <div><label for="setStampsReq" class="block text-xs text-gray-600 mb-1">الأختام المطلوبة للمكافأة</label><input type="number" id="setStampsReq" class="w-full border-2 p-2 rounded-lg text-center font-bold focus:border-hola-purple outline-none"></div>
+                            <div><label for="settingDescription" class="block text-xs text-gray-600 mb-1">وصف نظام الحساب</label><textarea id="settingDescription" rows="2" class="w-full border-2 p-2 rounded-lg text-sm focus:border-hola-purple outline-none resize-none"></textarea></div>
+                            <div><label for="settingLoyaltyText" class="block text-xs text-gray-600 mb-1">نص برنامج الولاء</label><input type="text" id="settingLoyaltyText" class="w-full border-2 p-2 rounded-lg text-sm focus:border-hola-purple outline-none"></div>
+                        </div>
+                    </div>
+                    <!-- Card 3: Security -->
+                    <div class="glass-card p-5 border-t-4 border-gray-400">
+                        <h4 class="font-bold text-gray-700 mb-4 flex items-center gap-2"><i aria-hidden="true" class="fa-solid fa-shield-halved"></i> الأمان والموقع</h4>
+                        <div class="space-y-3">
+                            <div><label for="settingAdminPin" class="block text-xs text-gray-600 mb-1">كلمة مرور الإدارة</label><input type="password" id="settingAdminPin" class="w-full border-2 p-2 rounded-lg font-mono text-center tracking-widest font-bold focus:border-gray-500 outline-none"></div>
+                            <div class="grid grid-cols-3 gap-1.5">
+                                <div><label for="setLat" class="block text-[9px] text-gray-500 mb-1">خط العرض</label><input type="text" id="setLat" class="w-full border-2 p-2 rounded-lg text-[10px] font-mono focus:border-gray-500 outline-none" placeholder="26.5590"></div>
+                                <div><label for="setLng" class="block text-[9px] text-gray-500 mb-1">خط الطول</label><input type="text" id="setLng" class="w-full border-2 p-2 rounded-lg text-[10px] font-mono focus:border-gray-500 outline-none" placeholder="31.6957"></div>
+                                <div><label for="setRadius" class="block text-[9px] text-gray-500 mb-1">النطاق (م)</label><input type="number" id="setRadius" class="w-full border-2 p-2 rounded-lg text-[10px] font-mono focus:border-gray-500 outline-none" placeholder="500"></div>
+                            </div>
+                            <div class="flex items-center gap-2 bg-purple-50 p-2 rounded-lg border border-purple-100">
+                                <input type="checkbox" id="setRoomsActive" class="w-4 h-4 text-hola-orange">
+                                <label for="setRoomsActive" class="text-xs font-bold text-gray-700">إتاحة الغرف الخاصة</label>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Card 4: Promo Board -->
+                    <div class="glass-card p-5 border-t-4 border-blue-400">
+                        <h4 class="font-bold text-blue-700 mb-4 flex items-center gap-2"><i aria-hidden="true" class="fa-solid fa-bullhorn"></i> لوحة الإعلانات</h4>
+                        <div class="space-y-3">
+                            <div><label for="setPromoImg" class="block text-xs text-gray-600 mb-1">صورة الإعلان (Postimages)</label><input type="text" id="setPromoImg" class="w-full border-2 p-2 rounded-lg text-sm font-mono text-left focus:border-blue-400 outline-none" dir="ltr" placeholder="https://i.postimg.cc/..."></div>
+                            <div><label for="setPromoText" class="block text-xs text-gray-600 mb-1">النص الوصفي</label><textarea id="setPromoText" rows="2" class="w-full border-2 p-2 rounded-lg text-sm focus:border-blue-400 outline-none resize-none" placeholder="اكتب تفاصيل الإعلان..."></textarea></div>
+                            <div><label for="setPromoLink" class="block text-xs text-gray-600 mb-1">رابط زر التفاصيل</label><input type="text" id="setPromoLink" class="w-full border-2 p-2 rounded-lg text-sm font-mono text-left focus:border-blue-400 outline-none" dir="ltr" placeholder="https://facebook.com/..."></div>
+                            <div class="mt-2 bg-gray-50 p-2 rounded border text-xs text-gray-500">
+                                <i aria-hidden="true" class="fa-solid fa-lightbulb text-yellow-500 ml-1"></i>
+                                يمكن إضافة رابط فيسبوك، إنستا، لينكد إن أو بيهانس — سيتم التعرف عليه تلقائياً
+                            </div>
+                            <!-- Embed Option -->
+                            <div>
+                                <label for="setPromoEmbed" class="block text-xs text-gray-600 mb-1">أو تضمين محتوى (Embed)</label>
+                                <textarea id="setPromoEmbed" rows="3" class="w-full border-2 p-2 rounded-lg text-xs font-mono focus:border-blue-400 outline-none resize-none" placeholder="<iframe title='محتوى مدمج' src=...></iframe>"></textarea>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Card 5: Payment -->
+                    <div class="glass-card p-5 border-t-4 border-green-400">
+                        <h4 class="font-bold text-green-700 mb-4 flex items-center gap-2"><i aria-hidden="true" class="fa-solid fa-credit-card"></i> الدفع الإلكتروني</h4>
+                        <div class="space-y-3">
+                            <div>
+                                <label for="setVfNumber" class="block text-xs text-gray-600 mb-1">المحفظة الإلكترونية - الرقم</label>
+                                <input type="text" id="setVfNumber" placeholder="رقم المحفظة (فودافون/اورنج/اتصالات)" class="w-full border-2 p-2 rounded-lg text-sm font-mono text-left focus:border-green-400 outline-none" dir="ltr">
+                            </div>
+                            <div>
+                                <label for="setVfName" class="block text-xs text-gray-600 mb-1">اسم المستفيد</label>
+                                <input type="text" id="setVfName" placeholder="الاسم على المحفظة" class="w-full border-2 p-2 rounded-lg text-sm focus:border-green-400 outline-none">
+                            </div>
+                            <div>
+                                <label for="setInstapayLink" class="block text-xs text-gray-600 mb-1">رابط InstaPay</label>
+                                <input type="text" id="setInstapayLink" placeholder="instapay://pay?..." class="w-full border-2 p-2 rounded-lg text-sm font-mono text-left focus:border-green-400 outline-none" dir="ltr">
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Card 6: Social & Managers -->
+                    <div class="glass-card p-5 border-t-4 border-hola-orange">
+                        <h4 class="font-bold text-hola-orange mb-4 flex items-center gap-2"><i aria-hidden="true" class="fa-solid fa-users-gear"></i> الشفتات والتواصل</h4>
+                        <div class="space-y-3">
+                            <div>
+                                <label for="setFbPageLink" class="block text-xs text-gray-600 mb-1">رابط صفحة فيسبوك (للدعوات)</label>
+                                <input type="text" id="setFbPageLink" placeholder="https://facebook.com/HolaWorkspace" class="w-full border-2 p-2 rounded-lg text-sm font-mono text-left focus:border-hola-orange outline-none" dir="ltr">
+                            </div>
+                            <div>
+                                <label for="setWhatsappNum" class="block text-xs text-gray-600 mb-1">رقم واتساب للتواصل</label>
+                                <input type="text" id="setWhatsappNum" placeholder="201001234567" class="w-full border-2 p-2 rounded-lg text-sm font-mono text-left focus:border-hola-orange outline-none" dir="ltr">
+                            </div>
+                            <div class="border-t pt-3">
+                                <label for="newManagerName" class="block text-xs text-gray-600 mb-2">مسؤولو الشفتات</label>
+                                <div class="flex gap-2 mb-2">
+                                    <input type="text" id="newManagerName" placeholder="اسم المسؤول" class="w-full border-2 p-2 rounded-lg text-sm font-bold focus:border-hola-orange outline-none">
+                                    <button onclick="window.addShiftManager()" class="bg-green-600 text-white px-3 rounded-lg font-bold text-sm hover:bg-green-700 transition whitespace-nowrap">إضافة</button>
+                                </div>
+                                <div id="managersList" class="flex flex-wrap gap-2"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <button onclick="window.saveSystemSettings()" class="w-full mt-6 bg-hola-purple text-white font-bold py-3.5 rounded-xl hover:bg-hola-dark shadow-lg transition text-lg flex items-center justify-center gap-2"><i aria-hidden="true" class="fa-solid fa-floppy-disk"></i> حفظ جميع الإعدادات</button>
+            </div>
+        </section>
+        
+        <!-- Global Footer -->
+        <footer role="contentinfo" class="text-center py-8 text-gray-500 text-xs font-bold mt-12 no-print border-t border-gray-200">
+            <p>جميع الحقوق محفوظة &copy; Hola Workspace 2026 - Your digital gateway</p>
+        </footer>
+    </main>
+
+    <!-- Client Chat Modal -->
+    <div id="clientChatModal" class="hidden fixed bottom-24 left-6 w-[320px] h-[500px] bg-white z-[200] flex flex-col rounded-3xl shadow-2xl border-4 border-hola-purple overflow-hidden">
+        <div class="bg-hola-purple text-white p-4 flex justify-between items-center shadow-lg">
+            <div class="flex items-center gap-2"><span class="live-dot border-2 border-white"></span><h3 class="font-black text-sm uppercase" id="chatClientHeaderName">شات مباشر</h3></div>
+            <button aria-label="إغلاق الشات" onclick="window.closeClientChat()" class="text-white hover:rotate-90 transition duration-300"><i aria-hidden="true" class="fa-solid fa-xmark text-xl"></i></button>
+        </div>
+        <div id="clientChatMessages" class="flex-grow p-4 bg-gray-50 overflow-y-auto flex flex-col gap-3 no-scrollbar"></div>
+        <div class="bg-white p-3 border-t flex gap-2">
+            <label for="clientChatInput" class="sr-only">رسالتك</label>
+            <input type="text" id="clientChatInput" class="flex-grow border-2 border-gray-100 bg-gray-50 rounded-xl px-3 py-2 text-xs font-bold focus:border-hola-orange focus:outline-none transition" placeholder="اطلب أي حاجة من البار...">
+            <button aria-label="إرسال" onclick="window.sendClientMessage()" class="bg-hola-orange text-white w-10 rounded-xl flex items-center justify-center hover:bg-hola-dark transition shadow-md"><i aria-hidden="true" class="fa-solid fa-paper-plane"></i></button>
+        </div>
+    </div>
+
+    <!-- MODALS -->
+
+    <!-- Event Details Modal -->
+    <div id="eventDetailsModal" class="hidden fixed inset-0 bg-black/85 z-[250] flex items-end sm:items-center justify-center p-0 sm:p-4 backdrop-blur-sm print:hidden" onclick="if(event.target===this)this.classList.add('hidden')">
+        <div class="bg-white w-full sm:max-w-lg rounded-t-3xl sm:rounded-3xl shadow-2xl overflow-hidden max-h-[95vh] flex flex-col">
+            <!-- Image Area — full width, auto height -->
+            <div id="modalEventImgWrapper" class="relative w-full bg-gray-100 flex-shrink-0">
+                <img id="modalEventImg" src="" alt="صورة الفعالية التوضيحية"
+                    class="w-full h-auto max-h-[55vw] sm:max-h-72 object-cover"
+                    onerror="document.getElementById('modalEventImgWrapper').style.display='none'"
+                    onload="document.getElementById('modalEventImgWrapper').style.display='block'">
+                <!-- Close button over image -->
+                <button aria-label="إغلاق" onclick="document.getElementById('eventDetailsModal').classList.add('hidden')"
+                    class="absolute top-3 left-3 bg-black/40 hover:bg-black/70 text-white w-9 h-9 rounded-full flex items-center justify-center backdrop-blur-sm transition z-10">
+                    <i aria-hidden="true" class="fa-solid fa-xmark text-lg"></i>
+                </button>
+                <!-- Event badge -->
+                <div class="absolute bottom-3 right-3 bg-hola-orange text-white text-xs px-3 py-1 rounded-full font-black shadow-lg">🎉 فعالية</div>
+            </div>
+            <!-- No image: show close button -->
+            <div id="modalNoImgClose" class="hidden absolute top-4 left-4">
+                <button aria-label="إغلاق" onclick="document.getElementById('eventDetailsModal').classList.add('hidden')"
+                    class="bg-gray-100 hover:bg-gray-200 text-gray-600 w-9 h-9 rounded-full flex items-center justify-center transition">
+                    <i aria-hidden="true" class="fa-solid fa-xmark text-lg"></i>
+                </button>
+            </div>
+            <!-- Content scrollable -->
+            <div class="flex-1 overflow-y-auto p-5 space-y-4">
+                <div>
+                    <h4 id="modalEventTitle" class="text-xl font-black text-hola-purple leading-snug mb-1"></h4>
+                    <p id="modalEventTime" class="text-sm font-bold text-hola-orange flex items-center gap-1.5"><i aria-hidden="true" class="fa-solid fa-calendar-clock"></i> <span></span></p>
+                </div>
+                <p id="modalEventDesc" class="text-sm text-gray-600 leading-relaxed font-bold whitespace-pre-line"></p>
+                <!-- Action Buttons -->
+                <div class="space-y-2 pt-2">
+                    <button onclick="window.attendEvent(window._currentPublicEvSlot||1)"
+                        class="w-full bg-hola-purple hover:bg-hola-dark text-white font-black py-4 rounded-2xl shadow-lg transition text-base flex items-center justify-center gap-2">
+                        <i aria-hidden="true" class="fa-solid fa-hand-sparkles"></i> تأكيد نية الحضور
+                    </button>
+                    <div class="grid grid-cols-2 gap-2">
+                        <button onclick="window.shareClientEvent(window._currentPublicEvSlot||1)"
+                            class="bg-blue-600 text-white font-bold py-3 rounded-xl hover:bg-blue-700 transition text-sm flex items-center justify-center gap-1.5">
+                            <i aria-hidden="true" class="fa-brands fa-facebook"></i> مشاركة
+                        </button>
+                        <a id="eventWhatsappBtn" href="#" target="_blank"
+                            class="bg-green-600 text-white font-bold py-3 rounded-xl hover:bg-green-700 transition text-sm flex items-center justify-center gap-1.5">
+                            <i aria-hidden="true" class="fa-brands fa-whatsapp"></i> تواصل
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Admin Payment Method Modal -->
+    <div id="paymentMethodModal" class="hidden fixed inset-0 bg-black/80 z-[250] flex items-center justify-center p-4 backdrop-blur-sm print:hidden">
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-sm p-6 text-center transform transition-all border-t-8 border-hola-purple relative">
+            <h3 class="text-xl font-black text-hola-purple mb-4 mt-2">تحديد طريقة الدفع</h3>
+            <p class="text-xs text-gray-500 mb-4 font-bold">كيف قام العميل بسداد الفاتورة؟</p>
+            <div class="flex flex-col gap-3 mb-4" id="payButtons">
+                <button onclick="window.setPayment('كاش')" class="w-full bg-green-600 text-white font-bold py-3 rounded-xl shadow-md transition hover:bg-green-700 flex justify-center items-center gap-2"><i aria-hidden="true" class="fa-solid fa-money-bill-wave"></i> كاش (نقدي)</button>
+                <button onclick="window.setPayment('محفظة إلكترونية')" class="w-full bg-purple-600 text-white font-bold py-3 rounded-xl shadow-md transition hover:bg-purple-700 flex justify-center items-center gap-2"><i aria-hidden="true" class="fa-solid fa-wallet"></i> محفظة إلكترونية</button>
+                <button onclick="window.setPayment('إنستاباي')" class="w-full bg-[#6a1b9a] text-white font-bold py-3 rounded-xl shadow-md transition hover:bg-[#4a148c] flex justify-center items-center gap-2"><i aria-hidden="true" class="fa-solid fa-paper-plane"></i> إنستا باي (InstaPay)</button>
+            </div>
+            <div id="payRefDiv" class="hidden text-right bg-gray-50 p-4 rounded-xl border mb-4">
+                <label for="payRefInput" class="block text-sm font-bold text-gray-700 mb-2">رقم المحفظة / حساب التحويل:</label>
+                <input type="text" id="payRefInput" placeholder="أدخل الرقم المحول منه..." class="w-full border-2 p-2 rounded-lg mb-3 font-mono text-sm focus:border-hola-purple text-left" dir="ltr">
+                <button onclick="window.confirmPaymentMethod()" class="w-full bg-hola-purple text-white font-bold py-2 rounded-lg hover:bg-hola-dark">تأكيد وحفظ</button>
+            </div>
+            <button onclick="document.getElementById('paymentMethodModal').classList.add('hidden')" class="w-full bg-gray-200 text-gray-800 font-bold py-2 rounded-xl mt-2">إلغاء</button>
+        </div>
+    </div>
+
+    <!-- End Day Report Modal -->
+    <div id="endDayModal" class="hidden fixed inset-0 bg-black/80 z-[200] flex items-center justify-center p-4 backdrop-blur-sm print:hidden">
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-2xl p-6 transform transition-all max-h-[90vh] overflow-y-auto">
+            <div class="flex justify-between items-center mb-4 border-b pb-4">
+                <h3 class="text-2xl font-black text-hola-purple"><i aria-hidden="true" class="fa-solid fa-chart-line ml-2"></i>ملخص إغلاق اليوم</h3>
+                <button aria-label="إغلاق" onclick="window.closeEndDaySummary()" class="text-gray-400 hover:text-red-500 bg-gray-100 w-8 h-8 rounded-full"><i aria-hidden="true" class="fa-solid fa-xmark"></i></button>
+            </div>
+            <div id="endDayPrintContent">
+                <p class="text-gray-500 font-bold mb-4 text-sm">تاريخ اليوم: <span id="summaryDate" class="text-hola-purple font-mono"></span></p>
+                <div class="grid grid-cols-3 gap-4 mb-6">
+                    <div class="bg-purple-50 p-4 rounded-xl border border-purple-100 text-center"><p class="text-xs text-gray-500 font-bold mb-1">إجمالي الإيرادات</p><p class="text-2xl font-black text-hola-purple"><span id="sumTotalRev">0</span> ج</p></div>
+                    <div class="bg-orange-50 p-4 rounded-xl border border-orange-100 text-center"><p class="text-xs text-gray-500 font-bold mb-1">إجمالي الجلسات</p><p class="text-2xl font-black text-hola-orange" id="sumTotalSessions">0</p></div>
+                    <div class="bg-green-50 p-4 rounded-xl border border-green-100 text-center"><p class="text-xs text-gray-500 font-bold mb-1">إيرادات البار</p><p class="text-2xl font-black text-green-600"><span id="sumTotalBar">0</span> ج</p></div>
+                </div>
+                <div class="mb-6 h-64 w-full"><canvas id="dailySummaryChart" aria-label="رسم بياني لملخص اليوم" role="img"></canvas></div>
+            </div>
+            <div class="flex gap-2 mt-4 pt-4 border-t">
+                <button onclick="window.printEndDaySummary()" class="w-full bg-gray-800 hover:bg-black text-white font-bold py-3 rounded-xl transition shadow-md"><i aria-hidden="true" class="fa-solid fa-print ml-1"></i> طباعة التقرير</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Client Checkout Modal -->
+    <div id="checkoutModal" class="hidden fixed inset-0 bg-black/60 z-[100] flex items-center justify-center backdrop-blur-sm p-4 print:hidden">
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md p-6 transform transition-all max-h-[90vh] overflow-y-auto">
+            <div class="flex justify-between items-center mb-6">
+                <h3 class="text-2xl font-black text-hola-purple">تأكيد إنهاء الجلسة</h3>
+                <button aria-label="إغلاق" onclick="window.closeCheckoutModal()" class="text-gray-400 hover:text-red-500 bg-gray-100 w-8 h-8 rounded-full"><i aria-hidden="true" class="fa-solid fa-xmark"></i></button>
+            </div>
+            <div class="bg-gray-50 p-5 rounded-xl mb-4 text-sm font-semibold border space-y-3">
+                <div class="flex justify-between text-gray-500"><span>الوقت المُستغرق:</span><span id="modalTime" class="text-gray-800 font-mono" dir="ltr">00:00:00</span></div>
+                <div class="flex justify-between text-gray-500"><span>تكلفة الوقت والطلبات:</span><span id="modalSubTotal" class="text-gray-800 font-black">0 ج</span></div>
+                <div id="walletDeductionDiv" class="hidden flex justify-between text-green-600 bg-green-50 p-2 rounded"><span>خصم من الفكة:</span><span id="modalWalletDeduction">-0 ج</span></div>
+            </div>
+            <div class="mb-4 bg-green-50 p-3 rounded-lg border border-green-200" id="manualWalletDiv">
+                <div class="flex justify-between items-center mb-2"><label for="walletDeductInput" class="text-sm font-bold text-green-700">محفظتك المتاحة: <span id="checkoutWalletBalance" class="font-black">0</span> ج</label></div>
+                <div class="flex items-center gap-2">
+                    <span class="text-sm font-bold">خصم:</span>
+                    <input type="number" id="walletDeductInput" class="w-full border-2 border-green-300 rounded-lg px-2 py-1 text-center font-bold" value="0" min="0" oninput="window.handleWalletInput(this)">
+                    <span class="text-sm">ج</span>
+                </div>
+                <p id="walletError" class="text-xs text-red-500 mt-1 hidden font-bold">رقم غير صحيح!</p>
+            </div>
+            <div class="mb-6">
+                <label for="discountCode" class="block text-sm font-bold mb-2">كود خصم</label>
+                <div class="flex gap-2">
+                    <input type="text" id="discountCode" class="w-full border-2 rounded-lg px-3 py-2 font-mono uppercase" placeholder="HOLA...">
+                    <button onclick="window.applyDiscountCode()" class="bg-gray-800 text-white px-4 rounded-lg font-bold">تفعيل</button>
+                </div>
+                <p id="discountMsg" class="text-xs font-bold mt-2 text-green-600 hidden"></p>
+            </div>
+            <div class="flex justify-between text-2xl font-black text-red-600 mb-6 bg-red-50 p-3 rounded-lg border border-red-100">
+                <span>المطلوب سداده:</span><span id="modalFinalRequired">0 ج</span>
+            </div>
+            <button onclick="window.confirmCheckout()" class="w-full bg-hola-orange hover:bg-orange-600 text-white font-black py-4 rounded-xl shadow-lg transition">طلب الحساب</button>
+        </div>
+    </div>
+
+    <!-- Client Receipt Modal -->
+    <div id="clientReceiptModal" class="hidden fixed inset-0 bg-black/80 z-[200] flex items-center justify-center p-4 backdrop-blur-sm print:hidden">
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-sm p-6 text-center border-t-8 border-hola-purple relative max-h-[95vh] overflow-y-auto">
+            <div class="absolute top-0 right-0 w-16 h-16 bg-purple-100 rounded-bl-full flex items-start justify-end p-2 text-hola-purple"><i aria-hidden="true" class="fa-solid fa-check text-xl"></i></div>
+            <h3 class="text-2xl font-black text-hola-purple mb-2 mt-4" id="receiptTitle">تم إنهاء الجلسة بنجاح</h3>
+            <p class="text-sm text-gray-500 font-bold mb-4">شكراً لزيارتك 💜</p>
+            <div class="bg-gray-50 p-4 rounded-xl border border-gray-100 mb-4 text-right space-y-2 text-sm">
+                <div class="flex justify-between border-b pb-2"><span class="text-gray-500">الجلسة:</span><span class="font-bold text-gray-800" dir="ltr"><span id="receiptStartTime">--:--</span> - <span id="receiptEndTime">--:--</span></span></div>
+                <div class="flex justify-between border-b pb-2"><span class="text-gray-500">المدة:</span><span class="font-bold text-gray-800" id="receiptDuration">--</span></div>
+                <div class="border-b pb-2"><span class="text-gray-500 block mb-1">الطلبات:</span><div id="receiptItemsList" class="text-xs text-gray-700 font-semibold space-y-1"></div></div>
+                <div class="flex justify-between border-b pb-2"><span class="text-gray-500">الخصم / فكة:</span><span class="font-bold text-green-600" id="receiptDiscount">0 ج</span></div>
+                <div class="flex justify-between pt-1"><span class="text-gray-800 font-bold">الإجمالي النهائي:</span><span class="font-black text-hola-orange text-xl" id="receiptFinalCost">0 ج</span></div>
+            </div>
+            <p class="text-base text-center bg-red-100 text-red-600 border border-red-200 p-3 rounded-xl font-black mb-4 animate-pulse">⚠️ برجاء التوجه للإدارة لسداد الفاتورة أو الدفع إلكترونياً 👇</p>
+            <div class="flex flex-col gap-2 mb-4">
+                <button onclick="window.toggleVfPay()" class="w-full bg-purple-600 text-white font-bold py-2.5 rounded-xl shadow-md transition hover:bg-purple-700 flex justify-center items-center gap-2"><i aria-hidden="true" class="fa-solid fa-wallet"></i> دفع بالمحفظة الإلكترونية</button>
+                <div id="vfPayDetails" class="hidden bg-purple-50 text-purple-800 p-3 rounded-xl text-sm border border-purple-200 text-center">
+                    <p class="text-xs text-gray-500 mb-1">حول المبلغ على المحفظة الإلكترونية:</p>
+                    <p class="font-bold text-lg tracking-widest select-all mb-1 font-mono" id="vfPayNum" onclick="window.copyToClipboard(this.innerText)" title="اضغط للنسخ" style="cursor:pointer"></p>
+                    <p class="font-bold text-sm">باسم: <span id="vfPayName"></span> <button aria-label="نسخ" onclick="window.copyToClipboard(document.getElementById('vfPayNumFull')?.innerText)" class="text-xs bg-white/30 px-2 py-0.5 rounded hover:bg-white/50 transition ml-1"><i aria-hidden="true" class="fa-regular fa-copy"></i></button></p>
+                    <span id="vfPayNumFull" class="hidden"></span>
+                </div>
+                <button onclick="window.openInstapay()" class="w-full bg-[#6a1b9a] text-white font-bold py-2.5 rounded-xl shadow-md transition hover:bg-[#4a148c] flex justify-center items-center gap-2"><i aria-hidden="true" class="fa-solid fa-paper-plane"></i> دفع إنستا باي (InstaPay)</button>
+            </div>
+            <div class="flex gap-2 border-t pt-4">
+                <button onclick="window.printInvoice(window.lastCompletedSessionId)" class="w-1/2 bg-gray-800 text-white font-bold py-2 rounded-xl hover:bg-black"><i aria-hidden="true" class="fa-solid fa-print ml-1"></i> طباعة</button>
+                <button onclick="window.closeReceiptModal()" class="w-1/2 bg-gray-200 text-gray-800 font-bold py-2 rounded-xl">إغلاق</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Admin Live Session Manager Modal -->
+    <div id="adminLiveSessionModal" class="hidden fixed inset-0 bg-black/60 z-[120] flex items-center justify-center p-4 print:hidden">
+        <div class="bg-white rounded-xl p-6 w-full max-w-md max-h-[90vh] overflow-y-auto">
+            <div class="flex justify-between items-start mb-4 border-b pb-2">
+                <div><h3 class="font-black text-xl text-hola-purple" id="liveSesName">اسم العميل</h3><p class="text-xs font-mono font-bold text-gray-500" id="liveSesPhone">010...</p></div>
+                <button aria-label="إغلاق" onclick="document.getElementById('adminLiveSessionModal').classList.add('hidden')" class="text-gray-400 hover:text-red-500 text-2xl"><i aria-hidden="true" class="fa-solid fa-xmark"></i></button>
+            </div>
+            <div class="bg-purple-50 p-3 rounded-lg border border-purple-100 mb-4 flex justify-between items-center">
+                <span class="font-bold text-sm text-hola-purple">الوقت المنقضي:</span>
+                <span class="font-mono font-black text-lg text-hola-orange admin-timer" id="liveSesElapsed" dir="ltr">00:00:00</span>
+            </div>
+            <h4 class="font-bold text-sm text-gray-700 mb-2 border-b pb-1">طلبات الجلسة الحالية:</h4>
+            <div class="space-y-2 mb-6 max-h-40 overflow-y-auto pr-1" id="liveSesItemsList"></div>
+            <div class="bg-gray-50 p-3 rounded-lg border mb-4">
+                <div class="flex justify-between text-sm font-bold mb-1"><span>تكلفة الوقت:</span><span id="liveSesTimeCost">0 ج</span></div>
+                <div class="flex justify-between text-sm font-bold mb-2 border-b pb-2"><span>الطلبات:</span><span id="liveSesItemsCost">0 ج</span></div>
+                <div class="flex justify-between text-lg font-black text-red-600"><span>الإجمالي المبدئي:</span><span id="liveSesTotal">0 ج</span></div>
+            </div>
+            <div class="flex gap-2 mb-3">
+                <button onclick="window.openUserDetails(document.getElementById('liveSesPhone').innerText)" class="w-full bg-blue-50 text-blue-700 font-bold py-2 rounded-xl text-sm hover:bg-blue-100 transition border border-blue-200"><i aria-hidden="true" class="fa-solid fa-eye ml-1"></i> عرض الملف الكامل</button>
+            </div>
+            <button id="liveSesEndBtn" class="w-full bg-red-600 text-white font-black py-3 rounded-xl shadow hover:bg-red-700 transition">إنهاء الجلسة واستخراج الفاتورة</button>
+        </div>
+    </div>
+
+    <!-- Generate Internet Cards Modal -->
+    <div id="generateCardsModal" class="hidden fixed inset-0 bg-black/80 z-[260] flex items-center justify-center p-4 backdrop-blur-sm print:hidden">
+        <div class="bg-white rounded-3xl shadow-2xl w-full max-w-md p-6 border-t-8 border-hola-purple relative max-h-[95vh] overflow-y-auto">
+            <button aria-label="إغلاق" onclick="document.getElementById('generateCardsModal').classList.add('hidden')" class="absolute top-4 left-4 text-gray-400 hover:text-red-500 text-xl bg-gray-100 w-8 h-8 rounded-full flex items-center justify-center"><i aria-hidden="true" class="fa-solid fa-xmark"></i></button>
+            <div class="text-center mb-5">
+                <div class="w-16 h-16 bg-purple-100 text-hola-purple rounded-full flex items-center justify-center text-3xl mx-auto mb-3"><i aria-hidden="true" class="fa-solid fa-wifi"></i></div>
+                <h3 class="text-xl font-black text-hola-purple">إنشاء كروت إنترنت</h3>
+                <p class="text-xs text-gray-500 mt-1">حدد المواصفات وأنشئ الكروت دفعة واحدة</p>
+            </div>
+            <div class="space-y-4">
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label for="genCardsCount" class="block text-xs font-bold text-gray-700 mb-1">عدد الكروت</label>
+                        <input type="number" id="genCardsCount" value="1" min="1" max="100" class="w-full border-2 border-gray-200 rounded-xl px-3 py-2.5 text-center font-black text-xl focus:border-hola-purple outline-none">
+                    </div>
+                    <div>
+                        <label for="genCardsQuota" class="block text-xs font-bold text-gray-700 mb-1">الكوتا (GB)</label>
+                        <input type="number" id="genCardsQuota" value="5" min="1" max="1000" class="w-full border-2 border-gray-200 rounded-xl px-3 py-2.5 text-center font-black text-xl focus:border-hola-purple outline-none">
+                    </div>
+                </div>
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label for="genCardsDays" class="block text-xs font-bold text-gray-700 mb-1">مدة الصلاحية (يوم)</label>
+                        <input type="number" id="genCardsDays" value="30" min="1" max="365" class="w-full border-2 border-gray-200 rounded-xl px-3 py-2.5 text-center font-black text-xl focus:border-hola-purple outline-none">
+                    </div>
+                    <div>
+                        <label for="genCardsPrefix" class="block text-xs font-bold text-gray-700 mb-1">البادئة (Prefix)</label>
+                        <input type="text" id="genCardsPrefix" value="HOLA" maxlength="6" class="w-full border-2 border-gray-200 rounded-xl px-3 py-2.5 text-center font-bold font-mono uppercase focus:border-hola-purple outline-none">
+                    </div>
+                </div>
+                <div class="bg-purple-50 p-3 rounded-xl border border-purple-100 text-xs text-gray-600 font-bold">
+                    <i aria-hidden="true" class="fa-solid fa-circle-info text-hola-purple ml-1"></i>
+                    الكوتا: <span id="genPreviewQuota">5</span> GB |
+                    المدة: <span id="genPreviewDays">30</span> يوم |
+                    ينتهي: <span id="genPreviewExpiry"></span>
+                </div>
+                <button onclick="window.doGenerateCards()" class="w-full bg-hola-purple text-white font-black py-3.5 rounded-xl shadow-lg hover:bg-hola-dark transition flex items-center justify-center gap-2">
+                    <i aria-hidden="true" class="fa-solid fa-wand-magic-sparkles"></i> إنشاء الكروت الآن
+                </button>
+            </div>
+            <!-- Generated Cards Preview -->
+            <div id="generatedCardsPreview" class="hidden mt-4 bg-gray-50 p-4 rounded-xl border">
+                <div class="flex justify-between items-center mb-3">
+                    <p class="font-bold text-sm text-gray-700">الكروت المُنشأة:</p>
+                    <button onclick="window.printGeneratedCards()" class="text-xs bg-gray-800 text-white px-3 py-1.5 rounded-lg hover:bg-black flex items-center gap-1"><i aria-hidden="true" class="fa-solid fa-print"></i> طباعة</button>
+                </div>
+                <div id="generatedCardsList" class="space-y-2 max-h-48 overflow-y-auto font-mono text-sm"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Internet Card Login Modal (Client) -->
+    <div id="cardLoginModal" class="hidden fixed inset-0 bg-black/80 z-[260] flex items-center justify-center p-4 backdrop-blur-sm print:hidden" role="dialog" aria-modal="true" aria-labelledby="cardLoginTitle">
+        <div class="bg-white rounded-3xl shadow-2xl w-full max-w-sm border-t-8 border-hola-orange relative overflow-hidden">
+            <button aria-label="إغلاق نافذة كرت الإنترنت" onclick="document.getElementById('cardLoginModal').classList.add('hidden')" class="absolute top-4 left-4 text-gray-400 hover:text-red-500 text-xl bg-gray-100 w-8 h-8 rounded-full flex items-center justify-center z-10"><i aria-hidden="true" class="fa-solid fa-xmark"></i></button>
+            <div class="text-center px-6 pt-6 pb-4">
+                <div class="w-16 h-16 bg-orange-100 text-hola-orange rounded-full flex items-center justify-center text-3xl mx-auto mb-3"><i aria-hidden="true" class="fa-solid fa-wifi"></i></div>
+                <h3 id="cardLoginTitle" class="text-xl font-black text-hola-purple">كرت الإنترنت</h3>
+                <p class="text-xs text-gray-500 mt-1">أدخل بياناتك لعرض حالة الكرت والجلسة</p>
+            </div>
+            <div class="px-6 pb-6 space-y-3 max-h-[70vh] overflow-y-auto">
+                <div>
+                    <label for="cardLoginCode" class="block text-xs font-bold text-gray-700 mb-1">كود الكرت <span class="text-red-500" aria-hidden="true">*</span><span class="sr-only">(مطلوب)</span></label>
+                    <input type="text" id="cardLoginCode" class="w-full border-2 border-gray-200 rounded-xl px-4 py-3 text-center font-mono font-black text-xl uppercase tracking-widest focus:border-hola-orange outline-none" placeholder="HOLA-XXXX-XXXX" oninput="this.value=this.value.toUpperCase()" autocomplete="off" spellcheck="false" inputmode="text">
+                </div>
+                <div>
+                    <label for="cardLoginPhone" class="block text-xs font-bold text-gray-700 mb-1">رقم الموبايل <span class="text-gray-400 font-normal">(اختياري — لعرض جلستك)</span></label>
+                    <input type="tel" id="cardLoginPhone" class="w-full border-2 border-gray-200 rounded-xl px-4 py-3 text-center font-mono font-bold text-base focus:border-hola-orange outline-none" placeholder="01XXXXXXXXX" dir="ltr" autocomplete="tel">
+                </div>
+                <button onclick="window.checkCardStatus()" class="w-full bg-hola-orange text-white font-black py-3.5 rounded-xl shadow-lg hover:bg-orange-600 transition active:scale-95">
+                    <i aria-hidden="true" class="fa-solid fa-magnifying-glass ml-1"></i> فحص الكرت
+                </button>
+                <div id="cardLoginResult" class="hidden" aria-live="polite"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Cards Print Area (hidden, shown only during print) -->
+    <div id="cardsPrintArea" class="hidden fixed inset-0 bg-white z-[9999] p-8 overflow-auto" aria-hidden="true">
+        <div class="max-w-4xl mx-auto">
+            <div class="text-center mb-8 border-b-2 pb-4">
+                <h1 class="text-2xl font-black text-hola-purple">HOLA WORKSPACE — كروت الإنترنت</h1>
+                <p class="text-sm text-gray-500 font-bold" id="cardsPrintDate"></p>
+            </div>
+            <div id="cardsPrintGrid" class="grid grid-cols-2 gap-4"></div>
+            <p class="text-center text-xs text-gray-400 mt-8">هذه الكروت سرية — لا تشاركها مع الغير</p>
+            <div class="flex justify-center mt-6 gap-3 no-print">
+                <button onclick="window.print()" class="bg-gray-800 text-white font-bold px-6 py-2 rounded-lg">طباعة</button>
+                <button onclick="document.getElementById('cardsPrintArea').classList.add('hidden')" class="bg-gray-200 text-gray-800 font-bold px-6 py-2 rounded-lg">إغلاق</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Admin Receipt Modal -->
+    <div id="adminReceiptModal" class="hidden fixed inset-0 bg-black/80 z-[200] flex items-center justify-center p-4 backdrop-blur-sm print:hidden">
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md p-8 text-center border-t-8 border-hola-orange relative max-h-[95vh] overflow-y-auto">
+            <h3 class="text-2xl font-black text-hola-purple mb-2 mt-4">تم إنهاء الجلسة</h3>
+            <div class="bg-gray-50 p-4 rounded-xl border border-gray-100 mb-4 text-right space-y-2 text-sm">
+                <div class="flex justify-between border-b pb-2"><span class="text-gray-500">العميل:</span><span class="font-bold text-gray-800" id="adminRecName">--</span></div>
+                <div class="flex justify-between border-b pb-2"><span class="text-gray-500">الجلسة:</span><span class="font-bold text-gray-800" dir="ltr"><span id="adminRecStart">--:--</span> - <span id="adminRecEnd">--:--</span></span></div>
+                <div class="flex justify-between border-b pb-2"><span class="text-gray-500">المدة:</span><span class="font-bold text-gray-800" id="adminRecDuration">--</span></div>
+                <div class="border-b pb-2"><span class="text-gray-500 block mb-1">الطلبات:</span><div id="adminRecItems" class="text-xs text-gray-700 font-semibold space-y-1"></div></div>
+                <div class="flex justify-between pt-1"><span class="text-gray-800 font-bold">الإجمالي النهائي:</span><span class="font-black text-hola-orange text-xl" id="adminReceiptFinalCost">0 ج</span></div>
+            </div>
+            <p class="text-sm font-bold text-gray-600 mb-2">حدد طريقة الدفع لسداد الفاتورة:</p>
+            <div class="flex gap-2 mb-4">
+                <button onclick="window.setPayment('كاش')" class="flex-1 bg-green-600 text-white font-bold py-2 rounded-lg text-xs hover:bg-green-700"><i aria-hidden="true" class="fa-solid fa-money-bill"></i> كاش</button>
+                <button onclick="window.setPayment('محفظة إلكترونية')" class="flex-1 bg-purple-600 text-white font-bold py-2 rounded-lg text-xs hover:bg-purple-700"><i aria-hidden="true" class="fa-solid fa-wallet"></i> محفظة</button>
+                <button onclick="window.setPayment('إنستاباي')" class="flex-1 bg-[#6a1b9a] text-white font-bold py-2 rounded-lg text-xs hover:bg-[#4a148c]"><i aria-hidden="true" class="fa-solid fa-paper-plane"></i> إنستاباي</button>
+            </div>
+            <div id="payRefDiv" class="hidden text-right bg-gray-50 p-3 rounded-xl border mb-4">
+                <label for="payRefInput" class="sr-only">رقم المحفظة</label>
+                <input type="text" id="payRefInput" placeholder="رقم المحفظة..." class="w-full border-2 p-2 rounded-lg mb-2 text-xs text-center" dir="ltr">
+                <button onclick="window.confirmPaymentMethod()" class="w-full bg-hola-purple text-white font-bold py-2 rounded-lg text-xs">تأكيد الدفع</button>
+            </div>
+            <div class="flex gap-2 border-t pt-4">
+                <button onclick="window.printInvoice(window.lastAdminCompletedSessionId)" class="w-1/2 bg-gray-800 text-white font-bold py-2 rounded-xl hover:bg-black"><i aria-hidden="true" class="fa-solid fa-print ml-1"></i> طباعة</button>
+                <button onclick="document.getElementById('adminReceiptModal').classList.add('hidden')" class="w-1/2 bg-gray-200 text-gray-800 font-bold py-2 rounded-xl">إغلاق</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Admin User Management Modal -->
+    <div id="userManageModal" class="hidden fixed inset-0 bg-black/60 z-[120] flex items-center justify-center p-4 print:hidden">
+        <div class="bg-white rounded-xl p-6 w-full max-w-md max-h-[90vh] overflow-y-auto">
+            <h3 class="font-bold text-xl mb-1 text-hola-purple" id="manageUserName">إدارة العميل</h3>
+            <p class="text-xs text-gray-500 mb-4 font-mono" id="manageUserPhone">010...</p>
+            <div class="mb-5 bg-green-50 border border-green-200 p-4 rounded-xl shadow-sm">
+                <label for="manageUserWallet" class="block text-sm font-bold text-green-800 mb-2"><i aria-hidden="true" class="fa-solid fa-wallet text-green-600 ml-1"></i>تعديل رصيد المحفظة (الفكة)</label>
+                <div class="flex gap-2">
+                    <input type="number" id="manageUserWallet" class="w-full border-2 p-2 rounded-lg focus:border-green-500 font-bold" placeholder="الرصيد بالجنيه">
+                    <button onclick="window.saveUserWallet()" class="bg-green-600 text-white px-6 rounded-lg font-bold hover:bg-green-700 transition shadow">تحديث</button>
+                </div>
+            </div>
+            <div class="mb-5 border-t pt-4">
+                <label for="manageUserNotifType" class="block text-sm font-bold text-hola-purple mb-2"><i aria-hidden="true" class="fa-solid fa-comment-dots ml-1"></i>إرسال إشعار للعميل</label>
+                <select id="manageUserNotifType" class="w-full border-2 p-2 rounded-lg mb-2 text-sm font-bold">
+                    <option value="normal">عادي (تنبيه)</option><option value="high">هام جداً</option><option value="congrats">تهنئة 🎉</option>
+                </select>
+                <label for="manageUserMsg" class="sr-only">رسالة</label>
+                <textarea id="manageUserMsg" rows="2" class="w-full border-2 p-2 rounded-lg mb-2 text-sm focus:border-hola-purple" placeholder="رسالة..."></textarea>
+                <label for="manageUserImgUrl" class="sr-only">رابط صورة (اختياري)</label>
+                <input type="text" id="manageUserImgUrl" class="w-full border-2 p-2 rounded-lg mb-2 text-sm focus:border-hola-purple font-mono text-left" dir="ltr" placeholder="رابط صورة (اختياري) https://...">
+                <label for="manageUserLinkUrl" class="sr-only">رابط زر</label>
+                <input type="text" id="manageUserLinkUrl" class="w-full border-2 p-2 rounded-lg mb-1 text-sm focus:border-hola-purple font-mono text-left" dir="ltr" placeholder="رابط زر (فيس/انستا/واتس/يوتيوب...) - سيتم التعرف تلقائياً">
+                <div id="manageUserLinkPreview" class="hidden mb-2 text-xs font-bold px-2 py-1 rounded bg-gray-50 border flex items-center gap-2"></div>
+                <label for="manageUserEmbedUrl" class="sr-only">كود التضمين</label>
+                <input type="text" id="manageUserEmbedUrl" class="w-full border-2 p-2 rounded-lg mb-3 text-sm focus:border-hola-purple font-mono text-left" dir="ltr" placeholder="أو كود Embed (<iframe title='محتوى مدمج'...) اختياري">
+                <button onclick="window.sendUserMsgOnly()" class="w-full bg-hola-purple text-white py-2 rounded-lg font-bold hover:bg-hola-dark">إرسال الإشعار</button>
+            </div>
+            <div class="mb-5 border-t pt-4">
+                <label for="manageUserDiscountVal" class="block text-sm font-bold text-hola-orange mb-2"><i aria-hidden="true" class="fa-solid fa-ticket ml-1"></i>كود خصم خاص للعميل</label>
+                <div class="grid grid-cols-2 gap-2 mb-2">
+                    <input type="number" id="manageUserDiscountVal" class="w-full border-2 p-2 rounded-lg text-sm" placeholder="القيمة">
+                    <label for="manageUserDiscountType" class="sr-only">نوع الخصم</label>
+                    <select id="manageUserDiscountType" class="w-full border-2 p-2 rounded-lg text-sm font-bold">
+                        <option value="percent">% نسبة</option><option value="fixed">جنيه (ثابت)</option>
+                    </select>
+                </div>
+                <button onclick="window.sendUserDiscountOnly()" class="w-full bg-hola-orange text-white py-2 rounded-lg font-bold hover:bg-orange-600">توليد وإرسال الكود</button>
+            </div>
+            <button onclick="document.getElementById('userManageModal').classList.add('hidden')" class="bg-gray-200 text-gray-800 w-full py-3 rounded-xl font-bold hover:bg-gray-300">إغلاق النافذة</button>
+        </div>
+    </div>
+
+    <!-- Admin User Details Modal -->
+    <div id="userDetailsModal" class="hidden fixed inset-0 bg-black/60 z-[130] flex items-center justify-center p-4 print:hidden">
+        <div class="bg-white rounded-xl p-6 w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+            <div class="flex justify-between items-start mb-6 border-b pb-4">
+                <div>
+                    <h3 class="font-black text-2xl text-hola-purple" id="detailsName">اسم العميل</h3>
+                    <div class="flex items-center gap-3 mt-2">
+                        <p class="text-sm font-mono font-bold bg-gray-100 px-2 py-1 rounded" id="detailsPhone">010...</p>
+                        <a href="#" id="detailsWhatsapp" target="_blank" class="bg-green-500 text-white text-xs px-3 py-1.5 rounded-lg font-bold flex items-center gap-1"><i aria-hidden="true" class="fa-brands fa-whatsapp text-lg"></i> واتساب</a>
+                    </div>
+                </div>
+                <button aria-label="إغلاق" onclick="document.getElementById('userDetailsModal').classList.add('hidden')" class="text-gray-400 hover:text-red-500 text-2xl"><i aria-hidden="true" class="fa-solid fa-xmark"></i></button>
+            </div>
+            <div class="grid grid-cols-2 gap-4 mb-6 text-center">
+                <div class="bg-purple-50 p-3 rounded-lg border border-purple-100"><p class="text-xs text-gray-500 font-bold mb-1">المحفظة (فكة)</p><p class="text-xl font-black text-hola-purple" id="detailsWallet">0 ج</p></div>
+                <div class="bg-orange-50 p-3 rounded-lg border border-orange-100"><p class="text-xs text-gray-500 font-bold mb-1">أختام الحضور</p><p class="text-xl font-black text-hola-orange" id="detailsStamps">0</p></div>
+            </div>
+            <h4 class="font-bold text-hola-purple mb-3 border-b pb-1"><i aria-hidden="true" class="fa-solid fa-clock-rotate-left ml-1"></i> أرشيف الجلسات والطلبات</h4>
+            <div class="space-y-3 mb-6 max-h-60 overflow-y-auto pr-2" id="detailsSessionsList"></div>
+            <h4 class="font-bold text-hola-orange mb-3 border-b pb-1"><i aria-hidden="true" class="fa-solid fa-ticket ml-1"></i> أكواد الخصم الخاصة به</h4>
+            <div class="grid md:grid-cols-2 gap-3 max-h-40 overflow-y-auto" id="detailsDiscountsList"></div>
+        </div>
+    </div>
+
+    <!-- Client Notification Modal -->
+    <div id="clientNotifModal" class="hidden fixed inset-0 bg-black/80 z-[250] flex items-center justify-center p-4 backdrop-blur-sm print:hidden">
+        <div class="bg-white rounded-3xl p-8 w-full max-w-sm text-center shadow-2xl border-4 transform transition-all scale-105" id="clientNotifBox">
+            <div class="w-16 h-16 rounded-full flex items-center justify-center text-3xl mx-auto mb-4 shadow-inner" id="clientNotifIconBox"><i aria-hidden="true" id="clientNotifIcon" class="fa-solid fa-bell"></i></div>
+            <h3 class="font-black text-2xl mb-2" id="clientNotifTitle">إشعار جديد</h3>
+            <img id="clientNotifImg" src="" alt="صورة الإشعار" class="hidden w-full h-auto max-h-64 object-contain rounded-xl mb-4 border bg-gray-50 cursor-pointer" onclick="window.openNotifFullImg(this.src)">
+            <p id="clientNotifMsg" class="text-gray-700 font-bold mb-6 text-base leading-relaxed">رسالة</p>
+            <a id="clientNotifLink" href="#" target="_blank" class="hidden w-full bg-blue-600 text-white font-bold py-3 rounded-xl mb-4 hover:bg-blue-700 transition shadow-md"><i aria-hidden="true" class="fa-brands fa-facebook mr-1"></i> عرض التفاصيل</a>
+            <button onclick="window.closeClientNotif()" class="w-full py-3 rounded-xl font-black text-lg shadow-lg text-white" id="clientNotifBtn">حسناً، فهمت</button>
+        </div>
+    </div>
+
+    <!-- Admin Login Modal -->
+    <div id="adminLoginModal" class="hidden fixed inset-0 bg-black/60 z-[150] flex items-center justify-center p-4 backdrop-blur-sm print:hidden">
+        <div class="bg-white rounded-xl p-6 w-full max-w-sm shadow-2xl">
+            <h3 class="font-bold text-xl mb-2 text-hola-purple">تسجيل دخول (استلام شفت)</h3>
+            <p class="text-sm text-gray-500 mb-4">أدخل اسمك والرقم السري</p>
+            <label for="adminShiftName" class="sr-only">اسم مسؤول الشفت</label>
+            <select id="adminShiftName" class="w-full border-2 p-3 rounded-lg mb-3 text-center font-bold focus:border-hola-orange focus:outline-none"></select>
+            <label for="adminPinInput" class="sr-only">الرقم السري</label>
+            <input type="password" id="adminPinInput" placeholder="الرقم السري" class="w-full border-2 p-3 rounded-lg mb-3 text-center tracking-widest">
+            <div class="flex gap-2">
+                <button onclick="window.verifyAdminPin()" class="bg-hola-purple text-white w-full py-3 rounded-lg font-bold hover:bg-hola-dark">دخول</button>
+                <button onclick="document.getElementById('adminLoginModal').classList.add('hidden')" class="bg-gray-200 w-full py-3 rounded-lg font-bold">إلغاء</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Menu Modal -->
+    <div id="menuModal" class="hidden fixed inset-0 bg-black/60 z-[100] flex items-center justify-center p-4 print:hidden">
+        <div class="bg-white rounded-xl p-6 w-full max-w-sm">
+            <h3 class="font-bold text-lg mb-4 text-hola-purple">إضافة منتج/خدمة</h3>
+            <label for="menuName" class="sr-only">اسم المنتج</label>
+            <input type="text" id="menuName" placeholder="الاسم (مثال: قهوة ميكس)" class="w-full border p-2 rounded mb-3">
+            <label for="menuPrice" class="sr-only">سعر المنتج</label>
+            <input type="number" id="menuPrice" placeholder="السعر" class="w-full border p-2 rounded mb-3">
+            <label for="menuType" class="sr-only">نوع المنتج</label>
+            <select id="menuType" class="w-full border p-2 rounded mb-3"><option value="drink">مشروب (بار)</option><option value="wifi">باقة إنترنت</option></select>
+            <label for="menuIcon" class="sr-only">أيقونة المنتج</label>
+            <select id="menuIcon" class="w-full border p-2 rounded mb-4 font-bold text-gray-700">
+                <option value="fa-mug-hot">☕ كوب ساخن</option><option value="fa-mug-saucer">🫖 فنجان قهوة</option><option value="fa-glass-water">🧊 بارد</option><option value="fa-wifi">📶 واي فاي</option>
+            </select>
+            <div class="flex gap-2"><button onclick="window.saveMenuItem()" class="bg-hola-purple text-white w-full py-2 rounded font-bold">حفظ</button><button onclick="document.getElementById('menuModal').classList.add('hidden')" class="bg-gray-200 w-full py-2 rounded font-bold">إلغاء</button></div>
+        </div>
+    </div>
+
+    <!-- Discount Modal -->
+    <div id="discountModal" class="hidden fixed inset-0 bg-black/60 z-[100] flex items-center justify-center p-4 print:hidden">
+        <div class="bg-white rounded-xl p-6 w-full max-w-sm">
+            <h3 class="font-bold text-lg mb-4 text-hola-orange">إنشاء كود خصم عام</h3>
+            <label for="newDiscountCode" class="sr-only">الكود</label>
+            <input type="text" id="newDiscountCode" placeholder="اسم الكود" class="w-full border p-2 rounded mb-3 font-mono uppercase">
+            <div class="flex gap-2 mb-4">
+                <label for="newDiscountValue" class="sr-only">قيمة الخصم</label>
+                <input type="number" id="newDiscountValue" placeholder="قيمة الخصم" class="w-full border p-2 rounded">
+                <label for="newDiscountType" class="sr-only">نوع الخصم</label>
+                <select id="newDiscountType" class="border p-2 rounded text-sm"><option value="fixed">جنيه</option><option value="percent">% نسبة</option></select>
+            </div>
+            <div class="flex gap-2"><button onclick="window.saveDiscount()" class="bg-hola-orange text-white w-full py-2 rounded font-bold">إنشاء</button><button onclick="document.getElementById('discountModal').classList.add('hidden')" class="bg-gray-200 w-full py-2 rounded font-bold">إلغاء</button></div>
+        </div>
+    </div>
+
+    <!-- Alert Toast -->
+    <div id="msgBox" class="hidden fixed bottom-6 left-1/2 transform -translate-x-1/2 bg-gray-900 text-white px-6 py-4 rounded-xl shadow-2xl z-[300] flex items-center gap-3 print:hidden">
+        <i aria-hidden="true" id="msgIcon" class="text-xl"></i><span id="msgText" class="font-bold"></span>
+    </div>
+
+
+    <!-- Quick Booking Modal (From Login Screen) -->
+    <div id="quickBookModal" class="hidden fixed inset-0 bg-black/80 z-[250] flex items-center justify-center p-4 backdrop-blur-sm print:hidden">
+        <div class="bg-white rounded-3xl shadow-2xl w-full max-w-sm p-6 border-t-8 border-hola-orange relative">
+            <button aria-label="إغلاق" onclick="document.getElementById('quickBookModal').classList.add('hidden')" class="absolute top-4 left-4 text-gray-400 hover:text-red-500 text-xl bg-gray-100 w-8 h-8 rounded-full flex items-center justify-center"><i aria-hidden="true" class="fa-solid fa-xmark"></i></button>
+            <div class="text-center mb-5">
+                <div class="w-16 h-16 bg-orange-100 text-hola-orange rounded-full flex items-center justify-center text-3xl mx-auto mb-3"><i aria-hidden="true" class="fa-solid fa-calendar-check"></i></div>
+                <h3 class="text-xl font-black text-hola-purple">حجز سريع</h3>
+                <p class="text-xs text-gray-500 font-bold mt-1">أدخل رقم هاتفك لتأكيد حجزك</p>
+            </div>
+            <div class="space-y-3 mb-5">
+                <div>
+                    <label for="quickBookPhone" class="block text-xs font-bold text-gray-700 mb-1">رقم الموبايل</label>
+                    <input type="tel" id="quickBookPhone" class="w-full border-2 border-gray-200 rounded-xl px-4 py-3 focus:outline-none focus:border-hola-orange font-mono font-bold text-lg text-center" placeholder="010..." dir="ltr">
+                </div>
+                <div>
+                    <label for="quickBookType" class="block text-xs font-bold text-gray-700 mb-1">نوع الحجز</label>
+                    <select id="quickBookType" class="w-full border-2 border-gray-200 rounded-xl px-4 py-3 font-bold focus:outline-none focus:border-hola-orange">
+                        <option value="seat">حجز مقعد عادي</option>
+                        <option value="room">حجز غرفة خاصة</option>
+                    </select>
+                </div>
+                <div>
+                    <label for="quickBookNote" class="block text-xs font-bold text-gray-700 mb-1">ملاحظة (اختياري)</label>
+                    <input type="text" id="quickBookNote" class="w-full border-2 border-gray-200 rounded-xl px-4 py-3 focus:outline-none focus:border-hola-orange font-bold" placeholder="مثال: أحتاج مقعد قريب من الشاشة...">
+                </div>
+            </div>
+            <button onclick="window.submitQuickBook()" class="w-full bg-hola-orange hover:bg-orange-600 text-white font-black py-3.5 rounded-xl shadow-lg transition">تأكيد الحجز <i aria-hidden="true" class="fa-solid fa-paper-plane ml-1"></i></button>
+            <p class="text-center text-[10px] text-gray-400 mt-3">يمكن استخدام هذا الخيار مرتين فقط يومياً لكل جهاز</p>
+        </div>
+    </div>
+
+    <!-- Event Public Share Modal -->
+    <div id="eventShareModal" class="hidden fixed inset-0 bg-black/80 z-[260] flex items-center justify-center p-4 backdrop-blur-sm print:hidden">
+        <div class="bg-white rounded-3xl shadow-2xl w-full max-w-sm p-6 border-t-8 border-hola-purple relative">
+            <button aria-label="إغلاق" onclick="document.getElementById('eventShareModal').classList.add('hidden')" class="absolute top-4 left-4 text-gray-400 hover:text-red-500 text-xl bg-gray-100 w-8 h-8 rounded-full flex items-center justify-center"><i aria-hidden="true" class="fa-solid fa-xmark"></i></button>
+            <div class="text-center mb-5">
+                <div class="w-16 h-16 bg-purple-100 text-hola-purple rounded-full flex items-center justify-center text-3xl mx-auto mb-3"><i aria-hidden="true" class="fa-solid fa-share-nodes"></i></div>
+                <h3 class="text-xl font-black text-hola-purple" id="shareModalTitle">مشاركة الفعالية</h3>
+                <p class="text-sm text-gray-500 font-bold mt-1" id="shareModalDesc">شارك دعوة الفعالية مع أصدقائك</p>
+            </div>
+            <div class="bg-gray-50 p-3 rounded-xl border mb-4 text-center">
+                <p class="text-xs text-gray-500 mb-2">رابط الدعوة:</p>
+                <p id="shareEventUrl" class="text-xs font-mono text-hola-purple font-bold break-all"></p>
+            </div>
+            <div class="grid grid-cols-2 gap-2">
+                <button id="shareFbBtn" class="bg-blue-600 text-white font-bold py-3 rounded-xl hover:bg-blue-700 flex flex-col items-center gap-1 text-xs transition"><i aria-hidden="true" class="fa-brands fa-facebook text-xl"></i>فيسبوك</button>
+                <button id="shareWaBtn" onclick="window.doShareWhatsapp()" class="bg-green-600 text-white font-bold py-3 rounded-xl hover:bg-green-700 flex flex-col items-center gap-1 text-xs transition"><i aria-hidden="true" class="fa-brands fa-whatsapp text-xl"></i>واتساب</button>
+                <button onclick="window.copyShareLink()" class="bg-gray-700 text-white font-bold py-3 rounded-xl hover:bg-gray-800 flex flex-col items-center gap-1 text-xs transition"><i aria-hidden="true" class="fa-solid fa-link text-xl"></i>نسخ</button>
+            </div>
+            <div class="mt-4 bg-blue-50 p-3 rounded-xl border border-blue-100 text-xs text-center font-bold text-blue-700">
+                <i aria-hidden="true" class="fa-solid fa-circle-info ml-1"></i>
+                رابط الدعوة يحتوي على تفاصيل الفعالية وصفحتنا على فيسبوك
+            </div>
+        </div>
+    </div>
+
+    <!-- Subscription Plans Modal (Public) -->
+    <div id="subscriptionModal" class="hidden fixed inset-0 bg-black/80 z-[260] flex items-center justify-center p-4 backdrop-blur-sm print:hidden">
+        <div class="bg-white rounded-3xl shadow-2xl w-full max-w-lg p-6 border-t-8 border-hola-purple relative max-h-[95vh] overflow-y-auto">
+            <button aria-label="إغلاق" onclick="document.getElementById('subscriptionModal').classList.add('hidden')" class="absolute top-4 left-4 text-gray-400 hover:text-red-500 text-xl bg-gray-100 w-8 h-8 rounded-full flex items-center justify-center"><i aria-hidden="true" class="fa-solid fa-xmark"></i></button>
+            <div class="text-center mb-6">
+                <div class="w-16 h-16 bg-purple-100 text-hola-purple rounded-full flex items-center justify-center text-3xl mx-auto mb-3 animate-pulse"><i aria-hidden="true" class="fa-solid fa-crown"></i></div>
+                <h3 class="text-2xl font-black text-hola-purple">الباقات المتاحة</h3>
+                <p class="text-sm text-gray-500 font-bold mt-1">اشترك الآن واحصل على مزايا حصرية!</p>
+            </div>
+            <!-- Plans Grid -->
+            <div id="subscriptionPlansList" class="grid gap-4 mb-6">
+                <!-- Rendered by JS -->
+            </div>
+            <!-- Subscription Form -->
+            <div id="subscriptionFormDiv" class="hidden bg-purple-50 p-4 rounded-2xl border border-purple-100">
+                <h4 class="font-black text-hola-purple mb-3 text-center" id="selectedPlanTitle">اشتراك مميز</h4>
+                <div id="subFormLoggedHint" class="hidden bg-green-50 border border-green-200 p-2 rounded-xl mb-3 flex items-center gap-2 text-xs text-green-700 font-bold">
+                    <i aria-hidden="true" class="fa-solid fa-circle-check text-green-500"></i>
+                    <span>سيتم الاشتراك باسمك ورقمك المسجّل تلقائياً</span>
+                </div>
+                <div class="space-y-3">
+                    <div><label for="subName" class="block text-xs font-bold text-gray-700 mb-1">الاسم الكامل</label><input type="text" id="subName" class="w-full border-2 p-2 rounded-lg font-bold focus:border-hola-purple outline-none" placeholder="اسمك بالكامل"></div>
+                    <div><label for="subPhone" class="block text-xs font-bold text-gray-700 mb-1">رقم الهاتف</label><input type="tel" id="subPhone" class="w-full border-2 p-2 rounded-lg font-mono font-bold text-left focus:border-hola-purple outline-none" placeholder="010..." dir="ltr"></div>
+                    <input type="hidden" id="subPlanId">
+                    <button onclick="window.submitSubscription()" class="w-full bg-hola-purple text-white font-black py-3 rounded-xl shadow hover:bg-hola-dark transition">إرسال طلب الاشتراك <i aria-hidden="true" class="fa-solid fa-paper-plane ml-1"></i></button>
+                    <p class="text-center text-[10px] text-gray-400">سيتم التواصل معك من الإدارة لتأكيد وتفعيل اشتراكك</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Subscription Card Modal (Client) -->
+    <!-- Subscription Card Print Area (hidden, only visible when printing) -->
+    <div id="subCardPrintArea" class="hidden fixed inset-0 bg-white z-[9999] flex items-center justify-center" aria-hidden="true">
+        <div style="width:320px;background:linear-gradient(135deg,#301043,#1a0028);color:#fff;border-radius:20px;padding:28px;box-shadow:0 8px 40px #0006;font-family:Cairo,sans-serif;text-align:right;">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+                <div><p style="font-size:11px;color:#d8b4fe;margin:0">الاشتراك</p><p style="font-size:18px;font-weight:900;color:#f97316;margin:0" id="subCardPrint_planName"></p></div>
+                <div style="text-align:left"><p style="font-size:11px;color:#d8b4fe;margin:0">الحالة</p><p style="font-size:13px;font-weight:700;color:#4ade80;margin:0" id="subCardPrint_status"></p></div>
+            </div>
+            <div style="margin-bottom:14px;"><p style="font-size:10px;color:#d8b4fe;margin:0 0 4px">كود الاشتراك</p><p style="font-family:monospace;font-size:26px;font-weight:900;letter-spacing:4px;margin:0" id="subCardPrint_code"></p></div>
+            <div style="background:rgba(255,255,255,0.1);border-radius:12px;padding:10px;margin-bottom:14px;">
+                <div style="display:flex;justify-content:space-between;margin-bottom:6px;font-size:11px;"><span style="color:#d8b4fe">الاسم:</span><span style="font-weight:700" id="subCardPrint_name"></span></div>
+                <div style="display:flex;justify-content:space-between;margin-bottom:6px;font-size:11px;"><span style="color:#d8b4fe">الهاتف:</span><span style="font-weight:700;font-family:monospace" id="subCardPrint_phone"></span></div>
+                <div style="display:flex;justify-content:space-between;font-size:11px;"><span style="color:#d8b4fe">من:</span><span style="font-weight:700" id="subCardPrint_from"></span><span style="color:#d8b4fe">حتى:</span><span style="font-weight:700" id="subCardPrint_to"></span></div>
+            </div>
+            <div style="display:flex;justify-content:space-between;align-items:center;background:rgba(255,255,255,0.1);border-radius:10px;padding:8px 12px;">
+                <span style="font-size:11px;color:#d8b4fe">الأيام المتبقية</span>
+                <span style="font-size:26px;font-weight:900;color:#f97316" id="subCardPrint_daysLeft"></span>
+            </div>
+            <p style="text-align:center;font-size:9px;color:#9ca3af;margin-top:14px;">Hola Workspace — بطاقة اشتراك رسمية</p>
+        </div>
+    </div>
+
+    <div id="subscriptionCardModal" class="hidden fixed inset-0 bg-black/80 z-[260] flex items-center justify-center p-4 backdrop-blur-sm print:hidden">
+        <div class="bg-white rounded-3xl shadow-2xl w-full max-w-sm p-6 border-t-8 border-hola-orange relative">
+            <button aria-label="إغلاق" onclick="document.getElementById('subscriptionCardModal').classList.add('hidden')" class="absolute top-4 left-4 text-gray-400 hover:text-red-500 text-xl bg-gray-100 w-8 h-8 rounded-full flex items-center justify-center"><i aria-hidden="true" class="fa-solid fa-xmark"></i></button>
+            <div class="text-center mb-4">
+                <div class="w-20 h-20 bg-orange-100 text-hola-orange rounded-full flex items-center justify-center text-4xl mx-auto mb-3 shadow-inner"><i aria-hidden="true" class="fa-solid fa-id-card"></i></div>
+                <h3 class="text-xl font-black text-hola-purple" id="subCardTitle">بطاقة الاشتراك</h3>
+            </div>
+            <div class="bg-gradient-to-br from-hola-purple to-hola-dark text-white p-5 rounded-2xl shadow-xl mb-4">
+                <div class="flex justify-between items-start mb-4">
+                    <div><p class="text-xs text-purple-300 mb-1">الاشتراك</p><p class="font-black text-hola-orange text-lg" id="subCardPlanName">باقة أسبوعية</p></div>
+                    <div class="text-right"><p class="text-xs text-purple-300 mb-1">حالة</p><p class="text-green-400 font-bold text-sm" id="subCardStatus">نشط</p></div>
+                </div>
+                <div class="mb-2"><p class="text-xs text-purple-300 mb-1">الاسم</p><p class="font-bold text-white text-sm" id="subCardHolderName">---</p></div>
+                <div class="mb-4"><p class="text-xs text-purple-300 mb-1">الهاتف</p><p class="font-mono font-bold text-white text-sm" id="subCardHolderPhone">---</p></div>
+                <div class="mb-4"><p class="text-xs text-purple-300 mb-1">الكود</p><p class="font-mono font-black text-2xl tracking-widest" id="subCardCode">---</p></div>
+                <div class="flex justify-between text-xs"><span class="text-purple-300">من: <span class="text-white font-bold" id="subCardFrom">--/--</span></span><span class="text-purple-300">حتى: <span class="text-white font-bold" id="subCardTo">--/--</span></span></div>
+                <div class="mt-3 bg-white/10 p-2 rounded-lg flex justify-between items-center"><span class="text-xs text-purple-300">الأيام المتبقية</span><span class="font-black text-hola-orange text-xl" id="subCardDaysLeft">0</span></div>
+            </div>
+            <!-- Pause controls (visible only for active subs) -->
+            <div id="subCardPauseControls" class="hidden mb-3 space-y-2">
+                <div class="flex gap-2">
+                    <button onclick="window.pauseSubscriptionNow(window._currentSubCardId)" class="flex-1 bg-yellow-500 hover:bg-yellow-600 text-white font-bold py-2 rounded-xl text-xs transition flex items-center justify-center gap-1"><i aria-hidden="true" class="fa-solid fa-pause"></i> إيقاف مؤقت فوري</button>
+                    <button onclick="window.schedulePauseSubscription(window._currentSubCardId)" class="flex-1 bg-orange-100 hover:bg-orange-200 text-orange-700 font-bold py-2 rounded-xl text-xs transition flex items-center justify-center gap-1"><i aria-hidden="true" class="fa-solid fa-calendar-xmark"></i> جدولة إيقاف</button>
+                </div>
+            </div>
+            <!-- Resume button (visible only for paused subs) -->
+            <div id="subCardResumeControls" class="hidden mb-3">
+                <button onclick="window.resumeSubscription(window._currentSubCardId)" class="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-2.5 rounded-xl text-sm transition flex items-center justify-center gap-2"><i aria-hidden="true" class="fa-solid fa-play"></i> استئناف الاشتراك</button>
+            </div>
+            <div class="grid grid-cols-2 gap-2">
+                <button onclick="window.printSubCard()" class="bg-gray-800 text-white font-bold py-2 rounded-xl hover:bg-black text-sm"><i aria-hidden="true" class="fa-solid fa-print ml-1"></i> طباعة</button>
+                <button onclick="document.getElementById('subscriptionCardModal').classList.add('hidden')" class="bg-gray-200 text-gray-800 font-bold py-2 rounded-xl text-sm">إغلاق</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Remote Profile Modal (Outside Workspace) -->
+    <div id="remoteProfileModal" class="hidden fixed inset-0 bg-black/90 z-[270] flex items-center justify-center p-4 backdrop-blur-sm print:hidden">
+        <div class="bg-white rounded-3xl shadow-2xl w-full max-w-sm p-6 border-t-8 border-gray-400 relative max-h-[95vh] overflow-y-auto">
+            <div class="text-center mb-5">
+                <div class="w-16 h-16 bg-gray-100 text-gray-600 rounded-full flex items-center justify-center text-3xl mx-auto mb-3"><i aria-hidden="true" class="fa-solid fa-user-clock"></i></div>
+                <h3 class="text-xl font-black text-gray-800">عرض ملفك من بعيد</h3>
+                <p class="text-xs text-gray-500 font-bold mt-1">أنت حالياً خارج نطاق المكان — صلاحيات محدودة</p>
+            </div>
+            <div id="remoteProfileModalContent" class="space-y-4">
+                <!-- Rendered by JS -->
+            </div>
+            <button onclick="document.getElementById('remoteProfileModal').classList.add('hidden')" class="w-full mt-4 bg-gray-200 text-gray-800 font-bold py-2.5 rounded-xl">إغلاق</button>
+        </div>
+    </div>
+
+    <!-- Bar Self-Service Modal -->
+    <div id="barSelfServiceModal" class="hidden fixed inset-0 bg-black/80 z-[250] flex items-center justify-center p-4 backdrop-blur-sm print:hidden">
+        <div class="bg-white rounded-3xl shadow-2xl w-full max-w-md p-6 border-t-8 border-hola-orange relative max-h-[95vh] overflow-y-auto">
+            <button aria-label="إغلاق" onclick="document.getElementById('barSelfServiceModal').classList.add('hidden')" class="absolute top-4 left-4 text-gray-400 hover:text-red-500 text-xl bg-gray-100 w-8 h-8 rounded-full flex items-center justify-center"><i aria-hidden="true" class="fa-solid fa-xmark"></i></button>
+            <div class="text-center mb-4">
+                <div class="w-16 h-16 bg-orange-100 text-hola-orange rounded-full flex items-center justify-center text-3xl mx-auto mb-2 animate-pulse"><i aria-hidden="true" class="fa-solid fa-mug-hot"></i></div>
+                <h3 class="text-xl font-black text-hola-purple">البوفيه والمشروبات</h3>
+                <p class="text-xs text-gray-500 font-bold mt-1">سجل مشروبك الذي تناولته من البوفيه</p>
+            </div>
+            <div id="barSelfMenuGrid" class="grid grid-cols-2 gap-3 mb-4"></div>
+            <div id="barSelfCart" class="hidden bg-orange-50 p-3 rounded-xl border border-orange-100 mb-4">
+                <p class="text-xs font-bold text-gray-700 mb-2">المشروبات التي اخترتها:</p>
+                <div id="barSelfCartItems" class="space-y-1"></div>
+                <div class="flex justify-between items-center mt-2 border-t pt-2">
+                    <span class="font-bold text-sm">الإجمالي:</span>
+                    <span class="font-black text-hola-orange text-lg" id="barSelfTotal">0 ج</span>
+                </div>
+            </div>
+            <div class="bg-amber-50 border border-amber-200 rounded-xl p-3 text-center hidden" id="drinkNoteMsg">
+                    <p class="text-sm font-bold text-amber-800">بعد ما تخلص مشروبك، ياريت تسيب المكان زي ما حبيته ❤️</p>
+                </div>
+                <button onclick="window.confirmBarSelfService()" id="barSelfConfirmBtn" class="w-full bg-hola-orange text-white font-black py-3 rounded-xl shadow hover:bg-orange-600 transition hidden">تأكيد وتسجيل في حسابي <i aria-hidden="true" class="fa-solid fa-check ml-1"></i></button>
+        </div>
+    </div>
+
+
+    <!-- Embed Content Modal -->
+    <div id="embedModal" class="hidden fixed inset-0 bg-black/80 z-[260] flex items-center justify-center p-4 backdrop-blur-sm print:hidden">
+        <div class="bg-white rounded-3xl shadow-2xl w-full max-w-md p-6 border-t-8 border-gray-500 relative">
+            <button aria-label="إغلاق" onclick="document.getElementById('embedModal').classList.add('hidden')" class="absolute top-4 left-4 text-gray-400 hover:text-red-500 text-xl bg-gray-100 w-8 h-8 rounded-full flex items-center justify-center"><i aria-hidden="true" class="fa-solid fa-xmark"></i></button>
+            <div class="text-center mb-5">
+                <div class="w-14 h-14 bg-gray-100 text-gray-700 rounded-full flex items-center justify-center text-2xl mx-auto mb-2"><i aria-hidden="true" class="fa-solid fa-code"></i></div>
+                <h3 class="text-lg font-black text-gray-800">تضمين محتوى (Embed)</h3>
+                <p class="text-xs text-gray-500 mt-1">أدخل كود الـ Embed هنا</p>
+            </div>
+            <label for="embedCodeInput" class="sr-only">كود التضمين</label>
+            <textarea id="embedCodeInput" rows="6" class="w-full border-2 p-3 rounded-xl font-mono text-xs focus:border-gray-500 outline-none resize-none mb-4" placeholder="<iframe title='محتوى مدمج' src='...' width='100%' height='400'></iframe>&#10;أو كود يوتيوب، خرائط، فيسبوك..."></textarea>
+            <div id="embedPreviewArea" class="hidden mb-4 border-2 border-dashed rounded-xl p-2 min-h-24 overflow-hidden">
+                <p class="text-xs text-center text-gray-400 mb-2">معاينة:</p>
+                <div id="embedPreviewContent"></div>
+            </div>
+            <div class="flex gap-2">
+                <button onclick="window.previewEmbed()" class="flex-1 bg-gray-100 text-gray-700 font-bold py-2.5 rounded-xl hover:bg-gray-200 transition text-sm">معاينة</button>
+                <button onclick="window.applyEmbed()" class="flex-1 bg-gray-800 text-white font-bold py-2.5 rounded-xl hover:bg-black transition text-sm">تطبيق</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Subscriptions Admin Tab Helper Modal -->
+    <div id="manageSubsModal" class="hidden fixed inset-0 bg-black/60 z-[130] flex items-center justify-center p-4 print:hidden">
+        <div class="bg-white rounded-xl p-6 w-full max-w-lg max-h-[90vh] overflow-y-auto">
+            <div class="flex justify-between items-start mb-4 border-b pb-3">
+                <h3 class="font-black text-xl text-hola-purple">إدارة الاشتراكات</h3>
+                <button aria-label="إغلاق" onclick="document.getElementById('manageSubsModal').classList.add('hidden')" class="text-gray-400 hover:text-red-500 text-2xl"><i aria-hidden="true" class="fa-solid fa-xmark"></i></button>
+            </div>
+            <div id="pendingSubsList" class="space-y-3 mb-4">
+                <p class="text-center text-gray-400 text-sm py-4">لا توجد طلبات اشتراك معلقة</p>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- Add Plan Modal -->
+    <div id="addPlanModal" class="hidden fixed inset-0 bg-black/60 z-[130] flex items-center justify-center p-4 print:hidden">
+        <div class="bg-white rounded-xl p-6 w-full max-w-sm">
+            <h3 class="font-bold text-lg mb-4 text-hola-orange">إضافة باقة اشتراك</h3>
+            <div class="space-y-3 mb-4">
+                <div><label for="planName" class="block text-xs font-bold text-gray-700 mb-1">اسم الباقة</label><input type="text" id="planName" class="w-full border p-2 rounded" placeholder="مثال: باقة أسبوعية"></div>
+                <div><label for="planDays" class="block text-xs font-bold text-gray-700 mb-1">المدة (أيام)</label><input type="number" id="planDays" class="w-full border p-2 rounded" placeholder="7"></div>
+                <div><label for="planPrice" class="block text-xs font-bold text-gray-700 mb-1">السعر (ج.م)</label><input type="number" id="planPrice" class="w-full border p-2 rounded" placeholder="200"></div>
+                <div><label for="planAllowedDays" class="block text-xs font-bold text-gray-700 mb-1">عدد الأيام المسموح بها</label><input type="number" id="planAllowedDays" class="w-full border p-2 rounded" placeholder="5"></div>
+                <div><label for="planDesc" class="block text-xs font-bold text-gray-700 mb-1">وصف الباقة</label><textarea id="planDesc" rows="2" class="w-full border p-2 rounded text-sm" placeholder="ما يشمله الاشتراك..."></textarea></div>
+            </div>
+            <div class="flex gap-2">
+                <button onclick="window.savePlan()" class="bg-hola-orange text-white w-full py-2 rounded font-bold">حفظ الباقة</button>
+                <button onclick="document.getElementById('addPlanModal').classList.add('hidden')" class="bg-gray-200 w-full py-2 rounded font-bold">إلغاء</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Full Image Viewer Modal -->
+    <div id="fullImgModal" class="hidden fixed inset-0 bg-black/95 z-[400] flex items-center justify-center p-4 print:hidden" onclick="this.classList.add('hidden')">
+        <div class="relative max-w-full max-h-full">
+            <button aria-label="إغلاق" onclick="document.getElementById('fullImgModal').classList.add('hidden')" class="absolute -top-10 left-0 text-white text-2xl bg-white/20 w-10 h-10 rounded-full flex items-center justify-center hover:bg-white/40"><i aria-hidden="true" class="fa-solid fa-xmark"></i></button>
+            <img id="fullImgContent" src="" class="max-w-[95vw] max-h-[90vh] object-contain rounded-xl shadow-2xl" alt="عرض الصورة بالكامل">
+        </div>
+    </div>
+
+    <!-- Event Public Landing Page Modal -->
+    <div id="eventLandingModal" class="hidden fixed inset-0 bg-black/90 z-[350] flex items-center justify-center p-2 backdrop-blur-sm print:hidden overflow-y-auto">
+        <div class="bg-white rounded-3xl shadow-2xl w-full max-w-lg my-4 relative overflow-hidden border-t-8 border-hola-purple">
+            <button aria-label="إغلاق" onclick="document.getElementById('eventLandingModal').classList.add('hidden')" class="absolute top-4 left-4 text-gray-400 hover:text-red-500 text-xl bg-gray-100 w-9 h-9 rounded-full flex items-center justify-center z-10"><i aria-hidden="true" class="fa-solid fa-xmark"></i></button>
+            <!-- Hero Image -->
+            <div id="landingImgWrap" class="w-full bg-hola-purple">
+                <img id="landingEvImg" src="" alt="صورة الفعالية" class="w-full max-h-72 object-cover" onerror="this.parentElement.style.display='none'">
+            </div>
+            <div class="p-6">
+                <div class="flex items-center gap-2 mb-2">
+                    <span class="bg-hola-purple text-white text-[10px] px-3 py-1 rounded-full font-bold"><i aria-hidden="true" class="fa-solid fa-masks-theater ml-1"></i>فعالية</span>
+                    <span id="landingEvStatus" class="bg-green-100 text-green-700 text-[10px] px-3 py-1 rounded-full font-bold">✅ مسجل الحضور</span>
+                </div>
+                <h2 id="landingEvTitle" class="text-2xl font-black text-hola-purple mt-2 mb-1"></h2>
+                <p id="landingEvTime" class="text-sm text-hola-orange font-bold mb-2"><i aria-hidden="true" class="fa-regular fa-clock ml-1"></i></p>
+                <p id="landingEvDesc" class="text-sm text-gray-600 leading-relaxed mb-4 whitespace-pre-line"></p>
+                <!-- Register Form (for non-logged-in users) -->
+                <div id="landingRegisterDiv" class="bg-purple-50 p-4 rounded-2xl border border-purple-100 mb-4">
+                    <h4 class="font-black text-hola-purple mb-3 text-center"><i aria-hidden="true" class="fa-solid fa-user-plus ml-1"></i>سجّل حضورك في الفعالية</h4>
+                    <div class="space-y-3 mb-3">
+                        <div><label for="landingName" class="block text-xs font-bold text-gray-700 mb-1">الاسم</label><input type="text" id="landingName" class="w-full border-2 p-2 rounded-xl font-bold focus:border-hola-purple outline-none" placeholder="اسمك الكريم"></div>
+                        <div><label for="landingPhone" class="block text-xs font-bold text-gray-700 mb-1">رقم الهاتف</label><input type="tel" id="landingPhone" class="w-full border-2 p-2 rounded-xl font-mono font-bold text-left focus:border-hola-purple outline-none" placeholder="010..." dir="ltr"></div>
+                        <div class="flex items-center gap-2 bg-white p-2 rounded-lg border">
+                            <input type="checkbox" id="landingHasAccount" class="w-4 h-4 text-hola-purple">
+                            <label for="landingHasAccount" class="text-xs font-bold text-gray-700">لديّ حساب في Hola Workspace — أضف الفعالية لفعالياتي</label>
+                        </div>
+                    </div>
+                    <button onclick="window.submitLandingAttend()" class="w-full bg-hola-orange text-white font-black py-3 rounded-xl shadow hover:bg-orange-600 transition">تأكيد الحضور <i aria-hidden="true" class="fa-solid fa-hand-sparkles ml-1"></i></button>
+                    <p id="landingRegMsg" class="text-xs text-center mt-2 text-gray-500 hidden"></p>
+                </div>
+                <!-- Contact Buttons -->
+                <div class="grid grid-cols-2 gap-2 mb-3" id="landingContactBtns">
+                    <a id="landingWaBtn" href="#" target="_blank" class="bg-green-600 text-white font-bold py-2.5 rounded-xl text-sm flex items-center justify-center gap-2 hover:bg-green-700"><i aria-hidden="true" class="fa-brands fa-whatsapp"></i>واتساب</a>
+                    <a id="landingFbBtn" href="#" target="_blank" class="bg-blue-600 text-white font-bold py-2.5 rounded-xl text-sm flex items-center justify-center gap-2 hover:bg-blue-700"><i aria-hidden="true" class="fa-brands fa-facebook"></i>فيسبوك</a>
+                </div>
+                <!-- Embed Option -->
+                <div class="border-t pt-3">
+                    <button onclick="window.toggleLandingEmbed()" class="w-full bg-gray-100 text-gray-600 font-bold py-2 rounded-xl text-xs hover:bg-gray-200 transition flex items-center justify-center gap-2"><i aria-hidden="true" class="fa-solid fa-code"></i>تضمين الفعالية (Embed)</button>
+                    <div id="landingEmbedDiv" class="hidden mt-2">
+                        <label for="landingEmbedCode" class="sr-only">كود التضمين</label>
+                        <textarea id="landingEmbedCode" readonly class="w-full border-2 p-2 rounded-lg text-xs font-mono bg-gray-50 h-16 resize-none" onclick="this.select()"></textarea>
+                        <button onclick="window.copyToClipboard(document.getElementById('landingEmbedCode').value)" class="w-full bg-gray-700 text-white text-xs font-bold py-1.5 rounded-lg mt-1 hover:bg-black"><i aria-hidden="true" class="fa-regular fa-copy ml-1"></i>نسخ كود التضمين</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- App Entry Point -->
+    <script type="module" src="js/app.js"></script>
+    <!-- Internet Cards Controller -->
+    <script type="module" src="js/cards-controller.js"></script>
+
+    <!-- Admin Manual Subscription Modal -->
+    <div id="adminManualSubModal" class="hidden fixed inset-0 bg-black/70 z-[200] flex items-center justify-center p-4 print:hidden">
+        <div class="bg-white rounded-3xl shadow-2xl w-full max-w-md p-6 relative">
+            <button aria-label="إغلاق" onclick="document.getElementById('adminManualSubModal').classList.add('hidden')" class="absolute top-4 left-4 text-gray-400 hover:text-red-500 text-xl w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center"><i aria-hidden="true" class="fa-solid fa-xmark"></i></button>
+            <div class="text-center mb-5">
+                <div class="w-14 h-14 bg-hola-purple text-white rounded-2xl flex items-center justify-center text-2xl mx-auto mb-3"><i aria-hidden="true" class="fa-solid fa-crown"></i></div>
+                <h3 class="text-xl font-black text-hola-purple">اشتراك يدوي</h3>
+                <p class="text-xs text-gray-500 mt-1">إضافة اشتراك لعميل مباشرة من الإدارة</p>
+            </div>
+            <div class="space-y-3">
+                <div>
+                    <label for="manualSubPhone" class="block text-xs font-bold text-gray-700 mb-1">رقم هاتف العميل</label>
+                    <input type="tel" id="manualSubPhone" class="w-full border-2 border-gray-200 rounded-xl px-4 py-2.5 font-mono font-bold focus:border-hola-purple outline-none" placeholder="010..." dir="ltr" oninput="window.lookupManualSubUser(this.value)">
+                    <div id="manualSubUserInfo" class="hidden mt-1 text-xs text-green-600 font-bold flex items-center gap-1"><i aria-hidden="true" class="fa-solid fa-circle-check"></i> <span id="manualSubUserName"></span></div>
+                </div>
+                <div>
+                    <label for="manualSubPlanSelect" class="block text-xs font-bold text-gray-700 mb-1">اختر الباقة</label>
+                    <select id="manualSubPlanSelect" class="w-full border-2 border-gray-200 rounded-xl px-4 py-2.5 font-bold focus:border-hola-purple outline-none"></select>
+                </div>
+                <button onclick="window.adminManualSubscribe()" class="w-full bg-hola-purple text-white font-black py-3 rounded-xl shadow hover:bg-hola-dark transition">
+                    <i aria-hidden="true" class="fa-solid fa-bolt ml-2"></i>تفعيل الاشتراك فوراً
+                </button>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
