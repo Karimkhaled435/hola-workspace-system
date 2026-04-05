@@ -69,6 +69,11 @@ function calculateTimeCost(diffMs) {
     if (hours >= 1) cost += sysSettings.pricingTier1;
     if (hours >= 2) cost += sysSettings.pricingTier2;
     if (hours >= 3) cost += sysSettings.pricingTier3;
+    if (hours > 3) {
+        const extraHours = hours - 3;
+        const extraPrice = parseInt(sysSettings.pricingExtraHour);
+        cost += extraHours * (Number.isFinite(extraPrice) ? extraPrice : 5);
+    }
     return cost;
 }
 
@@ -629,7 +634,13 @@ window.saveSystemSettings = async () => {
         pricingTier1: parseInt(getVal('setT1')) || 25,
         pricingTier2: parseInt(getVal('setT2')) || 15,
         pricingTier3: parseInt(getVal('setT3')) || 10,
+        pricingExtraHour: parseInt(getVal('setTExtra')) || 5,
         stampsRequired: parseInt(getVal('setStampsReq')) || 7,
+        loginHeadline: getVal('setLoginHeadline'),
+        loginSlogan: getVal('setLoginSlogan'),
+        loginNoticeText: getVal('setLoginNoticeText'),
+        loginNoticeColor: getVal('setLoginNoticeColor') || '#301043',
+        loginNoticeSmartBtn: document.getElementById('setLoginNoticeSmartBtn') ? document.getElementById('setLoginNoticeSmartBtn').checked : true,
         promoImg: getVal('setPromoImg'), promoText: getVal('setPromoText'), promoLink: getVal('setPromoLink'),
         promoEmbed: getVal('setPromoEmbed'),
         workspaceLat: parseFloat(getVal('setLat')) || 26.5590, workspaceLng: parseFloat(getVal('setLng')) || 31.6957,
@@ -1159,6 +1170,27 @@ window.closeClientNotif = () => { const m = document.getElementById('clientNotif
 window.showMsg = showMsg;
 window.safeSet = safeSet;
 window.copyToClipboard = copyToClipboard;
+window.applyLoginSettingsUI = () => {
+    const headline = (sysSettings.loginHeadline || 'بوابة الدخول الذكية').trim();
+    const slogan = (sysSettings.loginSlogan || 'تأكيد موقعك مطلوب قبل الدخول').trim();
+    const noticeText = (sysSettings.loginNoticeText || 'يرجى التأكد من تشغيل الموقع بدقة عالية قبل بدء الجلسة.').trim();
+    const noticeColor = (sysSettings.loginNoticeColor || '#301043').trim();
+    const smartBtnEnabled = sysSettings.loginNoticeSmartBtn !== false;
+
+    safeSet('loginHeadlineText', 'innerText', headline);
+    safeSet('loginSloganText', 'innerText', slogan);
+    safeSet('loginFixedNoticeText', 'innerText', noticeText);
+
+    const noticeEl = document.getElementById('loginFixedNotice');
+    if (noticeEl) noticeEl.style.background = noticeColor;
+
+    const smartBtn = document.getElementById('btnSmartLogin');
+    if (smartBtn) {
+        smartBtn.classList.toggle('hidden', !smartBtnEnabled);
+        smartBtn.disabled = !smartBtnEnabled;
+    }
+};
+
 window.switchView = (viewName) => {
     switchView(viewName);
     // Hide remote-only tab button unless user is remote
@@ -1274,6 +1306,7 @@ document.addEventListener('DOMContentLoaded', () => {
             preview.classList.remove('hidden');
         });
     }
+    if (window.applyLoginSettingsUI) window.applyLoginSettingsUI();
 });
 
 // ─── Event Intent From Login Screen ──────────────────────────────────────────
@@ -1967,6 +2000,7 @@ initFirebase();
         if (!prof) return setTimeout(tryAttachProfile, 700);
 
         setMyProfile({ ...prof, isRemote: true });
+        updateClientHeaderUI({ ...prof, isRemote: true }, _profiles, sysSettings);
         document.getElementById('navPublic')?.classList.add('hidden');
         document.getElementById('navClient')?.classList.remove('hidden');
         switchView('client');

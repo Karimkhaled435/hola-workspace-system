@@ -126,12 +126,19 @@ export function setupListeners(db, appId) {
             if (!sysSettings.musicVoteRound) sysSettings.musicVoteRound = 1;
 
             safeSet('pubT1','innerText',sysSettings.pricingTier1); safeSet('pubT2','innerText',sysSettings.pricingTier2); safeSet('pubT3','innerText',sysSettings.pricingTier3);
+            safeSet('pubTExtra','innerText',sysSettings.pricingExtraHour || 5);
             safeSet('hintT1','innerText',sysSettings.pricingTier1); safeSet('hintT2','innerText',sysSettings.pricingTier2); safeSet('hintT3','innerText',sysSettings.pricingTier3);
-            safeSet('setT1','value',sysSettings.pricingTier1); safeSet('setT2','value',sysSettings.pricingTier2); safeSet('setT3','value',sysSettings.pricingTier3);
+            safeSet('setT1','value',sysSettings.pricingTier1); safeSet('setT2','value',sysSettings.pricingTier2); safeSet('setT3','value',sysSettings.pricingTier3); safeSet('setTExtra','value',sysSettings.pricingExtraHour || 5);
             safeSet('setMaxCap','value',sysSettings.maxCapacity); safeSet('setStampsReq','value',sysSettings.stampsRequired);
             safeSet('settingAdminPin','value',sysSettings.adminPin);
             safeSet('publicDescription','innerText',sysSettings.description); safeSet('settingDescription','value',sysSettings.description);
             safeSet('publicLoyaltyText','innerText',sysSettings.loyaltyText); safeSet('settingLoyaltyText','value',sysSettings.loyaltyText);
+            safeSet('setLoginHeadline','value',sysSettings.loginHeadline || '');
+            safeSet('setLoginSlogan','value',sysSettings.loginSlogan || '');
+            safeSet('setLoginNoticeText','value',sysSettings.loginNoticeText || '');
+            safeSet('setLoginNoticeColor','value',sysSettings.loginNoticeColor || '#301043');
+            const smartBtn = document.getElementById('setLoginNoticeSmartBtn');
+            if (smartBtn) smartBtn.checked = sysSettings.loginNoticeSmartBtn !== false;
             safeSet('clientStampsGoalText','innerText',sysSettings.loyaltyText); safeSet('clientHeaderStampsReq','innerText',sysSettings.stampsRequired);
             safeSet('setVfNumber','value',sysSettings.vfNumber||''); safeSet('setVfName','value',sysSettings.vfName||''); safeSet('setInstapayLink','value',sysSettings.instapayLink||'');
             safeSet('setFbPageLink','value',sysSettings.fbPageLink||''); safeSet('setWhatsappNum','value',sysSettings.whatsappNum||'');
@@ -164,6 +171,7 @@ export function setupListeners(db, appId) {
 
             renderPublicEvents(sysSettings, myProfile, activeSessionId);
             if (window._renderLoginEvents) window._renderLoginEvents();
+            if (window.applyLoginSettingsUI) window.applyLoginSettingsUI();
 
             const rCheck = document.getElementById('setRoomsActive'); if (rCheck) rCheck.checked = sysSettings.roomsActive||false;
             const roomsAvail = document.getElementById('roomsAvailableDiv'), roomsUnavail = document.getElementById('roomsUnavailableDiv');

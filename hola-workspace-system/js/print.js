@@ -12,6 +12,11 @@ function calculateTimeCost(diffMs, sysSettings) {
     if (hours >= 1) cost += sysSettings.pricingTier1;
     if (hours >= 2) cost += sysSettings.pricingTier2;
     if (hours >= 3) cost += sysSettings.pricingTier3;
+    if (hours > 3) {
+        const extraHours = hours - 3;
+        const extraPrice = parseInt(sysSettings.pricingExtraHour);
+        cost += extraHours * (Number.isFinite(extraPrice) ? extraPrice : 5);
+    }
     return cost;
 }
 
