@@ -628,6 +628,7 @@ window.submitRoomWaitlist = async () => {
 window.saveSystemSettings = async () => {
     if (!db) return showMsg("غير متصل بقاعدة البيانات", "error");
     const getVal = (id) => document.getElementById(id)?.value || "";
+    const getChecked = (id) => !!document.getElementById(id)?.checked;
     const data = {
         adminPin: getVal('settingAdminPin') || "hola2026",
         description: getVal('settingDescription'),
@@ -646,10 +647,57 @@ window.saveSystemSettings = async () => {
         workspaceRadius: parseInt(getVal('setRadius')) || 500,
         vfNumber: getVal('setVfNumber'), vfName: getVal('setVfName'), instapayLink: getVal('setInstapayLink'),
         fbPageLink: getVal('setFbPageLink'), whatsappNum: getVal('setWhatsappNum'),
-        roomsActive: document.getElementById('setRoomsActive') ? document.getElementById('setRoomsActive').checked : false
+        roomsActive: getChecked('setRoomsActive'),
+        cardsSystemEnabled: getChecked('setCardsSystemEnabled'),
+        loginNoticeEnabled: getChecked('setLoginNoticeEnabled'),
+        loginNoticeHeadline: getVal('setLoginNoticeHeadline'),
+        loginNoticeSlogan: getVal('setLoginNoticeSlogan'),
+        loginNoticeText: getVal('setLoginNoticeText'),
+        loginNoticeColor: getVal('setLoginNoticeColor') || 'purple',
+        loginNoticeSmartButtonEnabled: getChecked('setLoginNoticeSmartButtonEnabled'),
+        loginNoticeSmartButtonText: getVal('setLoginNoticeSmartButtonText') || 'ابدأ الآن',
+        loginNoticeSmartButtonUrl: getVal('setLoginNoticeSmartButtonUrl')
     };
     try { await updateDoc(doc(db, 'artifacts', appId, 'public', 'data', 'settings', 'system'), data); showMsg("تم تحديث الإعدادات بنجاح!", "success"); }
     catch (e) { showMsg("حدث خطأ أثناء الحفظ", "error"); console.error(e); }
+};
+
+window.renderLoginStickyNotice = () => {
+    const box = document.getElementById('loginStickyNotice');
+    if (!box) return;
+    if (!sysSettings.loginNoticeEnabled) {
+        box.classList.add('hidden');
+        box.innerHTML = '';
+        return;
+    }
+    const colorMap = {
+        purple: 'bg-purple-50 border-purple-200 text-purple-800',
+        orange: 'bg-orange-50 border-orange-200 text-orange-800',
+        gray: 'bg-gray-50 border-gray-200 text-gray-800',
+        green: 'bg-green-50 border-green-200 text-green-800'
+    };
+    box.className = `rounded-2xl border p-3 text-right ${colorMap[sysSettings.loginNoticeColor] || colorMap.purple}`;
+    const headline = sysSettings.loginNoticeHeadline || 'أهلاً بك';
+    const slogan = sysSettings.loginNoticeSlogan || '';
+    const text = sysSettings.loginNoticeText || '';
+    const smartBtn = !!sysSettings.loginNoticeSmartButtonEnabled;
+    const smartTxt = sysSettings.loginNoticeSmartButtonText || 'ابدأ الآن';
+    const smartUrl = (sysSettings.loginNoticeSmartButtonUrl || '').trim();
+    box.innerHTML = `
+        <div class="space-y-1">
+            <p class="font-black text-sm">${headline}</p>
+            ${slogan ? `<p class="text-[11px] font-bold opacity-80">${slogan}</p>` : ''}
+            ${text ? `<p class="text-xs font-semibold leading-relaxed">${text}</p>` : ''}
+            ${smartBtn ? `<button id="loginNoticeSmartBtn" class="mt-1 bg-hola-purple text-white text-xs font-black px-3 py-2 rounded-xl hover:bg-hola-dark transition">${smartTxt}</button>` : ''}
+        </div>`;
+    const smartBtnEl = document.getElementById('loginNoticeSmartBtn');
+    if (smartBtnEl) {
+        smartBtnEl.onclick = () => {
+            if (smartUrl) window.open(smartUrl, '_blank');
+            else if (window.checkLocationForLogin) window.checkLocationForLogin();
+        };
+    }
+    box.classList.remove('hidden');
 };
 
 window.addShiftManager = async () => {
@@ -1181,6 +1229,11 @@ window.switchView = (viewName) => {
     if (viewName === 'client') {
         if (window.renderProfileData) window.renderProfileData();
         if (window.renderAdsEventsPanel) window.renderAdsEventsPanel();
+        if (typeof window._syncAllClientTabs === 'function') window._syncAllClientTabs();
+    }
+    if (viewName === 'public') {
+        if (window._renderLoginEvents) window._renderLoginEvents();
+        if (window.renderLoginStickyNotice) window.renderLoginStickyNotice();
     }
 };
 window.switchClientTab = (tabName) => {

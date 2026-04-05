@@ -203,6 +203,7 @@
                             </div>
                         </div>
                         <div class="p-4 space-y-2 mt-1.5">
+                            <div id="loginStickyNotice" class="hidden rounded-2xl border p-3 text-right"></div>
                             <button onclick="window.checkLocationForLogin()"
                                 class="w-full bg-hola-purple hover:bg-hola-dark text-white font-black py-3.5 rounded-2xl shadow-lg transition-all active:scale-95 flex items-center justify-center gap-2.5 text-sm">
                                 <div class="w-7 h-7 bg-white/20 rounded-xl flex items-center justify-center">
@@ -210,6 +211,10 @@
                                 </div>
                                 تحقق من موقعي وسجّل الدخول
                             </button>
+                            <button id="btnEventIntent" onclick="window.showEventIntentFromLogin()" class="w-full bg-hola-orange hover:bg-orange-600 text-white font-black py-3 rounded-2xl shadow transition-all active:scale-95 flex items-center justify-center gap-2 text-sm">
+                                <i aria-hidden="true" class="fa-solid fa-calendar-check"></i> نية حضور فعالية
+                            </button>
+                            <div id="loginSingleEventBanner" class="hidden"></div>
                             <div class="flex items-center gap-3 py-0.5" aria-hidden="true">
                                 <div class="flex-1 h-px bg-gray-200"></div>
                                 <span class="text-[10px] text-gray-400 font-bold tracking-wider">خيارات أخرى</span>
@@ -226,7 +231,7 @@
                                     <i aria-hidden="true" class="fa-solid fa-bolt text-sm text-hola-orange"></i>
                                     حجز سريع
                                 </button>
-                                <button onclick="document.getElementById('cardLoginModal').classList.remove('hidden')"
+                                <button id="publicCardLoginBtn" onclick="document.getElementById('cardLoginModal').classList.remove('hidden')"
                                     class="bg-blue-50 border border-blue-100 text-blue-600 font-bold py-2.5 rounded-xl hover:bg-blue-100 transition-all text-[10px] flex flex-col items-center gap-1 active:scale-95">
                                     <i aria-hidden="true" class="fa-solid fa-wifi text-sm"></i>
                                     كرت إنترنت
@@ -384,7 +389,7 @@
                 <button role="tab" aria-selected="false" aria-controls="client-notifications" onclick="window.switchClientTab('notifications')" id="c-tab-notifications" class="text-gray-600 px-4 py-2 text-sm font-bold hover:text-hola-purple transition whitespace-nowrap"><i aria-hidden="true" class="fa-solid fa-bell ml-1"></i> الإشعارات</button>
                 <button role="tab" aria-selected="false" aria-controls="client-prebook" onclick="window.switchClientTab('prebook')" id="c-tab-prebook" class="text-gray-600 px-4 py-2 text-sm font-bold hover:text-hola-purple transition whitespace-nowrap"><i aria-hidden="true" class="fa-solid fa-calendar-plus ml-1"></i> حجز قادم</button>
                 <button role="tab" aria-selected="false" aria-controls="client-subscriptions" onclick="window.switchClientTab('subscriptions')" id="c-tab-subscriptions" class="text-gray-600 px-4 py-2 text-sm font-bold hover:text-hola-purple transition whitespace-nowrap"><i aria-hidden="true" class="fa-solid fa-crown ml-1 text-hola-orange"></i> اشتراكاتي</button>
-                <button role="tab" aria-selected="false" aria-controls="client-internet" onclick="window.switchClientTab('internet')" id="c-tab-internet" class="text-gray-600 px-4 py-2 text-sm font-bold hover:text-hola-purple transition whitespace-nowrap"><i aria-hidden="true" class="fa-solid fa-wifi ml-1 text-hola-orange"></i> باقتي</button>
+                <button role="tab" aria-selected="false" aria-controls="client-internet" onclick="window.switchClientTab('internet')" id="c-tab-internet" class="hidden text-gray-600 px-4 py-2 text-sm font-bold hover:text-hola-purple transition whitespace-nowrap"><i aria-hidden="true" class="fa-solid fa-wifi ml-1 text-hola-orange"></i> باقتي</button>
                 <button role="tab" aria-selected="false" aria-controls="client-profile" onclick="window.switchClientTab('profile')" id="c-tab-profile" class="text-gray-600 px-4 py-2 text-sm font-bold hover:text-hola-purple transition whitespace-nowrap"><i aria-hidden="true" class="fa-solid fa-id-card ml-1"></i> الملف الشخصي</button>
                 <button role="tab" aria-selected="false" aria-controls="client-ads" onclick="window.switchClientTab('ads')" id="c-tab-ads" class="text-gray-600 px-4 py-2 text-sm font-bold hover:text-hola-purple transition whitespace-nowrap"><i aria-hidden="true" class="fa-solid fa-bullhorn ml-1 text-hola-orange"></i> الإعلانات والفعاليات</button>
                 <button role="tab" aria-selected="false" aria-controls="client-remote" onclick="window.switchClientTab('remote')" id="c-tab-remote" class="hidden text-gray-600 px-4 py-2 text-sm font-bold hover:text-gray-800 transition whitespace-nowrap"><i aria-hidden="true" class="fa-solid fa-eye ml-1"></i> ملف بعيد</button>
@@ -714,7 +719,7 @@
                 <button role="tab" aria-selected="false" aria-controls="admin-history" onclick="window.switchAdminTab('history')" id="tab-history" class="hover:text-hola-orange transition whitespace-nowrap">الأرشيف</button>
                 <button role="tab" aria-selected="false" aria-controls="admin-operations" onclick="window.switchAdminTab('operations')" id="tab-operations" class="hover:text-hola-orange transition whitespace-nowrap">العمليات</button>
                 <button role="tab" aria-selected="false" aria-controls="admin-subscriptions" onclick="window.switchAdminTab('subscriptions')" id="tab-subscriptions" class="hover:text-hola-orange transition whitespace-nowrap relative"><i aria-hidden="true" class="fa-solid fa-crown text-hola-orange"></i> الاشتراكات <span id="adminSubsBadge" class="hidden absolute -top-1 -right-3 bg-red-500 text-white text-[9px] px-1.5 rounded-full">!</span></button>
-                <button role="tab" aria-selected="false" aria-controls="admin-cards" onclick="window.switchAdminTab('cards')" id="tab-cards" class="hover:text-hola-orange transition whitespace-nowrap relative"><i aria-hidden="true" class="fa-solid fa-wifi text-hola-orange"></i> كروت الإنترنت</button>
+                <button role="tab" aria-selected="false" aria-controls="admin-cards" onclick="window.switchAdminTab('cards')" id="tab-cards" class="hover:text-hola-orange transition whitespace-nowrap relative hidden"><i aria-hidden="true" class="fa-solid fa-wifi text-hola-orange"></i> كروت الإنترنت</button>
                 <button role="tab" aria-selected="false" aria-controls="admin-settings" onclick="window.switchAdminTab('settings')" id="tab-settings" class="hover:text-hola-orange transition whitespace-nowrap"><i aria-hidden="true" class="fa-solid fa-gear"></i> الإعدادات</button>
             </div>
             
@@ -1070,6 +1075,10 @@
                                 <input type="checkbox" id="setRoomsActive" class="w-4 h-4 text-hola-orange">
                                 <label for="setRoomsActive" class="text-xs font-bold text-gray-700">إتاحة الغرف الخاصة</label>
                             </div>
+                            <div class="flex items-center gap-2 bg-gray-50 p-2 rounded-lg border">
+                                <input type="checkbox" id="setCardsSystemEnabled" class="w-4 h-4 text-hola-orange">
+                                <label for="setCardsSystemEnabled" class="text-xs font-bold text-gray-700">تفعيل نظام كروت الإنترنت</label>
+                            </div>
                         </div>
                     </div>
                     <!-- Card 4: Promo Board -->
@@ -1088,6 +1097,26 @@
                                 <label for="setPromoEmbed" class="block text-xs text-gray-600 mb-1">أو تضمين محتوى (Embed)</label>
                                 <textarea id="setPromoEmbed" rows="3" class="w-full border-2 p-2 rounded-lg text-xs font-mono focus:border-blue-400 outline-none resize-none" placeholder="<iframe title='محتوى مدمج' src=...></iframe>"></textarea>
                             </div>
+                        </div>
+                    </div>
+                    <!-- Card 5: Login Sticky Notice -->
+                    <div class="glass-card p-5 border-t-4 border-indigo-400">
+                        <h4 class="font-bold text-indigo-700 mb-4 flex items-center gap-2"><i aria-hidden="true" class="fa-solid fa-bell"></i> إشعار شاشة الدخول</h4>
+                        <div class="space-y-3">
+                            <div class="flex items-center gap-2 bg-gray-50 p-2 rounded-lg border">
+                                <input type="checkbox" id="setLoginNoticeEnabled" class="w-4 h-4 text-hola-orange">
+                                <label for="setLoginNoticeEnabled" class="text-xs font-bold text-gray-700">تفعيل الإشعار الثابت</label>
+                            </div>
+                            <div><label for="setLoginNoticeHeadline" class="block text-xs text-gray-600 mb-1">العنوان الرئيسي</label><input type="text" id="setLoginNoticeHeadline" class="w-full border-2 p-2 rounded-lg text-sm focus:border-indigo-400 outline-none" placeholder="أهلاً بك"></div>
+                            <div><label for="setLoginNoticeSlogan" class="block text-xs text-gray-600 mb-1">السلوجن</label><input type="text" id="setLoginNoticeSlogan" class="w-full border-2 p-2 rounded-lg text-sm focus:border-indigo-400 outline-none" placeholder="#Your digital gateway"></div>
+                            <div><label for="setLoginNoticeText" class="block text-xs text-gray-600 mb-1">النص</label><textarea id="setLoginNoticeText" rows="2" class="w-full border-2 p-2 rounded-lg text-sm focus:border-indigo-400 outline-none resize-none" placeholder="اكتب نص الإشعار..."></textarea></div>
+                            <div><label for="setLoginNoticeColor" class="block text-xs text-gray-600 mb-1">اللون</label><select id="setLoginNoticeColor" class="w-full border-2 p-2 rounded-lg text-sm focus:border-indigo-400 outline-none"><option value="purple">بنفسجي</option><option value="orange">برتقالي</option><option value="gray">رمادي</option><option value="green">أخضر</option></select></div>
+                            <div class="flex items-center gap-2 bg-gray-50 p-2 rounded-lg border">
+                                <input type="checkbox" id="setLoginNoticeSmartButtonEnabled" class="w-4 h-4 text-hola-orange">
+                                <label for="setLoginNoticeSmartButtonEnabled" class="text-xs font-bold text-gray-700">تفعيل الزر الذكي</label>
+                            </div>
+                            <div><label for="setLoginNoticeSmartButtonText" class="block text-xs text-gray-600 mb-1">نص الزر</label><input type="text" id="setLoginNoticeSmartButtonText" class="w-full border-2 p-2 rounded-lg text-sm focus:border-indigo-400 outline-none" placeholder="ابدأ الآن"></div>
+                            <div><label for="setLoginNoticeSmartButtonUrl" class="block text-xs text-gray-600 mb-1">رابط الزر</label><input type="text" id="setLoginNoticeSmartButtonUrl" dir="ltr" class="w-full border-2 p-2 rounded-lg text-sm font-mono text-left focus:border-indigo-400 outline-none" placeholder="https://..."></div>
                         </div>
                     </div>
                     <!-- Card 5: Payment -->

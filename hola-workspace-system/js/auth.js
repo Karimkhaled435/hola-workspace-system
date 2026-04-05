@@ -70,22 +70,21 @@ function showOutsideLoginOption(dist) {
     const lastPhone = localStorage.getItem('hola_bound_phone') || '';
     const hasLinked = !!(lastPhone && _profiles[lastPhone]);
     container.innerHTML = `
-        <div class="bg-gradient-to-br from-gray-700 to-gray-900 p-5 text-white text-center">
-            <div class="w-14 h-14 bg-white/20 rounded-full flex items-center justify-center text-2xl mx-auto mb-2"><i class="fa-solid fa-location-dot-slash"></i></div>
-            <h3 class="font-black text-lg">أنت خارج المكان</h3>
-            <p class="text-xs text-gray-300">تبعد ${Math.round(dist)} متر — عرض فقط من الحساب المرتبط</p>
+        <div class="bg-gradient-to-br from-gray-700 to-gray-900 p-4 text-white text-center">
+            <h3 class="font-black text-base">وضع خارج المكان</h3>
+            <p class="text-[11px] text-gray-300 mt-1">تبعد ${Math.round(dist)} متر</p>
         </div>
-        <div class="p-5 space-y-3">
-            <p class="text-xs text-gray-500 text-center font-bold">التسجيل الجديد غير متاح خارج المكان</p>
+        <div class="p-4 space-y-2.5">
             <div>
-                <label class="block text-xs font-bold text-gray-700 mb-1">الحساب المرتبط بهذا الجهاز</label>
+                <label class="block text-xs font-bold text-gray-700 mb-1">رقم الهاتف المرتبط</label>
                 <input type="tel" id="remoteLoginPhone" value="${hasLinked ? lastPhone : ''}" ${hasLinked ? 'readonly' : ''}
-                    class="w-full border-2 border-gray-200 rounded-xl px-4 py-3 font-mono font-bold text-center focus:outline-none focus:border-gray-500 ${hasLinked ? 'bg-gray-100 text-gray-500' : ''}"
+                    class="w-full border-2 border-gray-200 rounded-xl px-3 py-2.5 font-mono font-bold text-center focus:outline-none focus:border-gray-500 ${hasLinked ? 'bg-gray-100 text-gray-500' : ''}"
                     placeholder="${hasLinked ? '' : 'لا يوجد حساب مرتبط'}" dir="ltr">
             </div>
-            <button onclick="window.handleRemoteLogin()" class="w-full bg-gray-800 text-white font-black py-3.5 rounded-xl shadow-lg hover:bg-gray-900 transition ${hasLinked ? '' : 'opacity-50 pointer-events-none'}">
+            <button onclick="window.handleRemoteLogin()" class="w-full bg-hola-purple text-white font-black py-3 rounded-xl shadow hover:bg-hola-dark transition ${hasLinked ? '' : 'opacity-50 pointer-events-none'}">
                 <i class="fa-solid fa-eye ml-2"></i>عرض ملفي
             </button>
+            <p class="text-[11px] text-gray-500 text-center font-bold">التسجيل الجديد غير متاح خارج المكان</p>
             <div class="border-t pt-3 space-y-2">
                 <button onclick="window.showPreBookingFallback('حجز مسبق')" class="w-full text-sm font-bold text-hola-orange hover:underline">حجز مسبق بدلاً من ذلك</button>
                 <button onclick="window.resetLocationCheck()" class="w-full text-xs font-bold text-gray-400 hover:text-gray-600 flex items-center justify-center gap-1">

@@ -145,8 +145,17 @@ export function setupListeners(db, appId) {
             safeSet('setFbPageLink','value',sysSettings.fbPageLink||''); safeSet('setWhatsappNum','value',sysSettings.whatsappNum||'');
             safeSet('vfPayNum','innerText',sysSettings.vfNumber||''); safeSet('vfPayName','innerText',sysSettings.vfName||'');
             safeSet('setLat','value',sysSettings.workspaceLat); safeSet('setLng','value',sysSettings.workspaceLng); safeSet('setRadius','value',sysSettings.workspaceRadius);
+            safeSet('setCardsSystemEnabled','checked',!!sysSettings.cardsSystemEnabled);
             safeSet('setPromoImg','value',sysSettings.promoImg||''); safeSet('setPromoLink','value',sysSettings.promoLink||'');
             safeSet('setPromoText','value',sysSettings.promoText||''); safeSet('setPromoEmbed','value',sysSettings.promoEmbed||'');
+            safeSet('setLoginNoticeEnabled','checked',!!sysSettings.loginNoticeEnabled);
+            safeSet('setLoginNoticeHeadline','value',sysSettings.loginNoticeHeadline||'');
+            safeSet('setLoginNoticeSlogan','value',sysSettings.loginNoticeSlogan||'');
+            safeSet('setLoginNoticeText','value',sysSettings.loginNoticeText||'');
+            safeSet('setLoginNoticeColor','value',sysSettings.loginNoticeColor||'purple');
+            safeSet('setLoginNoticeSmartButtonEnabled','checked',!!sysSettings.loginNoticeSmartButtonEnabled);
+            safeSet('setLoginNoticeSmartButtonText','value',sysSettings.loginNoticeSmartButtonText||'');
+            safeSet('setLoginNoticeSmartButtonUrl','value',sysSettings.loginNoticeSmartButtonUrl||'');
 
             const promoCard = document.getElementById('fbPromoCard');
             if (sysSettings.promoEmbed) {
@@ -172,6 +181,15 @@ export function setupListeners(db, appId) {
 
             renderPublicEvents(sysSettings, myProfile, activeSessionId);
             if (window._renderLoginEvents) window._renderLoginEvents();
+            if (window.renderLoginStickyNotice) window.renderLoginStickyNotice();
+
+            const cardsEnabled = !!sysSettings.cardsSystemEnabled;
+            ['tab-cards','admin-cards','publicCardLoginBtn','c-tab-internet'].forEach(id => {
+                const el = document.getElementById(id);
+                if (!el) return;
+                if (cardsEnabled) el.classList.remove('hidden');
+                else el.classList.add('hidden');
+            });
 
             const rCheck = document.getElementById('setRoomsActive'); if (rCheck) rCheck.checked = sysSettings.roomsActive||false;
             const roomsAvail = document.getElementById('roomsAvailableDiv'), roomsUnavail = document.getElementById('roomsUnavailableDiv');

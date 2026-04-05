@@ -110,8 +110,8 @@ window.exportTableToCSV = exportTableToCSV;
 export function updateClientHeaderUI(myProfile, _profiles, sysSettings) {
     if(!myProfile) return;
     const prof = _profiles[myProfile.phone]||myProfile;
-    safeSet('clientWelcomeName','innerText',`أهلاً، ${prof.name}`);
-    safeSet('clientWelcomePhone','innerText',prof.phone);
+    safeSet('clientWelcomeName','innerText',`أهلاً، ${prof.name || 'العميل'}`);
+    safeSet('clientWelcomePhone','innerText',prof.phone || '---');
     safeSet('clientWallet','innerText',prof.walletBalance||0);
     safeSet('checkoutWalletBalance','innerText',prof.walletBalance||0);
     safeSet('clientHeaderStampsCount','innerText',prof.stamps?.length||0);

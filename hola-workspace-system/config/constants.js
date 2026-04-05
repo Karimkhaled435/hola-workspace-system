@@ -48,6 +48,15 @@ export const DEFAULT_SETTINGS = {
     fbPageLink: "",
     whatsappNum: "",
     promoEmbed: "",
+    loginNoticeEnabled: false,
+    loginNoticeHeadline: "أهلاً بك",
+    loginNoticeSlogan: "#Your digital gateway",
+    loginNoticeText: "",
+    loginNoticeColor: "purple",
+    loginNoticeSmartButtonEnabled: false,
+    loginNoticeSmartButtonText: "ابدأ الآن",
+    loginNoticeSmartButtonUrl: "",
+    cardsSystemEnabled: false,
     ev2_evTitle: "", ev2_evDesc: "", ev2_evTime: "", ev2_evImg: "", ev2_evActive: false,
     ev3_evTitle: "", ev3_evDesc: "", ev3_evTime: "", ev3_evImg: "", ev3_evActive: false
 };
