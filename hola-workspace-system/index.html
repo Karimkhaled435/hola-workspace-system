@@ -473,10 +473,21 @@ body{font-family:'Cairo',sans-serif;background:var(--surface);color:var(--text)}
               <div style="width:52px;height:52px;background:rgba(240,106,0,0.2);border:2px solid rgba(240,106,0,0.3);border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:22px;color:var(--accent-light);margin:0 auto 12px">
                 <i class="fa-solid fa-location-crosshairs"></i>
               </div>
-              <h3>بوابة الدخول الذكية</h3>
-              <p>تأكيد موقعك مطلوب قبل الدخول</p>
+              <h3 id="loginHeadlineText">بوابة الدخول الذكية</h3>
+              <p id="loginSloganText">تأكيد موقعك مطلوب قبل الدخول</p>
             </div>
             <div class="auth-body">
+              <div id="loginFixedNotice" style="background:#301043;color:#fff;border-radius:10px;padding:10px 12px;font-size:12px;font-weight:700;line-height:1.6;margin-bottom:12px">
+                <span id="loginFixedNoticeText">يرجى التأكد من تشغيل الموقع بدقة عالية قبل بدء الجلسة.</span>
+              </div>
+              <button id="btnSmartLogin" class="btn btn-accent btn-full" onclick="window.checkLocationForLogin()">
+                <i class="fa-solid fa-right-to-bracket"></i> تسجيل الدخول الآن
+              </button>
+              <div style="display:flex;align-items:center;gap:8px;margin:12px 0">
+                <div style="flex:1;height:1px;background:var(--border)"></div>
+                <span style="font-size:11px;font-weight:700;color:var(--text-muted)">أو</span>
+                <div style="flex:1;height:1px;background:var(--border)"></div>
+              </div>
               <div style="display:flex;align-items:center;gap:10px;background:#f8f7fc;border:1px solid var(--border);border-radius:10px;padding:12px;margin-bottom:14px">
                 <div id="locDot" style="width:10px;height:10px;border-radius:50%;background:#ccc;flex-shrink:0"></div>
                 <span id="locText" style="font-size:12px;font-weight:700;color:var(--text-muted)">في انتظار التحقق من الموقع</span>
@@ -505,6 +516,18 @@ body{font-family:'Cairo',sans-serif;background:var(--surface);color:var(--text)}
               </div>
             </div>
           </div>
+          <div id="outsideStateBanner" class="hidden" style="margin-top:10px;background:linear-gradient(135deg,#374151,#111827);color:#fff;border-radius:12px;padding:12px;border:1px solid rgba(255,255,255,0.15)">
+            <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
+              <i class="fa-solid fa-location-dot-slash"></i>
+              <strong style="font-size:13px">أنت خارج المكان</strong>
+            </div>
+            <p id="outsideDistanceText" style="font-size:11px;color:#d1d5db;font-weight:700;margin-bottom:8px"></p>
+            <div class="inp-group" style="margin-bottom:8px">
+              <label class="inp-label" style="color:#e5e7eb">الحساب المرتبط بهذا الجهاز</label>
+              <input type="tel" id="remoteLoginPhone" class="inp" dir="ltr" placeholder="لا يوجد حساب مرتبط">
+            </div>
+            <button id="btnRemoteLogin" class="btn btn-outline btn-full" onclick="window.handleRemoteLogin()"><i class="fa-solid fa-eye"></i> عرض ملفي</button>
+          </div>
 
           <!-- Pre-booking form -->
           <div id="preBookingForm" class="hidden">
@@ -530,6 +553,7 @@ body{font-family:'Cairo',sans-serif;background:var(--surface);color:var(--text)}
                 <label class="inp-label"><i class="fa-solid fa-wifi text-accent" style="font-size:10px;margin-left:4px"></i> كود كارت الواي فاي</label>
                 <input id="loginWifiCode" type="text" class="inp" style="text-align:center;font-family:'IBM Plex Mono';letter-spacing:3px;font-size:16px;text-transform:uppercase" placeholder="HOLA-XXXX-XXXX" oninput="this.value=this.value.toUpperCase()">
               </div>
+              <div id="loginSingleEventBanner" class="hidden" style="margin-bottom:12px"></div>
               <div class="inp-group">
                 <label class="inp-label"><i class="fa-solid fa-mobile-screen text-accent" style="font-size:10px;margin-left:4px"></i> رقم الموبايل</label>
                 <input id="loginPhone" type="tel" class="inp" dir="ltr" placeholder="01XXXXXXXXX" oninput="window.checkNewUser(this.value)" maxlength="11">
@@ -546,6 +570,7 @@ body{font-family:'Cairo',sans-serif;background:var(--surface);color:var(--text)}
                 <i class="fa-solid fa-arrow-right-to-bracket"></i> تأكيد الدخول وبدء الجلسة
               </button>
               <button class="btn btn-outline btn-full mt-2" onclick="window.enterGuestMode()"><i class="fa-solid fa-user-secret"></i> الدخول كضيف</button>
+              <button id="btnEventIntent" class="btn btn-outline btn-full mt-2" onclick="window.showEventIntentFromLogin()"><i class="fa-solid fa-hand-sparkles"></i> نية حضور فعالية</button>
               <button style="width:100%;background:none;border:none;color:var(--text-muted);font-family:'Cairo',sans-serif;font-size:12px;font-weight:700;cursor:pointer;padding:8px;margin-top:4px" onclick="window.resetLocationCheck()">
                 <i class="fa-solid fa-chevron-right" style="font-size:10px"></i> العودة
               </button>
@@ -582,6 +607,11 @@ body{font-family:'Cairo',sans-serif;background:var(--surface);color:var(--text)}
                 <div class="pricing-hour">الثالثة+</div>
                 <div class="pricing-price"><span id="pubT3">10</span> ج</div>
                 <div class="pricing-note">كل ساعة</div>
+              </div>
+              <div class="pricing-item">
+                <div class="pricing-hour">بعد الثالثة</div>
+                <div class="pricing-price"><span id="pubTExtra">5</span> ج</div>
+                <div class="pricing-note">لكل ساعة إضافية</div>
               </div>
             </div>
             <p id="publicDescription" style="font-size:11px;color:var(--text-muted);font-weight:600;margin-top:10px;line-height:1.6">يتم حساب التكلفة تلقائياً بناءً على الوقت المنقضي.</p>
@@ -1209,6 +1239,7 @@ body{font-family:'Cairo',sans-serif;background:var(--surface);color:var(--text)}
             <div class="inp-group"><label class="inp-label">الساعة الأولى (ج)</label><input id="setT1" type="number" class="inp"></div>
             <div class="inp-group"><label class="inp-label">الساعة الثانية (ج)</label><input id="setT2" type="number" class="inp"></div>
             <div class="inp-group"><label class="inp-label">الثالثة+ (ج)</label><input id="setT3" type="number" class="inp"></div>
+            <div class="inp-group"><label class="inp-label">كل ساعة بعد الثالثة (ج)</label><input id="setTExtra" type="number" class="inp"></div>
           </div>
           <div class="grid-2" style="gap:10px">
             <div class="inp-group"><label class="inp-label">الطاقة القصوى</label><input id="setMaxCap" type="number" class="inp"></div>
@@ -1253,6 +1284,16 @@ body{font-family:'Cairo',sans-serif;background:var(--surface);color:var(--text)}
         <div class="settings-group">
           <h4><i class="fa-solid fa-pen text-accent" style="margin-left:6px"></i> نصوص وخيارات</h4>
           <div class="inp-group"><label class="inp-label">وصف التسعير</label><textarea id="settingDescription" class="inp" rows="2"></textarea></div>
+          <div class="inp-group"><label class="inp-label">عنوان شاشة الدخول</label><input id="setLoginHeadline" type="text" class="inp"></div>
+          <div class="inp-group"><label class="inp-label">سطر ترحيبي (Slogan)</label><input id="setLoginSlogan" type="text" class="inp"></div>
+          <div class="inp-group"><label class="inp-label">نص الإشعار الثابت بشاشة الدخول</label><textarea id="setLoginNoticeText" class="inp" rows="2"></textarea></div>
+          <div class="grid-2" style="gap:10px">
+            <div class="inp-group"><label class="inp-label">لون الإشعار</label><input id="setLoginNoticeColor" type="color" class="inp"></div>
+            <div style="display:flex;align-items:center;gap:10px;background:#f8f7fc;border:1px solid var(--border);border-radius:10px;padding:10px 14px;margin-bottom:14px">
+              <input type="checkbox" id="setLoginNoticeSmartBtn" style="width:16px;height:16px;accent-color:var(--brand)">
+              <label style="font-size:13px;font-weight:700">تفعيل الزر الذكي</label>
+            </div>
+          </div>
           <div class="inp-group"><label class="inp-label">نص برنامج الأختام</label><input id="settingLoyaltyText" type="text" class="inp"></div>
           <div style="display:flex;align-items:center;gap:10px;background:#f8f7fc;border:1px solid var(--border);border-radius:10px;padding:10px 14px;margin-bottom:14px">
             <input type="checkbox" id="setRoomsActive" style="width:16px;height:16px;accent-color:var(--brand)">

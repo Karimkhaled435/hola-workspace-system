@@ -197,6 +197,10 @@ select {
         padding: 1rem;
     }
 
+    #publicGrid {
+        gap: 10px !important;
+    }
+
     /* Login gate compact mobile layout */
     #authContainer {
         border-radius: 1rem;
@@ -214,6 +218,10 @@ select {
 
     #loginForm input {
         font-size: 0.9rem;
+    }
+
+    #outsideStateBanner {
+        padding: 10px !important;
     }
 
     #viewClient [id^="c-tab-"] {
@@ -276,6 +284,14 @@ select {
 
 /* ── Admin tab panel — better mobile layout ─────────── */
 @media (max-width: 640px) {
+    #clientHeaderCard .grid-3 {
+        grid-template-columns: 1fr 1fr !important;
+    }
+
+    #clientHeaderCard .client-stat:last-child {
+        grid-column: span 2;
+    }
+
     #viewClient .client-tab-content {
         padding: 1rem;
     }
@@ -304,6 +320,10 @@ select {
 
     #admin-cards .grid-cols-2.md\:grid-cols-4 {
         grid-template-columns: repeat(2, 1fr);
+    }
+
+    #adminStatsRow {
+        grid-template-columns: 1fr 1fr !important;
     }
 
     /* Card generate modal inputs */
