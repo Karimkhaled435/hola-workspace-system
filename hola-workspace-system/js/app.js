@@ -37,13 +37,14 @@ import {
 import { printInvoice, showEndDaySummary, closeEndDaySummary, printEndDaySummary } from "./print.js";
 
 // ─── Global Init ─────────────────────────────────────────────────────────────
+const DEFAULT_SHIFT_ADMIN = "مدير النظام";
 window._loginAttempts = {};
 window._bannedPhones = {};
 window.lastCompletedSessionId = null;
 window.lastAdminCompletedSessionId = null;
 window.currentPaymentSessionId = null;
 window.currentPaymentType = null;
-window._currentShiftAdmin = currentShiftAdmin;
+window._currentShiftAdmin = DEFAULT_SHIFT_ADMIN;
 window._currentEvSlot = 1; // Current event slot being edited
 
 // ─── Sound Alerts ─────────────────────────────────────────────────────────────
