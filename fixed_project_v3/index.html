@@ -2613,8 +2613,8 @@
         </div>
     </div>
 
-    <div id="subscriptionCardModal" class="hidden fixed inset-0 bg-black/80 z-[260] flex items-center justify-center p-4 backdrop-blur-sm print:hidden">
-        <div class="bg-white rounded-3xl shadow-2xl w-full max-w-sm p-6 border-t-8 border-hola-orange relative">
+    <div id="subscriptionCardModal" class="hidden fixed inset-0 bg-black/80 z-[260] flex items-end md:items-center justify-center p-0 md:p-4 backdrop-blur-sm print:hidden">
+        <div class="bg-white rounded-t-3xl md:rounded-3xl shadow-2xl w-full max-w-sm p-4 md:p-6 border-t-8 border-hola-orange relative max-h-[92vh] overflow-y-auto">
             <button type="button" onclick="document.getElementById('subscriptionCardModal').classList.add('hidden')" class="absolute top-4 left-4 text-gray-400 hover:text-red-500 text-xl bg-gray-100 w-8 h-8 rounded-full flex items-center justify-center"><i class="fa-solid fa-xmark"></i></button>
             <div class="text-center mb-4">
                 <div class="w-20 h-20 bg-orange-100 text-hola-orange rounded-full flex items-center justify-center text-4xl mx-auto mb-3 shadow-inner"><i class="fa-solid fa-id-card"></i></div>
@@ -2633,7 +2633,7 @@
             </div>
             
             <div id="subCardAdminControls" class="hidden mb-3 space-y-2 border-t pt-3 mt-3">
-                <div id="subCardPauseControls" class="flex gap-2">
+                <div id="subCardPauseControls" class="flex flex-col sm:flex-row gap-2">
                     <button type="button" onclick="window.pauseSubscriptionNow(window._currentSubCardId)" class="flex-1 bg-yellow-500 hover:bg-yellow-600 text-white font-bold py-2 rounded-xl text-xs transition flex items-center justify-center gap-1"><i class="fa-solid fa-pause"></i> إيقاف مؤقت</button>
                     <button type="button" onclick="window.schedulePauseSubscription(window._currentSubCardId)" class="flex-1 bg-orange-100 hover:bg-orange-200 text-orange-700 font-bold py-2 rounded-xl text-xs transition flex items-center justify-center gap-1"><i class="fa-solid fa-calendar-xmark"></i> جدولة إيقاف</button>
                 </div>
@@ -2643,7 +2643,7 @@
                 <button type="button" onclick="window.cancelSubscriptionNow(window._currentSubCardId)" class="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-2 rounded-xl text-xs transition flex items-center justify-center gap-2 mt-2"><i class="fa-solid fa-ban"></i> إلغاء الاشتراك نهائياً</button>
             </div>
 
-            <div class="grid grid-cols-2 gap-2 mt-2">
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 mt-2">
                 <button type="button" onclick="window.printSubCard()" class="bg-gray-800 text-white font-bold py-2 rounded-xl hover:bg-black text-sm"><i class="fa-solid fa-print ml-1"></i> طباعة</button>
                 <button type="button" onclick="document.getElementById('subscriptionCardModal').classList.add('hidden')" class="bg-gray-200 text-gray-800 font-bold py-2 rounded-xl text-sm">إغلاق</button>
             </div>

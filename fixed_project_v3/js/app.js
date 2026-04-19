@@ -76,6 +76,13 @@ export async function logOperation(db, appId, adminName, actionType, details) {
     } catch (e) {}
 }
 
+async function pushAccountNotification(phone, msg, type = 'normal') {
+    if (!db || !phone || !msg) return;
+    await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'notifications'), {
+        phone, msg, type, isRead: false, timestamp: Date.now()
+    });
+}
+
 // ─── Time Cost Calculation ────────────────────────────────────────────────────
 function calculateTimeCost(diffMs) {
     if (diffMs <= 0) return 0;
@@ -1446,7 +1453,11 @@ window.approveSubscription = async (subId) => {
 
 window.revokeSubscription = async (subId) => {
     if (!db || !confirm("متأكد من إلغاء الاشتراك؟")) return;
+    const sub = _subscriptions[subId];
     await updateDoc(doc(db, 'artifacts', appId, 'public', 'data', 'subscriptions', subId), { status: 'cancelled' });
+    if (sub?.phone) {
+        await pushAccountNotification(sub.phone, `🚫 تم إلغاء اشتراكك "${sub.planName || 'الباقة'}" بواسطة الإدارة.`, 'high');
+    }
     showMsg("تم إلغاء الاشتراك", "success");
 };
 
@@ -1892,6 +1903,7 @@ window._adminAddStamp = async () => {
     try {
         await updateDoc(doc(db, 'artifacts', appId, 'public', 'data', 'profiles', phone), { stamps });
         prof.stamps = stamps;
+        await pushAccountNotification(phone, `✅ تم إضافة ختم جديد لحسابك. إجمالي الأختام الآن: ${stamps.length}.`, 'congrats');
         document.getElementById('detailsStamps').textContent = stamps.length;
         showMsg(`✅ تمت إضافة ختم لـ ${prof.name}`, 'success');
         logOperation(db, appId, currentShiftAdmin, 'إضافة ختم', `${prof.name} — الإجمالي: ${stamps.length}`);
@@ -1905,6 +1917,7 @@ window._adminRemoveStamp = async () => {
     try {
         await updateDoc(doc(db, 'artifacts', appId, 'public', 'data', 'profiles', phone), { stamps });
         prof.stamps = stamps;
+        await pushAccountNotification(phone, `ℹ️ تم تعديل الأختام في حسابك. الإجمالي الحالي: ${stamps.length}.`, 'normal');
         document.getElementById('detailsStamps').textContent = stamps.length;
         showMsg(`تم حذف ختم من ${prof.name}`, 'info');
         logOperation(db, appId, currentShiftAdmin, 'حذف ختم', `${prof.name} — المتبقي: ${stamps.length}`);
@@ -1919,6 +1932,13 @@ window._adminToggleFreeDrink = async () => {
     try {
         await updateDoc(doc(db, 'artifacts', appId, 'public', 'data', 'profiles', phone), { freeDrinkUsed: newVal });
         prof.freeDrinkUsed = newVal;
+        await pushAccountNotification(
+            phone,
+            newVal
+                ? '🚫 تم استخدام/تعطيل المشروب المجاني على حسابك بواسطة الإدارة.'
+                : '✅ تم إعادة تفعيل المشروب المجاني على حسابك.',
+            'normal'
+        );
         if (!newVal) localStorage.removeItem(`first_visit_drink_${phone}`);
         else localStorage.setItem(`first_visit_drink_${phone}`, 'true');
         // تحديث الزر
@@ -2635,6 +2655,7 @@ window.schedulePauseSubscription = async (subId) => {
         await updateDoc(doc(db, 'artifacts', appId, 'public', 'data', 'subscriptions', subId), {
             scheduledPauseAt: schedDate
         });
+        await pushAccountNotification(sub.phone, `📅 تم جدولة إيقاف اشتراكك "${sub.planName}" بتاريخ ${new Date(schedDate).toLocaleDateString('ar-EG')}.`, 'normal');
         showMsg(`تم جدولة الإيقاف في ${new Date(schedDate).toLocaleDateString('ar-EG')}`, "success");
     } catch(e) { showMsg("حدث خطأ", "error"); }
 };
@@ -2687,7 +2708,9 @@ window._subActionDo = async (action) => {
         document.getElementById('subActionModal')?.classList.add('hidden');
         if (!confirm('إلغاء الاشتراك نهائياً؟ لا يمكن التراجع!')) return;
         if (!db) return;
+        const sub = _subscriptions[subId];
         await updateDoc(doc(db, 'artifacts', appId, 'public', 'data', 'subscriptions', subId), { status: 'cancelled' });
+        if (sub?.phone) await pushAccountNotification(sub.phone, `🚫 تم إلغاء اشتراكك "${sub.planName || 'الباقة'}" بواسطة الإدارة.`, 'high');
         showMsg('تم إلغاء الاشتراك', 'success');
     }
 };
@@ -2699,7 +2722,9 @@ window._subActionConfirmSchedule = async () => {
     const schedDate = new Date(dateStr).getTime();
     if (isNaN(schedDate) || schedDate < Date.now()) return showMsg('تاريخ غير صحيح', 'error');
     if (!db) return;
+    const sub = _subscriptions[subId];
     await updateDoc(doc(db, 'artifacts', appId, 'public', 'data', 'subscriptions', subId), { scheduledPauseAt: schedDate });
+    if (sub?.phone) await pushAccountNotification(sub.phone, `📅 تم جدولة إيقاف اشتراكك "${sub.planName}" بتاريخ ${new Date(schedDate).toLocaleDateString('ar-EG')}.`, 'normal');
     showMsg(`✅ تم جدولة الإيقاف في ${new Date(schedDate).toLocaleDateString('ar-EG')}`, 'success');
     document.getElementById('subActionModal')?.classList.add('hidden');
 };
