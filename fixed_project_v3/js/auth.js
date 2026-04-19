@@ -17,6 +17,8 @@ import {
 import { playAlertSound, logOperation, startLocationTracking, registerAdminSession } from "./app.js";
 import { renderClientLoyalty, renderClientHistory, renderShiftManagers } from "./ui.js";
 
+const ADMIN_TOKEN_EXPIRY_MS = 8 * 60 * 60 * 1000;
+
 // ─── Admin Token Helpers (Firestore-based role check) ─────────────────────────
 // بعد إدخال PIN صح، بنكتب document في admin_tokens/{uid}
 // الـ Firestore Rules بتتحقق من وجوده قبل أي write حساس
@@ -32,7 +34,7 @@ async function _writeAdminToken(db, appId, pin) {
 
         const tokenRef = doc(db, 'artifacts', appId, 'admin_tokens', uid);
         // قواعد Firestore الحالية تسمح create فقط، لذلك نحذف أولاً ثم نعيد create
-        try { await deleteDoc(tokenRef); } catch (e) {}
+        try { await deleteDoc(tokenRef); } catch (e) { /* token may not exist yet */ }
 
         // ✅ SECURITY: بنبعت الـ PIN في الـ token
         // الـ Rules بتتحقق إنه يساوي adminPin في settings
@@ -42,7 +44,7 @@ async function _writeAdminToken(db, appId, pin) {
             {
                 pin: pin,
                 grantedAt: Date.now(),
-                expiresAt: Date.now() + (8 * 60 * 60 * 1000) // 8 hours
+                expiresAt: Date.now() + ADMIN_TOKEN_EXPIRY_MS // 8 hours
             }
         );
         window._adminUid = uid;
