@@ -4038,7 +4038,7 @@ window.refreshNotificationsPanel = function() {
     }
 };
 
-// Client checkout finalization (single source of truth at end of file to avoid accidental override bugs).
+// Client checkout finalization (single authoritative definition to avoid accidental override bugs).
 window.confirmCheckout = async function() {
     try {
         if (!db) return showMsg("غير متصل بقاعدة البيانات", "error");
