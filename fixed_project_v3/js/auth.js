@@ -34,7 +34,7 @@ async function _writeAdminToken(db, appId, pin) {
 
         const tokenRef = doc(db, 'artifacts', appId, 'admin_tokens', uid);
         // قواعد Firestore الحالية تسمح create فقط، لذلك نحذف أولاً ثم نعيد create
-        try { await deleteDoc(tokenRef); } catch (e) { /* token may not exist yet */ }
+        try { await deleteDoc(tokenRef); } catch (e) { console.debug('[AdminToken] delete existing token skipped:', e); }
 
         // ✅ SECURITY: بنبعت الـ PIN في الـ token
         // الـ Rules بتتحقق إنه يساوي adminPin في settings
