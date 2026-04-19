@@ -358,7 +358,7 @@ export async function handleLogin(db, appId, _profiles, _sessions, sysSettings) 
                 await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'discounts'), { code, value: 100, isPercentage: true, assignedTo: prof.phone, title: "مكافأة الختم", isUsed: false, createdAt: Date.now() });
                 await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'notifications'), {
                     phone: prof.phone,
-                    msg: `🏆 مبروك يا ${prof.name}! كملت كل الأختام!\nالنهاردة يومك علينا 💚\nكله علينا ما عدا المشروبات 😉\n\nكودك الخاص: ${code}\nاضغط لنسخه!`,
+                    msg: `مبروك يا ${prof.name} 👏 كده كملت كل الأختام!\nالنهاردة يومك علينا 💚 اقعد براحتك، كله مجاني ما عدا المشروبات 😉\n\nوده كودك الخاص: ${code}\nاضغط لنسخه ✨`,
                     type: 'congrats',
                     discountCode: code,
                     isRead: false,

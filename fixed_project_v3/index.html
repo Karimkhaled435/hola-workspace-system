@@ -2397,7 +2397,7 @@
             <div class="p-4 border-t flex gap-2 flex-shrink-0">
                 <button onclick="document.getElementById('splitFriendsModal').classList.add('hidden')" class="bg-gray-100 text-gray-600 font-black py-3 px-4 rounded-2xl hover:bg-gray-200 transition text-sm">إغلاق</button>
                 <button onclick="window._renderSplitBreakdown && window._renderSplitBreakdown()" class="bg-purple-100 text-hola-purple font-black py-3 px-3 rounded-2xl hover:bg-purple-200 transition text-xs flex items-center gap-1">
-                    <i class="fa-solid fa-rotate"></i> اقترح
+                    <i class="fa-solid fa-rotate"></i> اقترح قسمة أعدل
                 </button>
                 <button onclick="window.showCheckoutModal(); document.getElementById('splitFriendsModal').classList.add('hidden')" class="flex-1 bg-hola-orange text-white font-black py-3 rounded-2xl shadow hover:bg-orange-600 transition text-sm">
                     <i class="fa-solid fa-receipt ml-1"></i> الحساب
@@ -3632,6 +3632,9 @@
             n.isRead = true;
             var el = document.querySelector('[data-notif-id="'+notifId+'"] .animate-pulse');
             if (el) el.remove();
+            if (window.myProfile && typeof window._renderEnhancedNotifications === 'function') {
+                window._renderEnhancedNotifications(window.myProfile, window._notifications || {});
+            }
         }
         // استخدام showClientNotification الموجود
         if (window.showClientNotification) {
@@ -4430,11 +4433,16 @@ waitFor(function(){ return typeof window.switchView === 'function'; }, function(
 // ★ _groupCount = العدد الكلي للأشخاص (أنت + من معك)
 var _groupCount = 2;
 // ★ مفتاح sessionStorage لمنع ظهور السؤال أكثر من مرة في الجلسة
-var _GROUP_SHOWN_KEY = 'hola_group_asked';
+var _GROUP_SHOWN_KEY_PREFIX = 'hola_group_asked_';
+function _groupShownKey() {
+    var sid = window.activeSessionId || '';
+    if (sid) return _GROUP_SHOWN_KEY_PREFIX + sid;
+    return _GROUP_SHOWN_KEY_PREFIX + 'pending';
+}
 
 window._showGroupQuestion = function() {
     // ★ لا تعرض السؤال إذا سبق وعُرض في هذه الجلسة
-    if (sessionStorage.getItem(_GROUP_SHOWN_KEY) === '1') return;
+    if (sessionStorage.getItem(_groupShownKey()) === '1') return;
     _groupCount = 2;
     var modal = document.getElementById('groupQuestionModal');
     if (!modal) return;
@@ -4450,7 +4458,7 @@ window._closeGroupModal = function() {
     var m = document.getElementById('groupQuestionModal');
     if (m) m.classList.add('hidden');
     // ★ سجّل أن السؤال ظهر في هذه الجلسة
-    sessionStorage.setItem(_GROUP_SHOWN_KEY, '1');
+    sessionStorage.setItem(_groupShownKey(), '1');
 };
 
 window._groupAnswer = function(hasGroup) {

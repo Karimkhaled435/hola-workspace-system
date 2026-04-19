@@ -555,7 +555,11 @@ export function setupListeners(db, appId, uid) {
                 }
             } else {
                 const cur = _sessions[activeSessionId];
-                if (cur && cur.status === 'completed' && window.forceShowClientReceipt) window.forceShowClientReceipt(cur);
+                if (cur && cur.status === 'completed') {
+                    if (window.closeClientNotif) window.closeClientNotif();
+                    if (window._closeStampsCelebration) window._closeStampsCelebration();
+                    if (window.forceShowClientReceipt) window.forceShowClientReceipt(cur);
+                }
                 else if (cur && cur.items) {
                     sessionItems = cur.items;
                     window._sessionItemsRef = cur.items;

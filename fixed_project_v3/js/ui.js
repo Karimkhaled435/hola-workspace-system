@@ -291,7 +291,26 @@ export function showClientNotification(msg, type, docId, imgUrl, linkUrl, db, ap
     }
     if(imgEl&&imgUrl){imgEl.src=imgUrl;imgEl.classList.remove('hidden');}else if(imgEl) imgEl.classList.add('hidden');
     if(linkEl&&linkUrl){linkEl.href=linkUrl;linkEl.classList.remove('hidden');}else if(linkEl) linkEl.classList.add('hidden');
-    const modal=document.getElementById('clientNotifModal');if(modal) modal.classList.remove('hidden');
+    const modal=document.getElementById('clientNotifModal');
+    if(modal){
+        if (window._clientNotifAutoDismissTimer) {
+            clearTimeout(window._clientNotifAutoDismissTimer);
+            window._clientNotifAutoDismissTimer = null;
+        }
+        if (box) {
+            box.style.opacity = '0';
+            box.style.transform = 'translateY(14px) scale(0.98)';
+            box.style.transition = 'opacity .25s ease, transform .25s ease';
+            requestAnimationFrame(() => {
+                box.style.opacity = '1';
+                box.style.transform = 'translateY(0) scale(1)';
+            });
+        }
+        modal.classList.remove('hidden');
+        window._clientNotifAutoDismissTimer = setTimeout(() => {
+            if (typeof window.closeClientNotif === 'function') window.closeClientNotif();
+        }, 8000);
+    }
     if(docId&&db){
         import("https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js").then(({updateDoc,doc})=>{
             updateDoc(doc(db,'artifacts',appId,'public','data','notifications',docId),{isRead:true});

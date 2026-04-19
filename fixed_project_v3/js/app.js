@@ -1741,12 +1741,23 @@ window.goToLoyaltyAndPulse = (code) => {
 window.closeClientNotif = () => {
     const m = document.getElementById('clientNotifModal');
     if (m) {
+        if (window._clientNotifAutoDismissTimer) {
+            clearTimeout(window._clientNotifAutoDismissTimer);
+            window._clientNotifAutoDismissTimer = null;
+        }
         m.classList.add('hidden');
         // ★ reset modal state so it can reopen cleanly
         const img = document.getElementById('clientNotifImg');
         const link = document.getElementById('clientNotifLink');
         if (img) img.classList.add('hidden');
         if (link) link.classList.add('hidden');
+        const msg = document.getElementById('clientNotifMsg');
+        if (msg && msg.parentNode) {
+            msg.parentNode.querySelectorAll('.copy-code-btn').forEach(el => {
+                const wrap = el.closest('.mt-4');
+                if (wrap) wrap.remove();
+            });
+        }
     }
 };
 
@@ -2385,11 +2396,14 @@ window.refreshNotifications = () => {
     showMsg("جاري تحديث الإشعارات...", "info");
     try {
         // ★ إعادة رسم الإشعارات من الحالة الحالية
-        renderClientNotifications(myProfile, _notifications);
+        if (typeof window.renderClientNotifications === 'function') window.renderClientNotifications(myProfile, _notifications);
+        else renderClientNotifications(myProfile, _notifications);
         // ★ تحديث badge الإشعارات
         const unread = Object.values(_notifications).filter(n => n.phone === myProfile.phone && !n.isRead).length;
         const badge = document.getElementById('headerNotifCount');
         if (badge) { badge.textContent = unread; badge.classList.toggle('hidden', unread === 0); }
+        const badgeM = document.getElementById('headerNotifCountMobile');
+        if (badgeM) { badgeM.textContent = unread; badgeM.classList.toggle('hidden', unread === 0); }
         const tabBadge = document.getElementById('notifTabBadge');
         if (tabBadge) { tabBadge.textContent = unread; tabBadge.classList.toggle('hidden', unread === 0); }
         showMsg("تم التحديث ✅", "success");
