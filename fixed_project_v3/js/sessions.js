@@ -75,7 +75,7 @@ function _stopAdminListeners() {
 
 export function teardownListeners() {
     if (_adminTokenUnsub) {
-        try { _adminTokenUnsub(); } catch (e) {}
+        try { _adminTokenUnsub(); } catch (e) { console.debug('[Listeners] teardown adminTokenUnsub error:', e); }
         _adminTokenUnsub = null;
     }
     _stopAdminListeners();

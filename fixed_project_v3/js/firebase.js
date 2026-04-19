@@ -27,7 +27,7 @@ export function waitForAuthReady(timeoutMs = 10000) {
         const t = setTimeout(() => {
             if (done) return;
             done = true;
-            try { unsub(); } catch (e) {}
+            try { unsub(); } catch (e) { console.debug('[Auth] waitForAuthReady timeout unsubscribe error:', e); }
             reject(new Error("Auth readiness timeout"));
         }, timeoutMs);
 
@@ -35,7 +35,7 @@ export function waitForAuthReady(timeoutMs = 10000) {
             if (done || !user) return;
             done = true;
             clearTimeout(t);
-            try { unsub(); } catch (e) {}
+            try { unsub(); } catch (e) { console.debug('[Auth] waitForAuthReady unsubscribe error:', e); }
             resolve(user);
         });
     });
