@@ -319,7 +319,9 @@ function _renderAdminSessions_multi() {
 // ─── Setup all Firestore Listeners ───────────────────────────────────────────
 export function setupListeners(db, appId, uid) {
     if (!db || !appId || !uid) {
-        teardownListeners();
+        if (_listenersBootstrapped || _adminTokenUnsub || _adminListenersUnsubs.length > 0) {
+            teardownListeners();
+        }
         return;
     }
 
