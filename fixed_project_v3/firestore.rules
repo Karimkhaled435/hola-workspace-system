@@ -24,7 +24,7 @@ service cloud.firestore {
         allow read: if isAuth() && request.auth.uid == uid;
         allow create: if isAuth() && isValidAdminToken();
         allow delete: if isAuth() && request.auth.uid == uid;
-        allow update: if false;
+        allow update: if isAuth() && isValidAdminToken();
       }
 
       match /public/data/settings/system {
@@ -37,8 +37,7 @@ service cloud.firestore {
         allow create: if isAuth();
         allow update: if isAdmin() ||
           (isAuth() &&
-            !('walletBalance' in request.resource.data.diff(resource.data).affectedKeys()) &&
-            !('stamps' in request.resource.data.diff(resource.data).affectedKeys()));
+            !('walletBalance' in request.resource.data.diff(resource.data).affectedKeys()));
         allow delete: if isAdmin();
       }
 
@@ -89,7 +88,8 @@ service cloud.firestore {
       match /public/data/feedback/{feedbackId} {
         allow read: if isAdmin();
         allow create: if isAuth();
-        allow update: if false;
+        allow update: if isAdmin() &&
+          request.resource.data.diff(resource.data).affectedKeys().hasOnly(['isRead']);
         allow delete: if isAdmin();
       }
 

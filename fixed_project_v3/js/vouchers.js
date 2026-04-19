@@ -7,6 +7,13 @@
 import { collection, addDoc, updateDoc, doc, deleteDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 import { showMsg } from "./ui.js";
 import { logOperation } from "./app.js";
+
+async function notifyUserAccountChange(db, appId, phone, msg, type = 'normal') {
+    if (!db || !phone || !msg) return;
+    await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'notifications'), {
+        phone, msg, type, isRead: false, timestamp: Date.now()
+    });
+}
 import { _discounts, _sessions, _profiles, myProfile, activeSessionId, appliedDiscountVal, setAppliedDiscountVal, sessionItems } from "./sessions.js";
 
 // ─── Discount Code Apply ──────────────────────────────────────────────────────
@@ -88,7 +95,13 @@ export async function saveUserWallet(db, appId, currentManageUserPhone, _profile
     if (!db) return;
     const mWallet = document.getElementById('manageUserWallet');
     const newBal = mWallet ? (parseInt(mWallet.value) || 0) : 0;
+    const oldBal = _profiles[currentManageUserPhone]?.walletBalance || 0;
     await updateDoc(doc(db, 'artifacts', appId, 'public', 'data', 'profiles', currentManageUserPhone), { walletBalance: newBal });
+    await notifyUserAccountChange(
+        db, appId, currentManageUserPhone,
+        `💰 تم تحديث رصيد محفظتك من ${oldBal} ج إلى ${newBal} ج.`,
+        'normal'
+    );
     showMsg("تم تحديث الفكة للعميل", "success");
     logOperation(db, appId, window._currentShiftAdmin || "الإدارة", 'تعديل محفظة', `فكة العميل ${currentManageUserPhone} بقت ${newBal} ج`);
 }

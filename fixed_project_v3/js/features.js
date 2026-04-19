@@ -437,8 +437,8 @@ window.checkDeviceBan = checkDeviceBan;
 window.fixedSetPayment = async (type) => {
     if (!db) return;
     window.currentPaymentType = type;
-    // ★ Support both client checkout modal and admin receipt modal
-    const payRefDiv = document.getElementById('adminPayRefDiv') || document.getElementById('payRefDiv');
+    const isPaymentModalOpen = !!(document.getElementById('paymentMethodModal') && !document.getElementById('paymentMethodModal').classList.contains('hidden'));
+    const payRefDiv = isPaymentModalOpen ? document.getElementById('payRefDiv') : document.getElementById('adminPayRefDiv');
     
     if (type === 'كاش') {
         const sessionId = window.currentPaymentSessionId;
@@ -474,8 +474,8 @@ window.fixedSetPayment = async (type) => {
 
 window.confirmFixedPayment = async () => {
     if (!db) return;
-    // ★ Check both input IDs
-    const input = document.getElementById('adminPayRefInput') || document.getElementById('payRefInput');
+    const isPaymentModalOpen = !!(document.getElementById('paymentMethodModal') && !document.getElementById('paymentMethodModal').classList.contains('hidden'));
+    const input = isPaymentModalOpen ? document.getElementById('payRefInput') : document.getElementById('adminPayRefInput');
     const ref = input?.value.trim();
     if (!ref) return showMsg("أدخل رقم المرجع / المحفظة أولاً", "error");
     

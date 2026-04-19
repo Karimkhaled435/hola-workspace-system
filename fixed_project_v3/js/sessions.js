@@ -73,6 +73,16 @@ function _stopAdminListeners() {
     _clearAdminOnlyState();
 }
 
+export function teardownListeners() {
+    if (_adminTokenUnsub) {
+        try { _adminTokenUnsub(); } catch (e) { console.debug('[Listeners] teardown adminTokenUnsub error:', e); }
+        _adminTokenUnsub = null;
+    }
+    _stopAdminListeners();
+    _listenersBootstrapped = false;
+    _listenersUid = null;
+}
+
 function _watchAdminCollection(ref, onNext, label) {
     return onSnapshot(
         ref,
@@ -308,6 +318,13 @@ function _renderAdminSessions_multi() {
 
 // ─── Setup all Firestore Listeners ───────────────────────────────────────────
 export function setupListeners(db, appId, uid) {
+    if (!db || !appId || !uid) {
+        if (_listenersBootstrapped || _adminTokenUnsub || _adminListenersUnsubs.length > 0) {
+            teardownListeners();
+        }
+        return;
+    }
+
     if (_listenersBootstrapped && _listenersUid === uid) {
         return;
     }
@@ -322,7 +339,16 @@ export function setupListeners(db, appId, uid) {
 
     // Settings
     onSnapshot(doc(db, 'artifacts', appId, 'public', 'data', 'settings', 'system'), snap => {
-        console.log('[Settings] 📡 Snapshot received | exists:', snap.exists(), '| time:', new Date().toLocaleTimeString('ar-EG'));
+        console.log(
+            '[Settings] 📡 Snapshot received | exists:',
+            snap.exists(),
+            '| fromCache:',
+            snap.metadata?.fromCache,
+            '| pendingWrites:',
+            snap.metadata?.hasPendingWrites,
+            '| time:',
+            new Date().toLocaleTimeString('ar-EG')
+        );
         if (snap.exists()) {
             sysSettings = { ...sysSettings, ...snap.data() };
             console.log('[Settings] ✅ Loaded from Firebase OK | adminPin present:', !!sysSettings.adminPin);
@@ -464,20 +490,10 @@ export function setupListeners(db, appId, uid) {
             // Check place closed state
             if (window._checkPlaceClosedState) window._checkPlaceClosedState();
         } else {
-            // ✅ FIX: الوثيقة غير موجودة — نكتبها بـ merge:true فقط
-            // هذا يمنع overwrite أي بيانات موجودة في حالة network glitch أو auth delay
-            console.warn('[Settings] ⚠️ settings/system غير موجود في Firebase — سيتم إنشاؤه بالقيم الافتراضية مع merge.');
-            if (db) {
-                setDoc(
-                    doc(db, 'artifacts', appId, 'public', 'data', 'settings', 'system'),
-                    { ...DEFAULT_SETTINGS, _createdAt: Date.now() },
-                    { merge: true }
-                ).then(() => {
-                    console.log('[Settings] ✅ تم إنشاء الإعدادات الافتراضية بأمان (merge).');
-                }).catch(err => {
-                    console.error('[Settings] ❌ فشل كتابة الإعدادات الافتراضية:', err);
-                });
-            }
+            // لا نكتب افتراضيات تلقائياً من listener حتى لا يحدث overwrite للإعدادات الفعلية
+            // في حالات cache/auth/network المؤقتة.
+            console.warn('[Settings] ⚠️ settings/system غير مرئية حالياً. تم الإبقاء على آخر إعدادات محلية بدون أي كتابة تلقائية.');
+            window.sysSettings = { ...DEFAULT_SETTINGS, ...sysSettings };
         }
     });
 
@@ -538,7 +554,11 @@ export function setupListeners(db, appId, uid) {
                 }
             } else {
                 const cur = _sessions[activeSessionId];
-                if (cur && cur.status === 'completed' && window.forceShowClientReceipt) window.forceShowClientReceipt(cur);
+                if (cur && cur.status === 'completed') {
+                    if (window.closeClientNotif) window.closeClientNotif();
+                    if (window._closeStampsCelebration) window._closeStampsCelebration();
+                    if (window.forceShowClientReceipt) window.forceShowClientReceipt(cur);
+                }
                 else if (cur && cur.items) {
                     sessionItems = cur.items;
                     window._sessionItemsRef = cur.items;

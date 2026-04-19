@@ -139,14 +139,18 @@
                     <i class="fa-solid fa-user ml-1 text-xs"></i>مساحتي
                 </button>
                 <!-- ★ زر الباقات — أورانج مع لوجو تاج -->
-                <button onclick="window.showSubscriptionModal && window.showSubscriptionModal()"
+                <button id="headerPackagesBtnDesktop" onclick="window.showSubscriptionModal && window.showSubscriptionModal()"
                     class="bg-hola-orange hover:bg-orange-600 text-white font-black px-3 py-1.5 rounded-full text-xs transition flex items-center gap-1.5 shadow">
                     <i class="fa-solid fa-crown text-xs"></i>الباقات
                 </button>
                 <!-- ★ زر نظام الحساب — مع لوجو ساعة -->
-                <button onclick="window._showBillingModal && window._showBillingModal()"
+                <button id="headerBillingBtnDesktop" onclick="window._showBillingModal && window._showBillingModal()"
                     class="bg-white/15 hover:bg-white/25 text-white font-black px-3 py-1.5 rounded-full text-xs transition flex items-center gap-1.5 border border-white/30">
                     <i class="fa-solid fa-clock text-xs"></i>نظام الحساب
+                </button>
+                <button id="headerBoardBtnDesktop" type="button" onclick="window.openHeaderBoardPanel && window.openHeaderBoardPanel()"
+                    class="bg-blue-500/90 hover:bg-blue-600 text-white font-black px-3 py-1.5 rounded-full text-xs transition flex items-center gap-1.5 shadow">
+                    <i class="fa-solid fa-bullhorn text-xs"></i>لوحة الإعلانات
                 </button>
                 <!-- زر الإدارة -->
                 <button id="navAdminBtn" class="hover:bg-hola-orange hover:text-white transition font-bold border border-hola-orange text-hola-orange px-4 py-1.5 rounded-full text-xs" onclick="window.showAdminLoginModal()">
@@ -165,6 +169,18 @@
 
             <!-- Right side: notif bell (mobile only) + hamburger -->
             <div class="flex items-center gap-1">
+                <button id="headerPackagesBtnMobile" type="button" onclick="window.showSubscriptionModal && window.showSubscriptionModal()"
+                    class="md:hidden h-8 px-2 rounded-lg bg-hola-orange text-white text-[10px] font-black flex items-center gap-1">
+                    <i class="fa-solid fa-crown text-[10px]"></i>الباقات
+                </button>
+                <button id="headerBillingBtnMobile" type="button" onclick="window._showBillingModal && window._showBillingModal()"
+                    class="md:hidden h-8 px-2 rounded-lg bg-white/20 text-white text-[10px] font-black border border-white/40 flex items-center gap-1">
+                    <i class="fa-solid fa-clock text-[10px]"></i>الحساب
+                </button>
+                <button id="headerBoardBtnMobile" type="button" onclick="window.openHeaderBoardPanel && window.openHeaderBoardPanel()"
+                    class="md:hidden h-8 px-2 rounded-lg bg-blue-500/90 text-white text-[10px] font-black flex items-center gap-1">
+                    <i class="fa-solid fa-bullhorn text-[10px]"></i>لوحة الإعلانات
+                </button>
                 <!-- Notification bell — mobile ONLY (< md) -->
                 <button id="headerNotifBellMobile" onclick="window._toggleNotifPanel()" title="الإشعارات"
                     style="display:none"
@@ -187,7 +203,7 @@
             <span class="hus-name" id="husName">—</span>
             <span class="hus-sep">•</span>
             <span class="hus-phone" id="husPhone">—</span>
-            <span class="hus-session hidden" id="husSessionBadge">🟢 جلسة نشطة</span>
+            <span class="hus-session hidden" id="husSessionBadge"></span>
             <button class="hus-logout" onclick="window.clientLogout && window.clientLogout()">
                 <i class="fa-solid fa-right-from-bracket"></i> خروج
             </button>
@@ -1052,7 +1068,7 @@
                     </div>
                 </div>
                 <div class="flex items-center gap-2 md:gap-3">
-                    <div id="clientStampsHeaderCard" onclick="window.switchClientTab('loyalty')" class="text-center bg-orange-50 px-3 md:px-4 py-2 rounded-xl border border-orange-100 shadow-sm cursor-pointer hover:bg-orange-100 transition transform hover:-translate-y-1">
+                    <div id="clientStampsHeaderCard" class="text-center bg-orange-50 px-3 md:px-4 py-2 rounded-xl border border-orange-100 shadow-sm">
                         <p class="text-[10px] text-hola-orange font-black mb-1"><i class="fa-solid fa-stamp"></i> الأختام والمكافآت</p>
                         <p class="font-bold text-gray-700 text-xs"><span id="clientHeaderStampsCount" class="text-lg font-black text-hola-orange">0</span> / <span id="clientHeaderStampsReq">7</span></p>
                     </div>
@@ -1147,21 +1163,6 @@
                         <thead class="bg-gray-50 text-gray-600 border-b"><tr><th class="p-3">التاريخ</th><th class="p-3">المدة</th><th class="p-3">المدفوع</th><th class="p-3">الدفع</th><th class="p-3">التفاصيل</th><th class="p-3 text-center">الفاتورة</th></tr></thead>
                         <tbody id="clientHistoryTableList" class="divide-y divide-gray-100 font-semibold"></tbody>
                     </table>
-                </div>
-            </div>
-            <div id="client-loyalty" class="client-tab-content hidden space-y-6">
-                <div class="flex justify-between items-center">
-                    <h3 class="font-black text-hola-purple"><i class="fa-solid fa-stamp ml-2 text-hola-orange"></i>الأختام والمكافآت</h3>
-                    <button onclick="window._syncTab('loyalty')" class="text-xs bg-gray-100 hover:bg-gray-200 text-gray-600 px-3 py-1.5 rounded-lg font-bold transition flex items-center gap-1"><i class="fa-solid fa-rotate-right"></i> مزامنة</button>
-                </div>
-                <div class="glass-card p-6 text-center">
-                    <h3 class="text-xl font-black text-hola-purple mb-2"><i class="fa-solid fa-stamp text-hola-orange ml-2"></i>أختام الحضور</h3>
-                    <p class="text-sm text-gray-500 font-bold mb-6" id="clientStampsGoalText">اجمع الأختام لتحصل على مكافأة خصم تلقائية!</p>
-                    <div class="flex flex-wrap justify-center gap-4" id="stampsContainer" dir="ltr"></div>
-                </div>
-                <div class="glass-card p-6">
-                    <h3 class="text-lg font-bold text-hola-purple mb-4"><i class="fa-solid fa-ticket text-hola-orange ml-2"></i>أكواد الخصم الخاصة بي</h3>
-                    <div id="clientDiscountsList" class="grid md:grid-cols-2 gap-4"></div>
                 </div>
             </div>
             <div id="client-notifications" class="client-tab-content hidden glass-card p-6">
@@ -2397,7 +2398,7 @@
             <div class="p-4 border-t flex gap-2 flex-shrink-0">
                 <button onclick="document.getElementById('splitFriendsModal').classList.add('hidden')" class="bg-gray-100 text-gray-600 font-black py-3 px-4 rounded-2xl hover:bg-gray-200 transition text-sm">إغلاق</button>
                 <button onclick="window._renderSplitBreakdown && window._renderSplitBreakdown()" class="bg-purple-100 text-hola-purple font-black py-3 px-3 rounded-2xl hover:bg-purple-200 transition text-xs flex items-center gap-1">
-                    <i class="fa-solid fa-rotate"></i> اقترح
+                    <i class="fa-solid fa-rotate"></i> اقترح قسمة أعدل
                 </button>
                 <button onclick="window.showCheckoutModal(); document.getElementById('splitFriendsModal').classList.add('hidden')" class="flex-1 bg-hola-orange text-white font-black py-3 rounded-2xl shadow hover:bg-orange-600 transition text-sm">
                     <i class="fa-solid fa-receipt ml-1"></i> الحساب
@@ -2612,8 +2613,8 @@
         </div>
     </div>
 
-    <div id="subscriptionCardModal" class="hidden fixed inset-0 bg-black/80 z-[260] flex items-center justify-center p-4 backdrop-blur-sm print:hidden">
-        <div class="bg-white rounded-3xl shadow-2xl w-full max-w-sm p-6 border-t-8 border-hola-orange relative">
+    <div id="subscriptionCardModal" class="hidden fixed inset-0 bg-black/80 z-[260] flex items-end md:items-center justify-center p-0 md:p-4 backdrop-blur-sm print:hidden">
+        <div class="bg-white rounded-t-3xl md:rounded-3xl shadow-2xl w-full max-w-sm p-4 md:p-6 border-t-8 border-hola-orange relative max-h-[92vh] overflow-y-auto">
             <button type="button" onclick="document.getElementById('subscriptionCardModal').classList.add('hidden')" class="absolute top-4 left-4 text-gray-400 hover:text-red-500 text-xl bg-gray-100 w-8 h-8 rounded-full flex items-center justify-center"><i class="fa-solid fa-xmark"></i></button>
             <div class="text-center mb-4">
                 <div class="w-20 h-20 bg-orange-100 text-hola-orange rounded-full flex items-center justify-center text-4xl mx-auto mb-3 shadow-inner"><i class="fa-solid fa-id-card"></i></div>
@@ -2632,7 +2633,7 @@
             </div>
             
             <div id="subCardAdminControls" class="hidden mb-3 space-y-2 border-t pt-3 mt-3">
-                <div id="subCardPauseControls" class="flex gap-2">
+                <div id="subCardPauseControls" class="flex flex-col sm:flex-row gap-2">
                     <button type="button" onclick="window.pauseSubscriptionNow(window._currentSubCardId)" class="flex-1 bg-yellow-500 hover:bg-yellow-600 text-white font-bold py-2 rounded-xl text-xs transition flex items-center justify-center gap-1"><i class="fa-solid fa-pause"></i> إيقاف مؤقت</button>
                     <button type="button" onclick="window.schedulePauseSubscription(window._currentSubCardId)" class="flex-1 bg-orange-100 hover:bg-orange-200 text-orange-700 font-bold py-2 rounded-xl text-xs transition flex items-center justify-center gap-1"><i class="fa-solid fa-calendar-xmark"></i> جدولة إيقاف</button>
                 </div>
@@ -2642,7 +2643,7 @@
                 <button type="button" onclick="window.cancelSubscriptionNow(window._currentSubCardId)" class="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-2 rounded-xl text-xs transition flex items-center justify-center gap-2 mt-2"><i class="fa-solid fa-ban"></i> إلغاء الاشتراك نهائياً</button>
             </div>
 
-            <div class="grid grid-cols-2 gap-2 mt-2">
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 mt-2">
                 <button type="button" onclick="window.printSubCard()" class="bg-gray-800 text-white font-bold py-2 rounded-xl hover:bg-black text-sm"><i class="fa-solid fa-print ml-1"></i> طباعة</button>
                 <button type="button" onclick="document.getElementById('subscriptionCardModal').classList.add('hidden')" class="bg-gray-200 text-gray-800 font-bold py-2 rounded-xl text-sm">إغلاق</button>
             </div>
@@ -3445,7 +3446,6 @@
                 sections: [
                     { label: 'الجلسة الحالية', icon: 'fa-clock', action: function(){ window.switchClientTab('session'); } },
                     { label: 'السجل والفواتير', icon: 'fa-file-invoice', action: function(){ window.switchClientTab('history'); } },
-                    { label: 'الأختام والمكافآت', icon: 'fa-stamp', action: function(){ window.switchClientTab('loyalty'); } },
                     { label: 'الإشعارات', icon: 'fa-bell', action: function(){ window.switchClientTab('notifications'); } },
                     { label: 'حجز قادم', icon: 'fa-calendar-plus', action: function(){ window.switchClientTab('prebook'); } },
                     { label: 'اشتراكاتي', icon: 'fa-crown', action: function(){ window.switchClientTab('subscriptions'); } },
@@ -3632,6 +3632,9 @@
             n.isRead = true;
             var el = document.querySelector('[data-notif-id="'+notifId+'"] .animate-pulse');
             if (el) el.remove();
+            if (window.myProfile && typeof window._renderEnhancedNotifications === 'function') {
+                window._renderEnhancedNotifications(window.myProfile, window._notifications || {});
+            }
         }
         // استخدام showClientNotification الموجود
         if (window.showClientNotification) {
@@ -4175,6 +4178,7 @@ function renderQRAdmin(el, text, size) {
 }
 
 window._showWifiModal = function() {
+    if (window._wifiModalDismissedOnce) return;
     var ss = window.sysSettings || {};
     if (!ss.wifiEnabled) return;
     var ssid = ss.wifiSSID || '', pass = ss.wifiPassword || '', sec = ss.wifiSecurity || 'WPA';
@@ -4238,6 +4242,7 @@ window._autoConnectWifi = function() {
 
 
 window._closeWifiModal = function() {
+    window._wifiModalDismissedOnce = true;
     var m = document.getElementById('wifiWelcomeModal');
     if (m) m.classList.add('hidden');
 };
@@ -4416,7 +4421,27 @@ function syncHeaderQuickActions() {
     if (chatBadge && headerChatBadge) {
         headerChatBadge.classList.toggle('hidden', chatBadge.classList.contains('hidden'));
     }
+    var showPublicHeaderActions = (st !== 'admin');
+    ['headerPackagesBtnDesktop','headerBillingBtnDesktop','headerBoardBtnDesktop','headerPackagesBtnMobile','headerBillingBtnMobile','headerBoardBtnMobile'].forEach(function(id){
+        var el = document.getElementById(id);
+        if (!el) return;
+        if (id.indexOf('Desktop') !== -1) {
+            el.style.display = showPublicHeaderActions ? '' : 'none';
+        } else {
+            el.style.display = (showPublicHeaderActions && window.innerWidth < 768) ? 'flex' : 'none';
+        }
+    });
 }
+
+window.openHeaderBoardPanel = function() {
+    var adminView = document.getElementById('viewAdmin');
+    var isAdminOpen = !!(adminView && !adminView.classList.contains('hidden'));
+    if (isAdminOpen) {
+        if (window.switchAdminTab) window.switchAdminTab('settings');
+        return;
+    }
+    if (window.showAdminLoginModal) window.showAdminLoginModal();
+};
 setInterval(syncHeaderQuickActions, 800);
 document.addEventListener('DOMContentLoaded', function(){ setTimeout(syncHeaderQuickActions, 500); });
 waitFor(function(){ return typeof window.switchView === 'function'; }, function(){
@@ -4430,11 +4455,18 @@ waitFor(function(){ return typeof window.switchView === 'function'; }, function(
 // ★ _groupCount = العدد الكلي للأشخاص (أنت + من معك)
 var _groupCount = 2;
 // ★ مفتاح sessionStorage لمنع ظهور السؤال أكثر من مرة في الجلسة
-var _GROUP_SHOWN_KEY = 'hola_group_asked';
+var _GROUP_SHOWN_KEY_PREFIX = 'hola_group_asked_';
+function _groupShownKey() {
+    var sid = window.activeSessionId || '';
+    if (!sid) return '';
+    return _GROUP_SHOWN_KEY_PREFIX + sid;
+}
 
 window._showGroupQuestion = function() {
+    var gKey = _groupShownKey();
+    if (!gKey) return;
     // ★ لا تعرض السؤال إذا سبق وعُرض في هذه الجلسة
-    if (sessionStorage.getItem(_GROUP_SHOWN_KEY) === '1') return;
+    if (sessionStorage.getItem(gKey) === '1') return;
     _groupCount = 2;
     var modal = document.getElementById('groupQuestionModal');
     if (!modal) return;
@@ -4450,7 +4482,8 @@ window._closeGroupModal = function() {
     var m = document.getElementById('groupQuestionModal');
     if (m) m.classList.add('hidden');
     // ★ سجّل أن السؤال ظهر في هذه الجلسة
-    sessionStorage.setItem(_GROUP_SHOWN_KEY, '1');
+    var gKey = _groupShownKey();
+    if (gKey) sessionStorage.setItem(gKey, '1');
 };
 
 window._groupAnswer = function(hasGroup) {
@@ -4461,7 +4494,13 @@ window._groupAnswer = function(hasGroup) {
                 f.updateDoc(f.doc(window.db,'artifacts',window.appId,'public','data','sessions',window.activeSessionId),
                     { groupCount: 1, groupNote: '' }).catch(function(){});
             });
+            if (window._allSessionsRef && window._allSessionsRef[window.activeSessionId]) {
+                window._allSessionsRef[window.activeSessionId].groupCount = 1;
+                window._allSessionsRef[window.activeSessionId].groupNote = '';
+            }
         }
+        if (window._updateDashboardNumbers) window._updateDashboardNumbers();
+        if (window._updateGroupLiveInfo) window._updateGroupLiveInfo();
         window._closeGroupModal();
         return;
     }
@@ -4495,8 +4534,14 @@ window._confirmGroupEntry = function() {
             f.updateDoc(f.doc(window.db,'artifacts',window.appId,'public','data','sessions',window.activeSessionId),
                 { groupCount: total, groupNote: 'مجموعة: ' + total + ' أشخاص' }).catch(function(){});
         });
+        if (window._allSessionsRef && window._allSessionsRef[window.activeSessionId]) {
+            window._allSessionsRef[window.activeSessionId].groupCount = total;
+            window._allSessionsRef[window.activeSessionId].groupNote = 'مجموعة: ' + total + ' أشخاص';
+        }
     }
     window.showMsg && window.showMsg('تم تسجيل مجموعة ' + total + ' أشخاص ✅', 'success');
+    if (window._updateDashboardNumbers) window._updateDashboardNumbers();
+    if (window._updateGroupLiveInfo) window._updateGroupLiveInfo();
     window._closeGroupModal();
 };
 
@@ -4854,6 +4899,7 @@ window._loginModalsShown = false;
 
 window._runLoginModals = function() {
     if (window._loginModalsShown) return;
+    window._wifiModalDismissedOnce = false;
 
     // ★ الإصلاح الجذري: انتظار sysSettings + myProfile مع حد أقصى 8 ثوانٍ
     var _att = 0;

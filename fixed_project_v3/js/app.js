@@ -76,6 +76,13 @@ export async function logOperation(db, appId, adminName, actionType, details) {
     } catch (e) {}
 }
 
+async function pushAccountNotification(phone, msg, type = 'normal') {
+    if (!db || !phone || !msg) return;
+    await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'notifications'), {
+        phone, msg, type, isRead: false, timestamp: Date.now()
+    });
+}
+
 // ─── Time Cost Calculation ────────────────────────────────────────────────────
 function calculateTimeCost(diffMs) {
     if (diffMs <= 0) return 0;
@@ -98,6 +105,15 @@ function calculateTimeCost(diffMs) {
     return cost;
 }
 
+function getSessionGroupCount(sessionLike) {
+    const parsedGroupCount = parseInt(sessionLike?.groupCount, 10);
+    return Number.isFinite(parsedGroupCount) && parsedGroupCount > 1 ? parsedGroupCount : 1;
+}
+
+function calculateGroupAwareTimeCost(diffMs, sessionLike) {
+    return calculateTimeCost(diffMs) * getSessionGroupCount(sessionLike);
+}
+
 // ─── Timer & Dashboard ────────────────────────────────────────────────────────
 function updateDashboardNumbers() {
     const now = Date.now();
@@ -108,7 +124,8 @@ function updateDashboardNumbers() {
         const s = (diffSecs % 60).toString().padStart(2, '0');
         const elElapsed = document.getElementById('clientElapsedTime');
         if (elElapsed) elElapsed.innerHTML = `${h}:${m}<span class="text-xl text-gray-400 ml-1 font-bold">:${s}</span>`;
-        const timeCost = calculateTimeCost(diffSecs * 1000);
+        const curSession = activeSessionId ? _sessions[activeSessionId] : null;
+        const timeCost = calculateGroupAwareTimeCost(diffSecs * 1000, curSession);
         const itemsCost = sessionItems.reduce((sum, item) => sum + item.price, 0);
         safeSet('clientTimeCost', 'innerText', `${timeCost} ج`);
         safeSet('clientItemsCost', 'innerText', `${itemsCost} ج`);
@@ -132,6 +149,7 @@ function updateDashboardNumbers() {
         const s = Math.floor((d % 60000) / 1000).toString().padStart(2, '0');
         lElapsed.innerText = `${h}:${m}:${s}`;
     }
+    if (typeof window._updateGroupLiveInfo === 'function') window._updateGroupLiveInfo();
 }
 window._updateDashboardNumbers = updateDashboardNumbers;
 
@@ -332,7 +350,7 @@ function populateDetailedReceipt(prefix, sessionData) {
     const durMs = sessionData.durationMs || (sessionData.endTime ? sessionData.endTime - sessionData.startTime : 0);
     const durH = Math.floor(durMs / 3600000); const durM = Math.floor((durMs % 3600000) / 60000);
     safeSet(`${prefix}Duration`, 'innerText', `${durH}س و ${durM}د`);
-    const tCost = calculateTimeCost(durMs); const itemsCost = (sessionData.items || []).reduce((a, b) => a + b.price, 0);
+    const tCost = calculateGroupAwareTimeCost(durMs, sessionData); const itemsCost = (sessionData.items || []).reduce((a, b) => a + b.price, 0);
     const finalCost = sessionData.finalCost ?? (tCost + itemsCost);
     const totalBefore = tCost + itemsCost; const disc = Math.max(0, totalBefore - finalCost);
     safeSet(`${prefix}Discount`, 'innerText', `${disc} ج`); safeSet(`${prefix}FinalCost`, 'innerText', `${finalCost} ج`);
@@ -671,7 +689,7 @@ window.openAdminLiveSession = (id) => {
             </div>`
         ).join('');
     }
-    const dMs = Date.now() - s.startTime; const tC = calculateTimeCost(dMs); const iC = (s.items || []).reduce((su, i) => su + i.price, 0);
+        const dMs = Date.now() - s.startTime; const tC = calculateGroupAwareTimeCost(dMs, s); const iC = (s.items || []).reduce((su, i) => su + i.price, 0);
     safeSet('liveSesTimeCost', 'innerText', `${tC} ج`); safeSet('liveSesItemsCost', 'innerText', `${iC} ج`); safeSet('liveSesTotal', 'innerText', `${tC + iC} ج`);
     const btn = document.getElementById('liveSesEndBtn'); if (btn) btn.onclick = () => window.adminEndSession(id);
     document.getElementById('adminLiveSessionModal')?.classList.remove('hidden');
@@ -703,7 +721,7 @@ window.removeSessionItem = async (sid, idx) => {
 window.adminEndSession = async (sid) => {
     if (!db) return;
     const s = _sessions[sid]; if (!s) return;
-    const dMs = Date.now() - s.startTime; const tC = calculateTimeCost(dMs); const iC = (s.items || []).reduce((su, i) => su + i.price, 0); const sub = tC + iC;
+    const dMs = Date.now() - s.startTime; const tC = calculateGroupAwareTimeCost(dMs, s); const iC = (s.items || []).reduce((su, i) => su + i.price, 0); const sub = tC + iC;
     const prof = _profiles[s.phone]; let ded = 0; if (prof && prof.walletBalance > 0) ded = Math.min(prof.walletBalance, sub);
     const fin = sub - ded;
     window.lastAdminCompletedSessionId = sid; window.currentPaymentSessionId = sid;
@@ -1110,15 +1128,33 @@ window.saveSystemSettings = async () => {
         })()
     };
     try {
-        await updateDoc(doc(db, 'artifacts', appId, 'public', 'data', 'settings', 'system'), data);
+        const settingsRef = doc(db, 'artifacts', appId, 'public', 'data', 'settings', 'system');
+        const payload = { ...data, _updatedAt: Date.now(), _updatedBy: currentShiftAdmin || 'admin' };
+        console.log('[Settings] 💾 Save requested', payload);
+        await updateDoc(settingsRef, payload);
         // ★ Update local sysSettings immediately to prevent onSnapshot overwrite
-        Object.assign(window.sysSettings, data);
+        Object.assign(window.sysSettings, payload);
         showMsg("✅ تم تحديث الإعدادات بنجاح!", "success");
         // ★ تحديث معاينة QR الواي فاي فوراً بعد الحفظ
         if (typeof window._previewWifiQR === 'function') window._previewWifiQR();
-        if (typeof window._onWifiToggle === 'function') window._onWifiToggle(!!data.wifiEnabled);
+        if (typeof window._onWifiToggle === 'function') window._onWifiToggle(!!payload.wifiEnabled);
     }
-    catch (e) { showMsg("حدث خطأ أثناء الحفظ", "error"); console.error(e); }
+    catch (e) {
+        console.error('[Settings] ❌ updateDoc failed:', e);
+        try {
+            const settingsRef = doc(db, 'artifacts', appId, 'public', 'data', 'settings', 'system');
+            const payload = { ...data, _updatedAt: Date.now(), _updatedBy: currentShiftAdmin || 'admin' };
+            await setDoc(settingsRef, payload, { merge: true });
+            Object.assign(window.sysSettings, payload);
+            console.log('[Settings] ✅ Fallback setDoc(merge:true) saved successfully');
+            showMsg("✅ تم تحديث الإعدادات بنجاح!", "success");
+            if (typeof window._previewWifiQR === 'function') window._previewWifiQR();
+            if (typeof window._onWifiToggle === 'function') window._onWifiToggle(!!payload.wifiEnabled);
+        } catch (e2) {
+            showMsg("حدث خطأ أثناء الحفظ", "error");
+            console.error('[Settings] ❌ fallback setDoc failed:', e2);
+        }
+    }
 };
 
 window.addShiftManager = async () => {
@@ -1417,7 +1453,11 @@ window.approveSubscription = async (subId) => {
 
 window.revokeSubscription = async (subId) => {
     if (!db || !confirm("متأكد من إلغاء الاشتراك؟")) return;
+    const sub = _subscriptions[subId];
     await updateDoc(doc(db, 'artifacts', appId, 'public', 'data', 'subscriptions', subId), { status: 'cancelled' });
+    if (sub?.phone) {
+        await pushAccountNotification(sub.phone, `🚫 تم إلغاء اشتراكك "${sub.planName || 'الباقة'}" بواسطة الإدارة.`, 'high');
+    }
     showMsg("تم إلغاء الاشتراك", "success");
 };
 
@@ -1732,21 +1772,33 @@ window.sendAdminMessage = async () => {
 
 // ─── Loyalty / Notification ───────────────────────────────────────────────────
 window.goToLoyaltyAndPulse = (code) => {
-    window.closeClientNotif(); switchClientTab('loyalty');
+    window.closeClientNotif(); switchClientTab('notifications');
     setTimeout(() => {
         const el = document.getElementById(`discount-card-${code}`);
         if (el) { el.scrollIntoView({ behavior: 'smooth', block: 'center' }); el.classList.add('pulse-highlight'); setTimeout(() => { el.classList.remove('pulse-highlight'); }, 6000); }
+        else if (code) showMsg(`الكود جاهز: ${code} 👌`, 'success');
     }, 300);
 };
 window.closeClientNotif = () => {
     const m = document.getElementById('clientNotifModal');
     if (m) {
+        if (window._clientNotifAutoDismissTimer) {
+            clearTimeout(window._clientNotifAutoDismissTimer);
+            window._clientNotifAutoDismissTimer = null;
+        }
         m.classList.add('hidden');
         // ★ reset modal state so it can reopen cleanly
         const img = document.getElementById('clientNotifImg');
         const link = document.getElementById('clientNotifLink');
         if (img) img.classList.add('hidden');
         if (link) link.classList.add('hidden');
+        const msg = document.getElementById('clientNotifMsg');
+        if (msg && msg.parentNode) {
+            msg.parentNode.querySelectorAll('.copy-code-btn').forEach(el => {
+                const wrap = el.closest('.mt-4');
+                if (wrap) wrap.remove();
+            });
+        }
     }
 };
 
@@ -1851,6 +1903,7 @@ window._adminAddStamp = async () => {
     try {
         await updateDoc(doc(db, 'artifacts', appId, 'public', 'data', 'profiles', phone), { stamps });
         prof.stamps = stamps;
+        await pushAccountNotification(phone, `✅ تم إضافة ختم جديد لحسابك. إجمالي الأختام الآن: ${stamps.length}.`, 'congrats');
         document.getElementById('detailsStamps').textContent = stamps.length;
         showMsg(`✅ تمت إضافة ختم لـ ${prof.name}`, 'success');
         logOperation(db, appId, currentShiftAdmin, 'إضافة ختم', `${prof.name} — الإجمالي: ${stamps.length}`);
@@ -1864,6 +1917,7 @@ window._adminRemoveStamp = async () => {
     try {
         await updateDoc(doc(db, 'artifacts', appId, 'public', 'data', 'profiles', phone), { stamps });
         prof.stamps = stamps;
+        await pushAccountNotification(phone, `ℹ️ تم تعديل الأختام في حسابك. الإجمالي الحالي: ${stamps.length}.`, 'normal');
         document.getElementById('detailsStamps').textContent = stamps.length;
         showMsg(`تم حذف ختم من ${prof.name}`, 'info');
         logOperation(db, appId, currentShiftAdmin, 'حذف ختم', `${prof.name} — المتبقي: ${stamps.length}`);
@@ -1878,6 +1932,13 @@ window._adminToggleFreeDrink = async () => {
     try {
         await updateDoc(doc(db, 'artifacts', appId, 'public', 'data', 'profiles', phone), { freeDrinkUsed: newVal });
         prof.freeDrinkUsed = newVal;
+        await pushAccountNotification(
+            phone,
+            newVal
+                ? '🚫 تم استخدام/تعطيل المشروب المجاني على حسابك بواسطة الإدارة.'
+                : '✅ تم إعادة تفعيل المشروب المجاني على حسابك.',
+            'normal'
+        );
         if (!newVal) localStorage.removeItem(`first_visit_drink_${phone}`);
         else localStorage.setItem(`first_visit_drink_${phone}`, 'true');
         // تحديث الزر
@@ -2385,11 +2446,14 @@ window.refreshNotifications = () => {
     showMsg("جاري تحديث الإشعارات...", "info");
     try {
         // ★ إعادة رسم الإشعارات من الحالة الحالية
-        renderClientNotifications(myProfile, _notifications);
+        if (typeof window.renderClientNotifications === 'function') window.renderClientNotifications(myProfile, _notifications);
+        else renderClientNotifications(myProfile, _notifications);
         // ★ تحديث badge الإشعارات
         const unread = Object.values(_notifications).filter(n => n.phone === myProfile.phone && !n.isRead).length;
         const badge = document.getElementById('headerNotifCount');
         if (badge) { badge.textContent = unread; badge.classList.toggle('hidden', unread === 0); }
+        const badgeM = document.getElementById('headerNotifCountMobile');
+        if (badgeM) { badgeM.textContent = unread; badgeM.classList.toggle('hidden', unread === 0); }
         const tabBadge = document.getElementById('notifTabBadge');
         if (tabBadge) { tabBadge.textContent = unread; tabBadge.classList.toggle('hidden', unread === 0); }
         showMsg("تم التحديث ✅", "success");
@@ -2591,6 +2655,7 @@ window.schedulePauseSubscription = async (subId) => {
         await updateDoc(doc(db, 'artifacts', appId, 'public', 'data', 'subscriptions', subId), {
             scheduledPauseAt: schedDate
         });
+        await pushAccountNotification(sub.phone, `📅 تم جدولة إيقاف اشتراكك "${sub.planName}" بتاريخ ${new Date(schedDate).toLocaleDateString('ar-EG')}.`, 'normal');
         showMsg(`تم جدولة الإيقاف في ${new Date(schedDate).toLocaleDateString('ar-EG')}`, "success");
     } catch(e) { showMsg("حدث خطأ", "error"); }
 };
@@ -2643,7 +2708,9 @@ window._subActionDo = async (action) => {
         document.getElementById('subActionModal')?.classList.add('hidden');
         if (!confirm('إلغاء الاشتراك نهائياً؟ لا يمكن التراجع!')) return;
         if (!db) return;
+        const sub = _subscriptions[subId];
         await updateDoc(doc(db, 'artifacts', appId, 'public', 'data', 'subscriptions', subId), { status: 'cancelled' });
+        if (sub?.phone) await pushAccountNotification(sub.phone, `🚫 تم إلغاء اشتراكك "${sub.planName || 'الباقة'}" بواسطة الإدارة.`, 'high');
         showMsg('تم إلغاء الاشتراك', 'success');
     }
 };
@@ -2655,7 +2722,9 @@ window._subActionConfirmSchedule = async () => {
     const schedDate = new Date(dateStr).getTime();
     if (isNaN(schedDate) || schedDate < Date.now()) return showMsg('تاريخ غير صحيح', 'error');
     if (!db) return;
+    const sub = _subscriptions[subId];
     await updateDoc(doc(db, 'artifacts', appId, 'public', 'data', 'subscriptions', subId), { scheduledPauseAt: schedDate });
+    if (sub?.phone) await pushAccountNotification(sub.phone, `📅 تم جدولة إيقاف اشتراكك "${sub.planName}" بتاريخ ${new Date(schedDate).toLocaleDateString('ar-EG')}.`, 'normal');
     showMsg(`✅ تم جدولة الإيقاف في ${new Date(schedDate).toLocaleDateString('ar-EG')}`, 'success');
     document.getElementById('subActionModal')?.classList.add('hidden');
 };
@@ -3994,7 +4063,7 @@ window.refreshNotificationsPanel = function() {
     }
 };
 
-// Override client checkout: request the bill without performing admin-only settlement writes.
+// Client checkout finalization (single authoritative definition to avoid accidental override bugs).
 window.confirmCheckout = async function() {
     try {
         if (!db) return showMsg("غير متصل بقاعدة البيانات", "error");
@@ -4004,7 +4073,23 @@ window.confirmCheckout = async function() {
         if (!session) return showMsg("خطأ في بيانات الجلسة", "error");
 
         const reqEl = document.getElementById('modalFinalRequired');
+        const ded = reqEl ? parseInt(reqEl.dataset.deduction, 10) || 0 : 0;
         const fin = reqEl ? parseInt(reqEl.innerText, 10) || 0 : 0;
+        const endNow = Date.now();
+        const dMs = endNow - (session.startTime || endNow);
+        const groupCount = getSessionGroupCount(session);
+
+        window.lastCompletedSessionId = activeSessionId;
+        window._lastReceiptPhone = session.phone;
+        window._lastReceiptName = session.name;
+
+        await updateDoc(doc(db, 'artifacts', appId, 'public', 'data', 'sessions', activeSessionId), {
+            status: 'completed',
+            endTime: endNow,
+            finalCost: fin,
+            durationMs: dMs,
+            shiftAdmin: currentShiftAdmin || 'عميل'
+        });
 
         await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'orders'), {
             phone: session.phone,
@@ -4013,13 +4098,53 @@ window.confirmCheckout = async function() {
             requestedTotal: fin,
             itemName: `طلب الحساب (مطلوب: ${fin} ج)`,
             status: 'pending',
-            timestamp: Date.now()
+            timestamp: endNow
         });
 
+        const prof = _profiles[session.phone];
+        if (prof && ded > 0) {
+            await updateDoc(doc(db, 'artifacts', appId, 'public', 'data', 'profiles', session.phone), {
+                walletBalance: (prof.walletBalance || 0) - ded
+            });
+        }
+
+        const discEl = document.getElementById('discountCode');
+        const aId = discEl?.dataset.appliedId;
+        const aCode = discEl?.value?.trim() || discEl?.dataset.appliedCode || '';
+        if (aId) {
+            await updateDoc(doc(db, 'artifacts', appId, 'public', 'data', 'discounts', aId), {
+                isUsed: true, usedBy: session.phone, usedAt: endNow
+            });
+            await updateDoc(doc(db, 'artifacts', appId, 'public', 'data', 'sessions', activeSessionId), { discountCode: aCode });
+        }
+
+        await window.deductSubscriptionDay(session.phone);
+
+        const recData = {
+            status: 'completed',
+            endTime: endNow,
+            finalCost: fin,
+            durationMs: dMs,
+            shiftAdmin: currentShiftAdmin || 'عميل',
+            items: sessionItems || session.items || [],
+            startTime: session.startTime,
+            name: session.name,
+            phone: session.phone,
+            id: activeSessionId,
+            groupCount: groupCount,
+            groupNote: groupCount > 1 ? `مجموعة: ${groupCount} أشخاص` : ''
+        };
+
+        clearInterval(timerInterval);
+        setActiveSessionId(null);
+        setSessionItems([]);
         window.closeCheckoutModal();
-        showMsg("تم إرسال طلب الحساب للإدارة", "success");
+        safeSet('receiptTitle', 'innerText', 'تم إنهاء الجلسة بنجاح');
+        populateDetailedReceipt('receipt', recData);
+        document.getElementById('clientReceiptModal')?.classList.remove('hidden');
+        showMsg("تم إنهاء الجلسة وإظهار الفاتورة", "success");
     } catch (e) {
         console.error("Checkout Error:", e);
-        showMsg("خطأ أثناء إرسال طلب الحساب. حاول مرة أخرى.", "error");
+        showMsg("خطأ أثناء إنهاء الجلسة. حاول مرة أخرى.", "error");
     }
 };
