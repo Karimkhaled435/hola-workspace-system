@@ -187,7 +187,7 @@
             <span class="hus-name" id="husName">—</span>
             <span class="hus-sep">•</span>
             <span class="hus-phone" id="husPhone">—</span>
-            <span class="hus-session hidden" id="husSessionBadge">🟢 جلسة نشطة</span>
+            <span class="hus-session hidden" id="husSessionBadge"></span>
             <button class="hus-logout" onclick="window.clientLogout && window.clientLogout()">
                 <i class="fa-solid fa-right-from-bracket"></i> خروج
             </button>
@@ -1052,7 +1052,7 @@
                     </div>
                 </div>
                 <div class="flex items-center gap-2 md:gap-3">
-                    <div id="clientStampsHeaderCard" onclick="window.switchClientTab('loyalty')" class="text-center bg-orange-50 px-3 md:px-4 py-2 rounded-xl border border-orange-100 shadow-sm cursor-pointer hover:bg-orange-100 transition transform hover:-translate-y-1">
+                    <div id="clientStampsHeaderCard" class="text-center bg-orange-50 px-3 md:px-4 py-2 rounded-xl border border-orange-100 shadow-sm">
                         <p class="text-[10px] text-hola-orange font-black mb-1"><i class="fa-solid fa-stamp"></i> الأختام والمكافآت</p>
                         <p class="font-bold text-gray-700 text-xs"><span id="clientHeaderStampsCount" class="text-lg font-black text-hola-orange">0</span> / <span id="clientHeaderStampsReq">7</span></p>
                     </div>
@@ -1147,21 +1147,6 @@
                         <thead class="bg-gray-50 text-gray-600 border-b"><tr><th class="p-3">التاريخ</th><th class="p-3">المدة</th><th class="p-3">المدفوع</th><th class="p-3">الدفع</th><th class="p-3">التفاصيل</th><th class="p-3 text-center">الفاتورة</th></tr></thead>
                         <tbody id="clientHistoryTableList" class="divide-y divide-gray-100 font-semibold"></tbody>
                     </table>
-                </div>
-            </div>
-            <div id="client-loyalty" class="client-tab-content hidden space-y-6">
-                <div class="flex justify-between items-center">
-                    <h3 class="font-black text-hola-purple"><i class="fa-solid fa-stamp ml-2 text-hola-orange"></i>الأختام والمكافآت</h3>
-                    <button onclick="window._syncTab('loyalty')" class="text-xs bg-gray-100 hover:bg-gray-200 text-gray-600 px-3 py-1.5 rounded-lg font-bold transition flex items-center gap-1"><i class="fa-solid fa-rotate-right"></i> مزامنة</button>
-                </div>
-                <div class="glass-card p-6 text-center">
-                    <h3 class="text-xl font-black text-hola-purple mb-2"><i class="fa-solid fa-stamp text-hola-orange ml-2"></i>أختام الحضور</h3>
-                    <p class="text-sm text-gray-500 font-bold mb-6" id="clientStampsGoalText">اجمع الأختام لتحصل على مكافأة خصم تلقائية!</p>
-                    <div class="flex flex-wrap justify-center gap-4" id="stampsContainer" dir="ltr"></div>
-                </div>
-                <div class="glass-card p-6">
-                    <h3 class="text-lg font-bold text-hola-purple mb-4"><i class="fa-solid fa-ticket text-hola-orange ml-2"></i>أكواد الخصم الخاصة بي</h3>
-                    <div id="clientDiscountsList" class="grid md:grid-cols-2 gap-4"></div>
                 </div>
             </div>
             <div id="client-notifications" class="client-tab-content hidden glass-card p-6">
@@ -3445,7 +3430,6 @@
                 sections: [
                     { label: 'الجلسة الحالية', icon: 'fa-clock', action: function(){ window.switchClientTab('session'); } },
                     { label: 'السجل والفواتير', icon: 'fa-file-invoice', action: function(){ window.switchClientTab('history'); } },
-                    { label: 'الأختام والمكافآت', icon: 'fa-stamp', action: function(){ window.switchClientTab('loyalty'); } },
                     { label: 'الإشعارات', icon: 'fa-bell', action: function(){ window.switchClientTab('notifications'); } },
                     { label: 'حجز قادم', icon: 'fa-calendar-plus', action: function(){ window.switchClientTab('prebook'); } },
                     { label: 'اشتراكاتي', icon: 'fa-crown', action: function(){ window.switchClientTab('subscriptions'); } },
@@ -4436,13 +4420,15 @@ var _groupCount = 2;
 var _GROUP_SHOWN_KEY_PREFIX = 'hola_group_asked_';
 function _groupShownKey() {
     var sid = window.activeSessionId || '';
-    if (sid) return _GROUP_SHOWN_KEY_PREFIX + sid;
-    return _GROUP_SHOWN_KEY_PREFIX + 'pending';
+    if (!sid) return '';
+    return _GROUP_SHOWN_KEY_PREFIX + sid;
 }
 
 window._showGroupQuestion = function() {
+    var gKey = _groupShownKey();
+    if (!gKey) return;
     // ★ لا تعرض السؤال إذا سبق وعُرض في هذه الجلسة
-    if (sessionStorage.getItem(_groupShownKey()) === '1') return;
+    if (sessionStorage.getItem(gKey) === '1') return;
     _groupCount = 2;
     var modal = document.getElementById('groupQuestionModal');
     if (!modal) return;
@@ -4458,7 +4444,8 @@ window._closeGroupModal = function() {
     var m = document.getElementById('groupQuestionModal');
     if (m) m.classList.add('hidden');
     // ★ سجّل أن السؤال ظهر في هذه الجلسة
-    sessionStorage.setItem(_groupShownKey(), '1');
+    var gKey = _groupShownKey();
+    if (gKey) sessionStorage.setItem(gKey, '1');
 };
 
 window._groupAnswer = function(hasGroup) {

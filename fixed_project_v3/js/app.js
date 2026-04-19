@@ -1110,15 +1110,33 @@ window.saveSystemSettings = async () => {
         })()
     };
     try {
-        await updateDoc(doc(db, 'artifacts', appId, 'public', 'data', 'settings', 'system'), data);
+        const settingsRef = doc(db, 'artifacts', appId, 'public', 'data', 'settings', 'system');
+        const payload = { ...data, _updatedAt: Date.now(), _updatedBy: currentShiftAdmin || 'admin' };
+        console.log('[Settings] 💾 Save requested', payload);
+        await updateDoc(settingsRef, payload);
         // ★ Update local sysSettings immediately to prevent onSnapshot overwrite
-        Object.assign(window.sysSettings, data);
+        Object.assign(window.sysSettings, payload);
         showMsg("✅ تم تحديث الإعدادات بنجاح!", "success");
         // ★ تحديث معاينة QR الواي فاي فوراً بعد الحفظ
         if (typeof window._previewWifiQR === 'function') window._previewWifiQR();
-        if (typeof window._onWifiToggle === 'function') window._onWifiToggle(!!data.wifiEnabled);
+        if (typeof window._onWifiToggle === 'function') window._onWifiToggle(!!payload.wifiEnabled);
     }
-    catch (e) { showMsg("حدث خطأ أثناء الحفظ", "error"); console.error(e); }
+    catch (e) {
+        console.error('[Settings] ❌ updateDoc failed:', e);
+        try {
+            const settingsRef = doc(db, 'artifacts', appId, 'public', 'data', 'settings', 'system');
+            const payload = { ...data, _updatedAt: Date.now(), _updatedBy: currentShiftAdmin || 'admin' };
+            await setDoc(settingsRef, payload, { merge: true });
+            Object.assign(window.sysSettings, payload);
+            console.log('[Settings] ✅ Fallback setDoc(merge:true) saved successfully');
+            showMsg("✅ تم تحديث الإعدادات بنجاح!", "success");
+            if (typeof window._previewWifiQR === 'function') window._previewWifiQR();
+            if (typeof window._onWifiToggle === 'function') window._onWifiToggle(!!payload.wifiEnabled);
+        } catch (e2) {
+            showMsg("حدث خطأ أثناء الحفظ", "error");
+            console.error('[Settings] ❌ fallback setDoc failed:', e2);
+        }
+    }
 };
 
 window.addShiftManager = async () => {
@@ -1732,10 +1750,11 @@ window.sendAdminMessage = async () => {
 
 // ─── Loyalty / Notification ───────────────────────────────────────────────────
 window.goToLoyaltyAndPulse = (code) => {
-    window.closeClientNotif(); switchClientTab('loyalty');
+    window.closeClientNotif(); switchClientTab('notifications');
     setTimeout(() => {
         const el = document.getElementById(`discount-card-${code}`);
         if (el) { el.scrollIntoView({ behavior: 'smooth', block: 'center' }); el.classList.add('pulse-highlight'); setTimeout(() => { el.classList.remove('pulse-highlight'); }, 6000); }
+        else if (code) showMsg(`الكود جاهز: ${code} 👌`, 'success');
     }, 300);
 };
 window.closeClientNotif = () => {
