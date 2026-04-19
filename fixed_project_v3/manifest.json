@@ -1,0 +1,23 @@
+{
+  "name": "Hola Workspace",
+  "short_name": "Hola",
+  "description": "Your digital gateway for Workspace & Meetings",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#301043",
+  "icons": [
+    {
+      "src": "https://i.postimg.cc/rsLC5pbm/hola.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "https://i.postimg.cc/rsLC5pbm/hola.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    }
+  ]
+}

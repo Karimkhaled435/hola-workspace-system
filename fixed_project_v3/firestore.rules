@@ -1,0 +1,164 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function isAuth() {
+      return request.auth != null;
+    }
+
+    match /artifacts/{appId} {
+      function isAdmin() {
+        return isAuth() &&
+          exists(/databases/$(database)/documents/artifacts/$(appId)/admin_tokens/$(request.auth.uid)) &&
+          get(/databases/$(database)/documents/artifacts/$(appId)/admin_tokens/$(request.auth.uid)).data.expiresAt >
+            request.time.toMillis();
+      }
+
+      match /admin_tokens/{uid} {
+        function isValidAdminToken() {
+          return request.auth.uid == uid &&
+            request.resource.data.pin ==
+              get(/databases/$(database)/documents/artifacts/$(appId)/public/data/settings/system).data.adminPin &&
+            request.resource.data.expiresAt > request.time.toMillis();
+        }
+
+        allow read: if isAuth() && request.auth.uid == uid;
+        allow create: if isAuth() && isValidAdminToken();
+        allow delete: if isAuth() && request.auth.uid == uid;
+        allow update: if false;
+      }
+
+      match /public/data/settings/system {
+        allow read: if isAuth();
+        allow write: if isAdmin();
+      }
+
+      match /public/data/profiles/{phone} {
+        allow read: if isAuth();
+        allow create: if isAuth();
+        allow update: if isAdmin() ||
+          (isAuth() &&
+            !('walletBalance' in request.resource.data.diff(resource.data).affectedKeys()) &&
+            !('stamps' in request.resource.data.diff(resource.data).affectedKeys()));
+        allow delete: if isAdmin();
+      }
+
+      match /public/data/sessions/{sessionId} {
+        allow read: if isAuth();
+        allow create: if isAuth();
+        allow update: if isAdmin() ||
+          (isAuth() && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['items']));
+        allow delete: if isAdmin();
+      }
+
+      match /public/data/menu/{itemId} {
+        allow read: if isAuth();
+        allow write: if isAdmin();
+      }
+
+      match /public/data/orders/{orderId} {
+        allow read: if isAuth();
+        allow create: if isAuth();
+        allow update: if isAdmin();
+        allow delete: if isAdmin();
+      }
+
+      match /public/data/discounts/{discountId} {
+        allow read: if isAuth();
+        allow write: if isAdmin();
+      }
+
+      match /public/data/notifications/{notifId} {
+        allow read: if isAuth();
+        allow write: if isAuth();
+      }
+
+      match /public/data/prebookings/{bookingId} {
+        allow read: if isAdmin();
+        allow create: if isAuth();
+        allow update: if isAdmin();
+        allow delete: if isAdmin();
+      }
+
+      match /public/data/reviews/{reviewId} {
+        allow read: if isAuth();
+        allow create: if isAuth();
+        allow update: if isAdmin();
+        allow delete: if isAdmin();
+      }
+
+      match /public/data/feedback/{feedbackId} {
+        allow read: if isAdmin();
+        allow create: if isAuth();
+        allow update: if false;
+        allow delete: if isAdmin();
+      }
+
+      match /public/data/smart_events/{eventId} {
+        allow read: if isAuth();
+        allow write: if isAdmin();
+      }
+
+      match /public/data/event_attendees/{attendeeId} {
+        allow read: if isAuth();
+        allow create: if isAuth();
+        allow update: if isAdmin();
+        allow delete: if isAdmin();
+      }
+
+      match /public/data/plans/{planId} {
+        allow read: if isAuth();
+        allow write: if isAdmin();
+      }
+
+      match /public/data/subscriptions/{subId} {
+        allow read: if isAuth();
+        allow write: if isAdmin();
+      }
+
+      match /public/data/chats/{chatId} {
+        allow read: if isAuth();
+        allow write: if isAuth();
+      }
+
+      match /public/data/banned_phones/{phone} {
+        allow read: if isAuth();
+        allow write: if isAdmin();
+      }
+
+      match /public/data/banned_devices/{deviceId} {
+        allow read: if isAuth();
+        allow write: if isAdmin();
+      }
+
+      match /public/data/admin_sessions/{sessionId} {
+        allow read: if isAuth();
+        allow write: if isAdmin();
+      }
+
+      match /public/data/operations/{opId} {
+        allow read: if isAdmin();
+        allow create: if isAuth();
+        allow update: if false;
+        allow delete: if false;
+      }
+
+      match /public/data/remote_users/{deviceId} {
+        allow read: if isAuth();
+        allow write: if isAuth();
+      }
+
+      match /public/data/user_device_sessions/{phone} {
+        allow read: if isAuth();
+        allow write: if isAuth();
+      }
+
+      match /public/data/{document=**} {
+        allow read, write: if false;
+      }
+    }
+
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

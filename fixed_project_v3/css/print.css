@@ -1,0 +1,84 @@
+/* =====================================================
+   css/print.css — Print Styles (Robust)
+   ===================================================== */
+
+@page {
+    margin: 10mm;
+    size: A4;
+}
+
+@media print {
+    html, body {
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+        color-adjust: exact !important;
+        background: white !important;
+        margin: 0 !important;
+        padding: 0 !important;
+    }
+
+    /* Hide everything by default when printing invoice */
+    body.printing-invoice > *:not(#invoicePrintArea):not(style):not(link) {
+        display: none !important;
+    }
+    body.printing-invoice #invoicePrintArea {
+        display: block !important;
+        visibility: visible !important;
+        position: fixed !important;
+        inset: 0 !important;
+        z-index: 99999 !important;
+        background: white !important;
+        padding: 20px !important;
+        margin: 0 !important;
+    }
+    body.printing-invoice #invoicePrintArea * {
+        visibility: visible !important;
+    }
+
+    /* End of day report */
+    body.printing-report > *:not(#endDayModal):not(style):not(link) {
+        display: none !important;
+    }
+    body.printing-report #endDayModal {
+        display: block !important;
+        visibility: visible !important;
+        position: fixed !important;
+        inset: 0 !important;
+        background: white !important;
+        padding: 20px !important;
+        margin: 0 !important;
+        box-shadow: none !important;
+        border: none !important;
+    }
+    body.printing-report #endDayModal * {
+        visibility: visible !important;
+    }
+    body.printing-report #endDayModal button,
+    body.printing-report #endDayModal .no-print {
+        display: none !important;
+    }
+
+    /* Subscription card */
+    body.printing-subcard > *:not(#subCardPrintArea):not(style):not(link) {
+        display: none !important;
+    }
+    body.printing-subcard #subCardPrintArea {
+        display: flex !important;
+        visibility: visible !important;
+        position: fixed !important;
+        inset: 0 !important;
+        align-items: center !important;
+        justify-content: center !important;
+        background: white !important;
+    }
+    body.printing-subcard #subCardPrintArea * {
+        visibility: visible !important;
+    }
+
+    /* Common */
+    .no-print { display: none !important; }
+    .print-only { display: block !important; }
+}
+
+/* Show print-only elements on screen as hidden */
+.print-only { display: none; }

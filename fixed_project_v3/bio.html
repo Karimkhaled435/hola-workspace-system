@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Hola Workspace</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: { holaPurple: '#301043', holaOrange: '#f17200' },
+                    fontFamily: { cairo: ['Cairo', 'sans-serif'] },
+                    animation: {
+                        'float': 'float 3.5s ease-in-out infinite',
+                        'slide-up': 'slideUp 0.5s ease-out forwards',
+                        'pulse-glow': 'pulseGlow 2s infinite',
+                        'ping-slow': 'ping 3s cubic-bezier(0,0,0.2,1) infinite',
+                    },
+                    keyframes: {
+                        float: { '0%,100%': { transform: 'translateY(0) translateX(-50%)' }, '50%': { transform: 'translateY(-8px) translateX(-50%)' } },
+                        slideUp: { '0%': { opacity:'0', transform:'translateY(20px)' }, '100%': { opacity:'1', transform:'translateY(0)' } },
+                        pulseGlow: { '0%': { boxShadow:'0 0 0 0 rgba(241,114,0,0.4)' }, '70%': { boxShadow:'0 0 0 15px rgba(241,114,0,0)' }, '100%': { boxShadow:'0 0 0 0 rgba(241,114,0,0)' } }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body { font-family: 'Cairo', sans-serif; background-color: #f8f9fa; background-image: radial-gradient(#301043 0.5px, transparent 0.5px); background-size: 20px 20px; }
+        .no-scrollbar::-webkit-scrollbar { display:none; }
+        .no-scrollbar { -ms-overflow-style:none; scrollbar-width:none; }
+        .glass-nav { background:rgba(255,255,255,0.95); backdrop-filter:blur(16px); -webkit-backdrop-filter:blur(16px); border:1px solid rgba(255,255,255,0.6); }
+        .link-card:nth-child(1){animation-delay:.05s} .link-card:nth-child(2){animation-delay:.1s} .link-card:nth-child(3){animation-delay:.15s} .link-card:nth-child(4){animation-delay:.2s} .link-card:nth-child(5){animation-delay:.25s} .link-card:nth-child(6){animation-delay:.3s} .link-card:nth-child(7){animation-delay:.35s} .link-card:nth-child(8){animation-delay:.4s}
+        .skeleton { background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%); background-size: 200% 100%; animation: shimmer 1.5s infinite; }
+        @keyframes shimmer { 0%{background-position:200% 0} 100%{background-position:-200% 0} }
+    </style>
+</head>
+<body class="flex flex-col min-h-screen relative overflow-x-hidden">
+
+    <!-- ── DESKTOP NAV ── -->
+    <nav class="hidden md:flex justify-between items-center glass-nav shadow-sm px-10 py-3 fixed top-0 w-full z-50">
+        <div class="flex items-center gap-3 relative">
+            <img id="navLogo" src="https://i.postimg.cc/rsLC5pbm/hola.png" alt="Logo" class="w-10 h-10 object-contain bg-white rounded-lg p-1 border border-gray-100 shadow-sm">
+            <h2 class="text-2xl font-black text-holaPurple tracking-wide" id="navName">Hola <span class="text-holaOrange">Workspace</span></h2>
+            <div class="absolute -top-1 -right-1 flex h-3 w-3 z-20">
+                <span class="animate-ping-slow absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+                <span class="relative inline-flex rounded-full h-3 w-3 bg-green-500 border border-white"></span>
+            </div>
+        </div>
+        <div class="flex items-center gap-4 font-bold text-gray-500 text-sm">
+            <a id="topNavBtn1" href="#" class="hover:text-holaPurple flex items-center gap-1.5 transition"><i class="fa-solid fa-star" id="topNavBtn1Icon"></i> <span id="topNavBtn1Label">الباقات</span></a>
+            <a id="topNavBtn2" href="#" class="hover:text-holaPurple flex items-center gap-1.5 transition"><i class="fa-solid fa-headset" id="topNavBtn2Icon"></i> <span id="topNavBtn2Label">تواصل معنا</span></a>
+        </div>
+        <a href="https://hola-workspace-system.web.app/" target="_blank" class="bg-holaPurple text-white px-5 py-2.5 rounded-xl font-bold hover:bg-[#4a1c68] active:scale-95 transition flex items-center gap-2 shadow-md">
+            <i class="fa-solid fa-qrcode"></i> دخول السيستم
+        </a>
+    </nav>
+
+    <!-- ── MAIN ── -->
+    <main class="flex-grow flex flex-col items-center w-full pt-6 md:pt-28 pb-36 md:pb-12 px-4 z-10 no-scrollbar">
+
+        <!-- Profile Card -->
+        <div class="w-full max-w-md relative mb-14 flex-shrink-0 animate-slide-up">
+            <div class="absolute inset-0 bg-gradient-to-br from-holaPurple to-[#4a1c68] rounded-[2rem] shadow-xl border-2 border-white/20 overflow-hidden">
+                <div class="absolute -right-8 -top-8 w-32 h-32 bg-white/10 rounded-full blur-2xl animate-pulse"></div>
+                <div class="absolute -left-5 bottom-0 w-24 h-24 bg-holaOrange/20 rounded-full blur-xl animate-pulse" style="animation-delay:1s"></div>
+            </div>
+            <div class="relative pt-8 pb-14 px-6 text-center z-10">
+                <span id="heroBadge" class="inline-block bg-white/10 text-white backdrop-blur-sm px-3 py-1 rounded-full text-[11px] font-black mb-3 border border-white/20 shadow-sm">🥇 الأقصر بتطور بينا!</span>
+                <h1 class="text-3xl font-black text-white mb-1 tracking-wide" id="heroName">Hola <span class="text-holaOrange">Workspace</span></h1>
+                <p class="text-orange-200 text-sm font-bold" id="heroTagline">بوابتك الرقمية لكل خدماتنا ✨</p>
+            </div>
+            <div class="absolute -bottom-8 left-1/2 z-30 animate-float w-max">
+                <div class="relative group cursor-pointer">
+                    <div class="bg-white p-1.5 rounded-2xl shadow-xl transform rotate-3 border-4 border-gray-50 relative z-10 group-hover:rotate-0 transition-transform duration-300">
+                        <img id="heroLogo" src="https://i.postimg.cc/rsLC5pbm/hola.png" alt="Logo" class="w-14 h-14 object-contain rounded-xl">
+                    </div>
+                    <div class="absolute -top-1 -right-1 flex h-4 w-4 z-20">
+                        <span class="animate-ping-slow absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+                        <span class="relative inline-flex rounded-full h-4 w-4 bg-green-500 border-2 border-white shadow-sm"></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Content -->
+        <div class="w-full max-w-md flex flex-col px-2">
+
+            <!-- System CTA -->
+            <a href="https://hola-workspace-system.web.app/" target="_blank"
+                class="link-card opacity-0 block bg-gradient-to-r from-holaOrange to-[#ff8c21] p-[3px] rounded-2xl shadow-lg mb-5 transform hover:-translate-y-1 hover:scale-[1.02] active:scale-95 transition-all duration-300 animate-slide-up animate-pulse-glow group">
+                <div class="bg-white rounded-[13px] p-3 flex items-center justify-between">
+                    <div class="flex items-center gap-3">
+                        <div class="w-12 h-12 bg-orange-50 text-holaOrange rounded-xl flex items-center justify-center text-2xl group-hover:bg-holaOrange group-hover:text-white transition-colors duration-300 shrink-0">
+                            <i class="fa-solid fa-qrcode"></i>
+                        </div>
+                        <h3 class="font-black text-holaPurple text-[1.1rem]">دخول السيستم</h3>
+                    </div>
+                    <div class="w-8 h-8 bg-gray-50 rounded-full flex items-center justify-center text-gray-400 group-hover:bg-holaOrange group-hover:text-white transition-colors duration-300">
+                        <i class="fa-solid fa-chevron-left text-sm"></i>
+                    </div>
+                </div>
+            </a>
+
+            <!-- About Us section -->
+            <div id="aboutUsCard" class="hidden link-card opacity-0 animate-slide-up bg-white rounded-2xl shadow-sm border border-purple-100 p-5 mb-5">
+                <h3 class="font-black text-holaPurple mb-3 flex items-center gap-2 text-sm">
+                    <i class="fa-solid fa-building text-holaOrange text-base"></i> من نحن
+                </h3>
+                <p id="aboutUsText" class="text-sm text-gray-700 font-bold leading-relaxed"></p>
+            </div>
+
+            <!-- Dynamic Links -->
+            <div id="dynamicLinksDivider" class="hidden flex items-center gap-3 mb-4 opacity-70">
+                <div class="h-px bg-gray-300 flex-grow"></div>
+                <span class="text-[11px] font-black text-gray-500">تواصل وتابعنا</span>
+                <div class="h-px bg-gray-300 flex-grow"></div>
+            </div>
+
+            <div id="dynamicLinksContainer" class="space-y-3">
+                <!-- Skeleton loaders -->
+                <div class="skeleton h-14 rounded-2xl"></div>
+                <div class="skeleton h-14 rounded-2xl"></div>
+                <div class="skeleton h-14 rounded-2xl"></div>
+            </div>
+
+            <!-- Contact anchor -->
+            <div id="contact" class="mt-4"></div>
+
+        </div>
+    </main>
+
+    <!-- ── MOBILE BOTTOM NAV ── -->
+    <div class="fixed bottom-0 left-0 right-0 z-50 px-4 pb-5 pt-2 flex md:hidden pointer-events-none">
+        <div class="glass-nav rounded-2xl shadow-[0_-5px_25px_rgba(0,0,0,0.08)] px-2 py-2 w-full max-w-md mx-auto flex justify-between items-end relative pointer-events-auto">
+            <button onclick="window.scrollTo({top:0,behavior:'smooth'})" class="flex flex-col items-center justify-center w-14 text-holaOrange transform -translate-y-1 active:scale-90 transition-all">
+                <i class="fa-solid fa-house text-[1.2rem] mb-1"></i>
+                <span class="text-[9px] font-black">الرئيسية</span>
+                <span class="absolute -bottom-1.5 w-1.5 h-1.5 bg-holaOrange rounded-full"></span>
+            </button>
+            <a id="bioNavBtn1" href="#" target="_blank" class="flex flex-col items-center justify-center w-14 text-gray-400 hover:text-holaPurple active:scale-90 transition-all pb-0.5">
+                <i class="fa-solid fa-star text-[1.1rem] mb-1" id="bioNavBtn1Icon"></i>
+                <span class="text-[9px] font-bold" id="bioNavBtn1Label">الباقات</span>
+            </a>
+            <div class="relative -top-6 flex justify-center w-16">
+                <a href="https://hola-workspace-system.web.app/" target="_blank" class="absolute flex flex-col items-center justify-center w-14 h-14 bg-gradient-to-tr from-holaPurple to-[#4a1c68] text-white rounded-full shadow-[0_8px_20px_rgba(48,16,67,0.4)] border-4 border-[#f8f9fa] transform hover:-translate-y-1 active:scale-95 transition-all">
+                    <i class="fa-solid fa-right-to-bracket text-[1.2rem] mb-0.5"></i>
+                    <span class="text-[8px] font-black leading-none">دخول</span>
+                </a>
+            </div>
+            <a id="bioNavBtn2" href="#" class="flex flex-col items-center justify-center w-14 text-gray-400 hover:text-holaPurple active:scale-90 transition-all pb-0.5">
+                <i class="fa-solid fa-location-dot text-[1.1rem] mb-1" id="bioNavBtn2Icon"></i>
+                <span class="text-[9px] font-bold" id="bioNavBtn2Label">مكاننا</span>
+            </a>
+            <a id="bioNavBtn3" href="#" class="flex flex-col items-center justify-center w-14 text-gray-400 hover:text-holaPurple active:scale-90 transition-all pb-0.5">
+                <i class="fa-solid fa-headset text-[1.1rem] mb-1" id="bioNavBtn3Icon"></i>
+                <span class="text-[9px] font-bold" id="bioNavBtn3Label">مساعدة</span>
+            </a>
+        </div>
+    </div>
+
+    <!-- ── FIREBASE + DATA LOAD ── -->
+    <script type="module">
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js';
+        import { getAuth, signInAnonymously } from 'https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js';
+        import { getFirestore, doc, getDoc, onSnapshot } from 'https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js';
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyDe6Q82taE7_BRCqUsHcaLBCvheKBLIZzY",
+            authDomain: "hola-workspace-system.firebaseapp.com",
+            databaseURL: "https://hola-workspace-system-default-rtdb.europe-west1.firebasedatabase.app",
+            projectId: "hola-workspace-system",
+            storageBucket: "hola-workspace-system.firebasestorage.app",
+            messagingSenderId: "920702716632",
+            appId: "1:920702716632:web:d1f9be05cc48f69e1ce5ad"
+        };
+        // ★ يجب أن يطابق DEFAULT_APP_ID في constants.js تماماً
+        const APP_ID = 'hola-v20';
+
+        const app  = initializeApp(firebaseConfig, 'bio-page');
+        const auth = getAuth(app);
+        const db   = getFirestore(app);
+        const appId = APP_ID;
+
+        // ★ الإصلاح الجذري: تسجيل الدخول المجهول أولاً قبل أي استعلام Firestore
+        // هذا هو السبب الحقيقي لعدم التحديث — Firestore يرفض onSnapshot بدون مصادقة
+        async function initBio() {
+            try {
+                await signInAnonymously(auth);
+            } catch(authErr) {
+                console.warn('Anonymous auth failed, trying without auth:', authErr.code);
+            }
+            loadBioData();
+        }
+
+        let _bioUnsub = null;
+
+        function loadBioData() {
+            // إلغاء أي مستمع قديم أولاً
+            if (_bioUnsub) { try { _bioUnsub(); } catch(e) {} _bioUnsub = null; }
+
+            const docRef = doc(db, 'artifacts', appId, 'public', 'data', 'settings', 'system');
+
+            // ★ onSnapshot يضمن التحديث الفوري عند أي تغيير من لوحة التحكم
+            try {
+                _bioUnsub = onSnapshot(
+                    docRef,
+                    { includeMetadataChanges: false },
+                    (snap) => {
+                        if (!snap.exists()) { renderStaticFallback(); return; }
+                        renderBio(snap.data());
+                    },
+                    async (err) => {
+                        console.warn('onSnapshot failed (code:', err.code, '), falling back to getDoc');
+                        // fallback: قراءة مرة واحدة
+                        try {
+                            const snap = await getDoc(docRef);
+                            if (snap.exists()) renderBio(snap.data());
+                            else renderStaticFallback();
+                        } catch(e2) {
+                            console.error('getDoc also failed:', e2);
+                            renderStaticFallback();
+                        }
+                    }
+                );
+            } catch(e) {
+                console.error('loadBioData error:', e);
+                renderStaticFallback();
+            }
+        }
+
+        function renderBio(ss) {
+            // Logo & names
+            if (ss.logoUrl) {
+                document.getElementById('heroLogo').src = ss.logoUrl;
+                document.getElementById('navLogo').src = ss.logoUrl;
+            }
+            if (ss.venueName) {
+                document.getElementById('heroName').textContent = ss.venueName;
+                document.getElementById('navName').textContent = ss.venueName;
+                document.title = ss.venueName;
+            }
+            if (ss.venueTagline) document.getElementById('heroTagline').textContent = ss.venueTagline;
+
+            // Nav Buttons (editable from admin) — bottom + top nav
+            if (ss.bioNavButtons && Array.isArray(ss.bioNavButtons)) {
+                var navBtns = ss.bioNavButtons;
+                for (var i = 0; i < 3; i++) {
+                    var b = navBtns[i];
+                    if (!b) continue;
+                    // Bottom nav
+                    var btnEl  = document.getElementById('bioNavBtn' + (i+1));
+                    var iconEl = document.getElementById('bioNavBtn' + (i+1) + 'Icon');
+                    var lblEl  = document.getElementById('bioNavBtn' + (i+1) + 'Label');
+                    if (btnEl  && b.url)   { btnEl.href = b.url; if (b.url && b.url !== '#') btnEl.setAttribute('target','_blank'); }
+                    if (iconEl && b.icon)  { iconEl.className = b.icon + ' text-[1.1rem] mb-1'; }
+                    if (lblEl  && b.label) { lblEl.textContent = b.label; }
+                    // Top nav (btn1 + btn2 only)
+                    if (i < 2) {
+                        var tBtn  = document.getElementById('topNavBtn' + (i+1));
+                        var tIcon = document.getElementById('topNavBtn' + (i+1) + 'Icon');
+                        var tLbl  = document.getElementById('topNavBtn' + (i+1) + 'Label');
+                        if (tBtn  && b.url)   tBtn.href = b.url;
+                        if (tIcon && b.icon)  tIcon.className = b.icon;
+                        if (tLbl  && b.label) tLbl.textContent = b.label;
+                    }
+                }
+            }
+
+            // About Us
+            if (ss.bioAboutUs) {
+                document.getElementById('aboutUsText').textContent = ss.bioAboutUs;
+                document.getElementById('aboutUsCard').classList.remove('hidden');
+                document.getElementById('aboutUsCard').classList.add('opacity-0', 'animate-slide-up');
+            }
+
+            // Dynamic links
+            const links = ss.bioLinks || getDefaultLinks(ss);
+            renderLinks(links);
+        }
+
+        function getDefaultLinks(ss) {
+            // No auto-generated links — admin fills bioLinks from control panel
+            return [];
+        }
+
+        function renderLinks(links) {
+            const container = document.getElementById('dynamicLinksContainer');
+            const divider   = document.getElementById('dynamicLinksDivider');
+            if (!container) return;
+
+            if (!links || links.length === 0) {
+                container.innerHTML = '';
+                return;
+            }
+
+            divider?.classList.remove('hidden');
+            divider?.classList.add('flex');
+
+            const iconMap = {
+                whatsapp:  { icon: 'fa-brands fa-whatsapp', bg: 'bg-green-50', iconBg: 'bg-green-500', text: 'text-green-500', hover: 'hover:border-green-200 hover:shadow-green-100' },
+                facebook:  { icon: 'fa-brands fa-facebook', bg: 'bg-blue-50', iconBg: 'bg-blue-600', text: 'text-blue-600', hover: 'hover:border-blue-200 hover:shadow-blue-100' },
+                instagram: { icon: 'fa-brands fa-instagram', bg: 'bg-pink-50', iconBg: 'bg-gradient-to-tr from-yellow-400 via-pink-500 to-purple-500', text: 'text-pink-500', hover: 'hover:border-pink-200 hover:shadow-pink-100' },
+                tiktok:    { icon: 'fa-brands fa-tiktok', bg: 'bg-gray-100', iconBg: 'bg-gray-900', text: 'text-gray-900', hover: 'hover:border-gray-300' },
+                youtube:   { icon: 'fa-brands fa-youtube', bg: 'bg-red-50', iconBg: 'bg-red-600', text: 'text-red-500', hover: 'hover:border-red-200 hover:shadow-red-100' },
+                website:   { icon: 'fa-solid fa-globe', bg: 'bg-purple-50', iconBg: 'bg-holaPurple', text: 'text-holaPurple', hover: 'hover:border-purple-200' },
+                phone:     { icon: 'fa-solid fa-phone', bg: 'bg-teal-50', iconBg: 'bg-teal-500', text: 'text-teal-500', hover: 'hover:border-teal-200' },
+                location:  { icon: 'fa-solid fa-location-dot', bg: 'bg-orange-50', iconBg: 'bg-holaOrange', text: 'text-holaOrange', hover: 'hover:border-orange-200' },
+                other:     { icon: 'fa-solid fa-link', bg: 'bg-gray-50', iconBg: 'bg-gray-600', text: 'text-gray-600', hover: 'hover:border-gray-200' },
+            };
+
+            container.innerHTML = links.map((l, i) => {
+                const cfg = iconMap[l.type] || iconMap.other;
+                const delay = (i * 0.05).toFixed(2);
+                const isGradient = l.type === 'instagram';
+                const iconStyle = isGradient ? 'background:linear-gradient(135deg,#f09433,#e6683c,#dc2743,#cc2366,#bc1888);' : '';
+                const iconBgClass = isGradient ? '' : cfg.iconBg;
+                return `<a href="${l.url||'#'}" target="_blank"
+                    class="link-card opacity-0 flex items-center justify-between p-3 bg-white rounded-2xl shadow-sm border border-gray-100 transform hover:-translate-y-1 hover:shadow-md ${cfg.hover} active:scale-95 transition-all duration-300 group animate-slide-up"
+                    style="animation-delay:${delay}s">
+                    <div class="flex items-center gap-3">
+                        <div class="w-11 h-11 ${iconBgClass} rounded-xl flex items-center justify-center text-xl shrink-0 transition-colors duration-300"
+                            style="${iconStyle}">
+                            <i class="${cfg.icon} text-white"></i>
+                        </div>
+                        <h3 class="font-black text-gray-800 text-[1rem]">${l.label || l.type}</h3>
+                    </div>
+                    <i class="fa-solid fa-arrow-left text-gray-300 ml-2"></i>
+                </a>`;
+            }).join('');
+
+            // Animate cards in
+            setTimeout(() => {
+                container.querySelectorAll('.link-card').forEach((el, i) => {
+                    setTimeout(() => el.classList.remove('opacity-0'), i * 60);
+                });
+            }, 50);
+        }
+
+        function renderStaticFallback() {
+            // No default links — admin fills them from control panel
+            renderLinks([]);
+        }
+
+        // ★ بدء التهيئة: مصادقة أولاً ثم تحميل البيانات
+        initBio();
+
+        // Animate static cards
+        setTimeout(() => {
+            document.querySelectorAll('.animate-slide-up.opacity-0').forEach((el, i) => {
+                setTimeout(() => el.classList.remove('opacity-0'), i * 80 + 100);
+            });
+        }, 200);
+    </script>
+
+</body>
+</html>

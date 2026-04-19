@@ -1,0 +1,823 @@
+/* =====================================================
+   css/style.css — Hola Workspace · v10
+   ===================================================== */
+
+/* ── CSS Variables ─────────────────────────────────── */
+:root {
+  --c-purple:  #301043;
+  --c-dark:    #1a0826;
+  --c-orange:  #f17200;
+  --c-bg:      #f0eef5;
+  --bnav-h:    62px;
+  --bnav-safe: env(safe-area-inset-bottom, 0px);
+  --radius:    16px;
+  --radius-sm: 10px;
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+
+body {
+  font-family: 'Cairo', sans-serif;
+  background-color: var(--c-bg);
+  overflow-x: hidden;
+  min-height: 100vh;
+}
+
+/* ====================================================
+   RESPONSIVE NAV SWITCHING
+   Desktop (>=768px): Top nav visible, bottom nav hidden
+   Mobile  (<768px) : Top nav hidden, bottom nav fixed
+   ==================================================== */
+
+#bottomNav     { display: none; }
+#desktopNav    { display: flex !important; }
+#mobileMenuBtn { display: none !important; }
+#mobileMenu    { display: none !important; }
+#mobileAdminBtn { display: none !important; }
+
+/* --- Client & Admin horizontal tabs: hidden on mobile --- */
+@media (max-width: 767px) {
+  /* Client tabs scrollbar — hide on mobile, sections hamburger replaces them */
+  .client-tabs-bar { display: none !important; }
+  /* Admin tabs bar — hide on mobile */
+  #adminTabsContainer { display: none !important; }
+}
+
+@media (max-width: 767px) {
+  #desktopNav    { display: none !important; }
+  #mobileMenuBtn { display: flex !important; }
+  #mobileMenu    { display: none !important; }
+  #mobileAdminBtn { display: none !important; }
+
+  body {
+    padding-bottom: calc(var(--bnav-h) + var(--bnav-safe) + 4px);
+  }
+
+  #bottomNav {
+    display: flex;
+    position: fixed;
+    bottom: 0; left: 0; right: 0;
+    z-index: 9999;
+    height: calc(var(--bnav-h) + var(--bnav-safe));
+    padding-bottom: var(--bnav-safe);
+    background: rgba(255,255,255,0.97);
+    backdrop-filter: blur(20px) saturate(1.6);
+    -webkit-backdrop-filter: blur(20px) saturate(1.6);
+    border-top: 1px solid rgba(48,16,67,0.09);
+    box-shadow: 0 -4px 24px rgba(48,16,67,0.12);
+  }
+
+  /* BottomNav ALWAYS shown on mobile — both client and admin */
+  /* _bnavSync controls content/icons based on state */
+
+  .client-chat-fab { display: none !important; }
+  header .container { padding-top: 10px; padding-bottom: 10px; }
+  header h1 { font-size: 1.2rem; }
+  .header-tagline { display: none; }
+}
+
+/* ====================================================
+   HAMBURGER BUTTON — Simple 3-line, no squares
+   ==================================================== */
+#mobileMenuBtn {
+  background: none;
+  border: none;
+  padding: 6px;
+  cursor: pointer;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 5px;
+  width: 36px;
+  height: 36px;
+}
+#mobileMenuBtn span {
+  display: block;
+  width: 22px;
+  height: 2px;
+  background: rgba(255,255,255,0.9);
+  border-radius: 2px;
+  transition: all 0.25s ease;
+}
+#mobileMenuBtn.is-open span:nth-child(1) {
+  transform: translateY(7px) rotate(45deg);
+}
+#mobileMenuBtn.is-open span:nth-child(2) {
+  opacity: 0;
+  transform: scaleX(0);
+}
+#mobileMenuBtn.is-open span:nth-child(3) {
+  transform: translateY(-7px) rotate(-45deg);
+}
+
+/* ====================================================
+   BOTTOM NAV INTERNALS
+   ==================================================== */
+.bnav-inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+  width: 100%;
+  height: var(--bnav-h);
+  padding: 0 4px;
+}
+
+.bnav-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  flex: 1;
+  gap: 2px;
+  padding: 5px 2px 8px;
+  min-width: 0;
+  background: none;
+  border: none;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  position: relative;
+  transition: opacity 0.15s;
+  font-family: 'Cairo', sans-serif;
+}
+.bnav-item:active { opacity: 0.65; }
+
+.bnav-item .ni {
+  font-size: 19px;
+  line-height: 1;
+  color: #b0b0c0;
+  transition: color 0.2s, transform 0.25s cubic-bezier(0.34,1.56,0.64,1);
+  display: block;
+}
+.bnav-item .nl {
+  font-size: 9px;
+  font-weight: 900;
+  color: #b0b0c0;
+  transition: color 0.2s;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 56px;
+}
+
+.bnav-item.is-active .ni  { color: var(--c-purple); transform: translateY(-3px) scale(1.12); }
+.bnav-item.is-active .nl  { color: var(--c-purple); }
+
+.bnav-item.is-active::after {
+  content: '';
+  position: absolute;
+  bottom: 4px;
+  left: 50%; transform: translateX(-50%);
+  width: 18px; height: 3px;
+  background: var(--c-orange);
+  border-radius: 99px;
+  animation: dotIn 0.25s cubic-bezier(0.34,1.56,0.64,1);
+}
+@keyframes dotIn { from{width:0;opacity:0} to{width:18px;opacity:1} }
+
+/* Center FAB */
+.bnav-fab { flex: 0 0 58px; padding: 0; }
+.bnav-fab .fab-wrap {
+  width: 48px; height: 48px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--c-purple), #5a1d8a);
+  display: flex; align-items: center; justify-content: center;
+  box-shadow: 0 4px 18px rgba(48,16,67,0.38);
+  transition: transform 0.25s cubic-bezier(0.34,1.56,0.64,1), box-shadow 0.2s;
+  position: relative; top: -6px; margin-bottom: 2px;
+}
+.bnav-fab .fab-wrap i { font-size: 18px; color: #fff; }
+.bnav-fab:active .fab-wrap { transform: scale(0.88); }
+.bnav-fab.is-active .fab-wrap {
+  background: linear-gradient(135deg, var(--c-orange), #c95e00);
+  box-shadow: 0 6px 20px rgba(241,114,0,0.42);
+}
+.bnav-fab.is-active::after { display: none; }
+.bnav-fab .nl { position: relative; top: -4px; font-size: 9px; }
+
+/* Badge */
+.bnav-badge {
+  position: absolute; top: 2px; right: calc(50% - 18px);
+  background: #ef4444; color: #fff;
+  font-size: 8px; font-weight: 900;
+  min-width: 15px; height: 15px; border-radius: 99px;
+  display: flex; align-items: center; justify-content: center;
+  padding: 0 3px; border: 2px solid #fff;
+  animation: badgePop 0.3s cubic-bezier(0.34,1.56,0.64,1);
+}
+@keyframes badgePop { from{transform:scale(0)} to{transform:scale(1)} }
+
+/* ====================================================
+   TOP HEADER
+   ==================================================== */
+header {
+  background: linear-gradient(135deg, var(--c-purple) 0%, #481869 100%) !important;
+  box-shadow: 0 2px 16px rgba(48,16,67,0.25) !important;
+  border-bottom: 1px solid rgba(255,255,255,0.07);
+}
+
+.logo-img {
+  filter: drop-shadow(0 2px 6px rgba(241,114,0,0.2));
+  transition: transform 0.2s;
+}
+.logo-img:hover { transform: scale(1.05) rotate(-2deg); }
+
+#desktopNav button {
+  border-radius: 99px;
+  padding: 6px 16px;
+  font-size: 13px;
+  font-family: 'Cairo', sans-serif;
+  transition: all 0.2s;
+}
+
+/* ====================================================
+   FLOATING NOTIFICATIONS PANEL (fixed top)
+   ==================================================== */
+#floatingNotifPanel {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  z-index: 10000;
+}
+.notif-toast-bar {
+  background: linear-gradient(135deg, var(--c-purple), #481869);
+  color: white;
+  padding: 10px 16px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  animation: slideDown 0.35s cubic-bezier(0.34,1.56,0.64,1);
+  box-shadow: 0 4px 20px rgba(48,16,67,0.4);
+}
+@keyframes slideDown {
+  from { transform: translateY(-100%); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+.notif-dropdown {
+  background: white;
+  border-bottom-left-radius: 20px;
+  border-bottom-right-radius: 20px;
+  max-height: 65vh;
+  overflow-y: auto;
+  box-shadow: 0 8px 32px rgba(48,16,67,0.18);
+  animation: fadeInDown 0.25s ease;
+  padding-bottom: 8px;
+}
+@keyframes fadeInDown {
+  from { opacity: 0; transform: translateY(-10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* ====================================================
+   SECTIONS SHEET (Hamburger Menu — Mobile)
+   ==================================================== */
+#sectionsBottomSheet {
+  z-index: 10001;
+}
+#sectionsSheetContent {
+  transform: translateY(100%);
+  transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+  padding-bottom: env(safe-area-inset-bottom, 16px);
+}
+#sectionsBottomSheet:not(.hidden) #sectionsSheetContent {
+  transform: translateY(0);
+}
+
+/* Sections list: list style, not grid */
+#sectionsSheetList {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 4px !important;
+  padding: 8px 12px !important;
+  max-height: 72vh;
+  overflow-y: auto;
+}
+#sectionsSheetList .sect-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 11px 14px;
+  border-radius: 14px;
+  font-weight: 800;
+  font-size: 14px;
+  color: #374151;
+  background: #f9fafb;
+  border: 1px solid #f3f4f6;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+  -webkit-tap-highlight-color: transparent;
+}
+#sectionsSheetList .sect-item:active,
+#sectionsSheetList .sect-item.active {
+  background: var(--c-purple);
+  color: white;
+  border-color: var(--c-purple);
+}
+#sectionsSheetList .sect-item i {
+  width: 22px;
+  text-align: center;
+  font-size: 15px;
+  color: var(--c-orange);
+  flex-shrink: 0;
+}
+#sectionsSheetList .sect-item.active i { color: rgba(255,255,255,0.85); }
+
+/* ====================================================
+   GLASS CARD
+   ==================================================== */
+.glass-card {
+  background: rgba(255,255,255,0.97);
+  backdrop-filter: blur(16px);
+  border-radius: var(--radius);
+  box-shadow: 0 2px 20px rgba(48,16,67,0.07), 0 1px 3px rgba(48,16,67,0.04);
+  border: 1px solid rgba(255,255,255,0.7);
+}
+
+/* ====================================================
+   UTILITIES
+   ==================================================== */
+.hidden { display: none !important; }
+
+.fade-in {
+  animation: fadeIn 0.35s cubic-bezier(0.4,0,0.2,1);
+}
+@keyframes fadeIn {
+  from { opacity:0; transform:translateY(12px); }
+  to   { opacity:1; transform:translateY(0); }
+}
+
+::-webkit-scrollbar { width:5px; height:5px; }
+::-webkit-scrollbar-track { background:#f1f1f1; }
+::-webkit-scrollbar-thumb { background:#d1d5db; border-radius:10px; }
+::-webkit-scrollbar-thumb:hover { background:var(--c-orange); }
+
+.no-scrollbar::-webkit-scrollbar { display:none; }
+.no-scrollbar { -ms-overflow-style:none; scrollbar-width:none; }
+
+/* ====================================================
+   TABS (desktop only visible)
+   ==================================================== */
+.tab-active {
+  border-bottom: 3px solid var(--c-orange);
+  color: var(--c-orange);
+  font-weight: 800;
+}
+.client-tab-active {
+  background-color: var(--c-purple) !important;
+  color: #fff !important;
+  border-radius: 8px;
+}
+#adminTabsContainer button {
+  font-size: 12px; padding: 7px 3px;
+  white-space: nowrap; transition: color 0.2s;
+}
+
+/* ====================================================
+   STAMPS — smaller, compact
+   ==================================================== */
+.stamp-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+}
+.stamp-circle {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+}
+.stamp-label {
+  font-size: 8px;
+  font-weight: 700;
+  color: #9ca3af;
+  text-align: center;
+  max-width: 40px;
+  line-height: 1.2;
+}
+
+/* ====================================================
+   VOUCHER / DISCOUNT CODE CARD — compact
+   ==================================================== */
+.voucher-mini {
+  background: linear-gradient(135deg, #f5f3ff, #ede9fe);
+  border: 1.5px solid #c4b5fd;
+  border-radius: 12px;
+  padding: 10px 12px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+  transition: box-shadow 0.2s, transform 0.15s;
+  position: relative;
+  overflow: hidden;
+}
+.voucher-mini:active { transform: scale(0.97); }
+.voucher-mini .v-code {
+  font-family: monospace;
+  font-size: 15px;
+  font-weight: 900;
+  color: var(--c-purple);
+  letter-spacing: 1px;
+  background: white;
+  padding: 4px 8px;
+  border-radius: 8px;
+  border: 1.5px dashed #c4b5fd;
+  flex-shrink: 0;
+}
+.voucher-mini .v-info { flex: 1; min-width: 0; }
+.voucher-mini .v-title { font-size: 11px; font-weight: 800; color: #6b7280; }
+.voucher-mini .v-val { font-size: 13px; font-weight: 900; color: var(--c-orange); }
+.voucher-mini .v-status-dot {
+  width: 8px; height: 8px; border-radius: 50%;
+  flex-shrink: 0;
+}
+.voucher-mini .v-status-dot.active { background: #22c55e; }
+.voucher-mini .v-status-dot.used { background: #ef4444; }
+
+/* Voucher detail modal */
+#voucherDetailModal {
+  z-index: 11000;
+}
+
+/* ====================================================
+   SUBSCRIPTION TRACKER — smart, interactive
+   ==================================================== */
+.sub-track-card {
+  background: white;
+  border-radius: 16px;
+  border: 1.5px solid #e5e7eb;
+  padding: 14px;
+  position: relative;
+  overflow: hidden;
+  transition: box-shadow 0.2s;
+}
+.sub-track-card:hover { box-shadow: 0 4px 20px rgba(48,16,67,0.1); }
+.sub-track-progress {
+  height: 6px;
+  background: #f3f4f6;
+  border-radius: 99px;
+  overflow: hidden;
+  margin-top: 8px;
+}
+.sub-track-bar {
+  height: 100%;
+  border-radius: 99px;
+  transition: width 1s cubic-bezier(0.4,0,0.2,1);
+  background: linear-gradient(90deg, var(--c-purple), var(--c-orange));
+}
+
+/* Active subscription card on mobile — fixed layout */
+.active-sub-card {
+  background: white;
+  border-radius: 14px;
+  border: 2px solid #e5e7eb;
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.active-sub-card .sub-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.active-sub-card .sub-name {
+  font-size: 14px;
+  font-weight: 900;
+  color: var(--c-purple);
+  flex: 1;
+  min-width: 0;
+}
+.active-sub-card .sub-badge {
+  font-size: 10px;
+  font-weight: 800;
+  padding: 3px 10px;
+  border-radius: 99px;
+  flex-shrink: 0;
+}
+.active-sub-card .sub-meta {
+  font-size: 11px;
+  font-weight: 700;
+  color: #6b7280;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+/* ====================================================
+   ANIMATIONS
+   ==================================================== */
+.pulse-highlight { animation: pulseHL 2s infinite; }
+@keyframes pulseHL {
+  0%,100% { transform:scale(1);    box-shadow:0 0 0 0   rgba(241,114,0,.7); }
+  50%      { transform:scale(1.05); box-shadow:0 0 0 10px rgba(241,114,0,0); }
+}
+.live-dot {
+  width:10px; height:10px; background:#22c55e;
+  border-radius:50%; display:inline-block;
+  animation: pulseGreen 2s infinite;
+}
+@keyframes pulseGreen {
+  0%,100% { transform:scale(.95); box-shadow:0 0 0 0   rgba(34,197,94,.7); }
+  70%      { transform:scale(1);   box-shadow:0 0 0 10px rgba(34,197,94,0); }
+}
+@keyframes spin { from{transform:rotate(0deg)} to{transform:rotate(360deg)} }
+
+button[onclick*="_syncTab"]:active i { animation: spin 0.5s linear; }
+
+/* ====================================================
+   HISTORY FILTER
+   ==================================================== */
+.hist-filter {
+  background: #fff;
+  border-radius: var(--radius);
+  padding: 14px 16px;
+  margin-bottom: 18px;
+  box-shadow: 0 2px 10px rgba(48,16,67,0.07);
+  border: 1px solid rgba(48,16,67,0.06);
+}
+.hist-filter .fg {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+@media (min-width: 640px) {
+  .hist-filter .fg { grid-template-columns: repeat(4, 1fr); }
+}
+.hist-filter input,
+.hist-filter select {
+  width: 100%;
+  border: 2px solid #e5e7eb;
+  border-radius: 10px;
+  padding: 7px 10px;
+  font-size: 12px;
+  font-family: 'Cairo', sans-serif;
+  font-weight: 700;
+  color: #374151;
+  background: #f9fafb;
+  outline: none;
+  transition: border-color 0.2s, background 0.2s;
+}
+.hist-filter input:focus,
+.hist-filter select:focus {
+  border-color: var(--c-purple);
+  background: #fff;
+}
+.hist-filter .fsrch { position: relative; }
+.hist-filter .fsrch i {
+  position: absolute; right: 10px; top: 50%;
+  transform: translateY(-50%);
+  color: #aaa; font-size: 11px; pointer-events: none;
+}
+.hist-filter .fsrch input { padding-right: 28px; }
+
+.fstat-row {
+  display: flex; align-items: center; gap: 6px;
+  flex-wrap: wrap; margin-top: 8px; padding-top: 8px;
+  border-top: 1px solid #f3f4f6;
+}
+.fstat-chip {
+  background: #f3f4f6; color: #6b7280;
+  font-size: 10px; font-weight: 800;
+  padding: 3px 9px; border-radius: 99px;
+  font-family: 'Cairo', sans-serif;
+}
+.fstat-chip b { color: var(--c-purple); }
+.fstat-chip.or b { color: var(--c-orange); }
+
+.fclear-btn {
+  margin-right: auto;
+  background: #fef3c7; color: #92400e;
+  border: none; font-size: 10px; font-weight: 800;
+  padding: 3px 10px; border-radius: 99px; cursor: pointer;
+  font-family: 'Cairo', sans-serif;
+  display: none; align-items: center; gap: 3px;
+}
+.fclear-btn.on { display: inline-flex; }
+.fclear-btn:hover { background: #fde68a; }
+
+.row-hide { display: none !important; }
+
+/* ====================================================
+   MISC
+   ==================================================== */
+#viewPublic, #viewClient, #viewAdmin { min-height: 0; }
+.client-tab-content { min-height: 0; }
+#eventDetailsModal > div { max-height:90vh; overflow-y:auto; }
+.remote-badge {
+  background: linear-gradient(135deg,#374151,#1f2937);
+  color:#fff; font-size:10px; padding:2px 8px;
+  border-radius:99px; font-weight:700;
+}
+#clientChatMessages, #adminChatMessages { scroll-behavior:smooth; }
+#remoteBadge { animation:remotePulse 2s infinite; }
+@keyframes remotePulse { 0%,100%{opacity:1} 50%{opacity:.6} }
+#adminActiveSubsList tr.paused-row { background:#fef3c7; opacity:.85; }
+
+/* Print */
+@media print {
+  #bottomNav { display:none !important; }
+  body { padding-bottom:0 !important; }
+}
+
+/* Toast above bottom nav */
+@media (max-width: 767px) {
+  #msgBox {
+    bottom: calc(var(--bnav-h) + var(--bnav-safe) + 12px) !important;
+    z-index: 9998 !important;
+  }
+  .client-chat-fab { display: none !important; }
+}
+
+.bnav-fab .nl { position: relative; top: -4px; }
+
+/* Mobile admin & live fixes */
+@media (max-width: 767px) {
+  #admin-live .glass-card { padding: 12px; }
+  /* Live active sessions table — horizontal scroll */
+  #admin-live .overflow-x-auto { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+  #adminSessionsList td,
+  #adminTodayCompletedList td { max-width: 90px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 11px; }
+  #adminSessionsList th,
+  #adminTodayCompletedList th { font-size: 11px; padding: 8px 6px; }
+
+  #admin-settings .grid.md\:grid-cols-3 {
+    grid-template-columns: 1fr !important;
+  }
+  #admin-subscriptions table th,
+  #admin-subscriptions table td { font-size: 10px; padding: 5px 3px !important; }
+  #admin-live .bg-purple-50 {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 4px;
+  }
+  #aboutModal { align-items: flex-end; padding: 0; }
+  #aboutModal > div { border-radius: 24px 24px 0 0; max-height: 92vh; }
+}
+
+@media (min-width: 640px) and (max-width: 767px) {
+  #admin-settings .grid.md\:grid-cols-3 {
+    grid-template-columns: 1fr 1fr !important;
+  }
+}
+
+/* ─── Header User Info Strip (mobile only, shown when logged in) ─── */
+#headerUserStrip { display: none; }
+@media (max-width: 767px) {
+  #headerUserStrip {
+    display: none;
+    background: rgba(255,255,255,0.1);
+    border-top: 1px solid rgba(255,255,255,0.1);
+    padding: 5px 16px;
+    font-size: 11px;
+    font-weight: 900;
+    color: rgba(255,255,255,0.85);
+    align-items: center;
+    gap: 8px;
+    white-space: nowrap;
+    overflow: hidden;
+  }
+  #headerUserStrip.visible { display: flex; }
+  #headerUserStrip .hus-name { color: #fff; font-weight: 900; font-size: 12px; flex-shrink: 0; }
+  #headerUserStrip .hus-phone { color: #f97316; font-family: monospace; font-size: 11px; flex-shrink: 0; }
+  #headerUserStrip .hus-sep { color: rgba(255,255,255,0.3); flex-shrink: 0; }
+  #headerUserStrip .hus-session {
+    background: rgba(241,114,0,0.25); color: #fdba74;
+    border-radius: 99px; padding: 1px 8px; font-size: 10px; flex-shrink: 0;
+  }
+  #headerUserStrip .hus-logout {
+    margin-right: auto; background: rgba(239,68,68,0.2); color: #fca5a5;
+    border: none; border-radius: 8px; padding: 3px 8px; font-size: 10px;
+    font-weight: 900; font-family: 'Cairo', sans-serif; cursor: pointer; flex-shrink: 0;
+  }
+}
+
+@media (max-width: 767px) {
+  #viewPublic, #viewClient, #viewAdmin { min-height: calc(100vh - 120px); }
+  #viewAdmin { background-color: var(--c-bg); }
+  body.is-admin-mode { padding-bottom: calc(var(--bnav-h) + var(--bnav-safe)) !important; }
+  body.has-active-session { padding-bottom: calc(var(--bnav-h) + var(--bnav-safe) + 56px) !important; }
+}
+
+/* ─── QR Welcome Badge ─── */
+#qrAutoCheckMsg { padding: 24px 16px; }
+
+/* ─── Group Question Modal ─── */
+#groupQuestionModal { z-index: 10500; }
+
+/* ─── Admin Bottom Nav on mobile — always show ─── */
+/* (handled by removing the hide logic in _bnavSync) */
+
+/* ─── Notification badge in header ─── */
+#headerNotifBell {
+  position: relative;
+  width: 34px; height: 34px;
+  background: rgba(255,255,255,0.15);
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer;
+  border: none;
+  color: white;
+  font-size: 15px;
+  transition: background 0.2s;
+  flex-shrink: 0;
+}
+#headerNotifBell:hover { background: rgba(255,255,255,0.25); }
+#headerNotifBell .notif-count {
+  position: absolute; top: -2px; right: -2px;
+  background: var(--c-orange); color: white;
+  font-size: 8px; font-weight: 900;
+  min-width: 14px; height: 14px;
+  border-radius: 99px;
+  display: flex; align-items: center; justify-content: center;
+  border: 2px solid var(--c-purple);
+  padding: 0 2px;
+}
+
+/* ─── Mobile notification bell — left of hamburger ─── */
+#headerNotifBellMobile {
+  position: relative;
+  width: 36px; height: 36px;
+  background: rgba(255,255,255,0.15);
+  border-radius: 10px;
+  display: none; /* shown via JS when client logged in */
+  align-items: center; justify-content: center;
+  cursor: pointer;
+  border: none;
+  color: white;
+  font-size: 16px;
+  transition: background 0.2s;
+  flex-shrink: 0;
+}
+#headerNotifBellMobile:hover { background: rgba(255,255,255,0.25); }
+
+/* ─── Fix: Modals must not be hidden under BottomNav on mobile ─── */
+@media (max-width: 767px) {
+  /* All fixed modals that use flex+items-end should leave space for bnav */
+  .fixed.inset-0[class*="flex"][class*="items-end"] > div,
+  .fixed.inset-0.flex.items-end > div {
+    margin-bottom: calc(var(--bnav-h, 60px) + var(--bnav-safe, 0px));
+  }
+  /* Sheet-style modals (items-end) get bottom margin */
+  #groupQuestionModal > div,
+  #aboutModal > div,
+  #wifiWelcomeModal > div,
+  #clientReceiptModal > div,
+  #subscriptionModal > div,
+  #subscriptionCardModal > div {
+    max-height: calc(90vh - var(--bnav-h, 60px) - var(--bnav-safe, 0px));
+    overflow-y: auto;
+  }
+  /* Center modals (items-center) need max-height that accounts for bnav */
+  .fixed.inset-0.flex.items-center > div {
+    max-height: calc(90vh - var(--bnav-h, 60px));
+  }
+}
+
+/* ── Stamps Celebration Popup ─────────────────────────── */
+@keyframes stampPop {
+  0%   { transform: scale(0) rotate(-15deg); opacity: 0; }
+  60%  { transform: scale(1.25) rotate(5deg); opacity: 1; }
+  100% { transform: scale(1) rotate(0deg); opacity: 1; }
+}
+
+@keyframes floatUp {
+  0%   { transform: translateY(0); opacity: 1; }
+  100% { transform: translateY(-30px); opacity: 0; }
+}
+
+/* ── Side Drawer override ──────────────────────────────── */
+#sectionsSheetContent {
+    right: 0;
+    left: auto;
+    border-radius: 1.25rem 0 0 1.25rem;
+}
+
+/* ── Improved sect-item for side drawer list ──────────── */
+#sectionsSheetList .sect-item {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    width: 100%;
+    padding: 0.875rem 1rem;
+    border-radius: 1rem;
+    font-weight: 700;
+    font-size: 0.875rem;
+    transition: all 0.15s ease;
+    background: #f9fafb;
+    color: #374151;
+    border: 1px solid #f3f4f6;
+    text-align: right;
+}
+#sectionsSheetList .sect-item.active {
+    background: #301043;
+    color: white;
+}
+#sectionsSheetList .sect-item:active {
+    transform: scale(0.96);
+}

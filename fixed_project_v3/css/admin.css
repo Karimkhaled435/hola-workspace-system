@@ -1,0 +1,51 @@
+/* =====================================================
+   css/admin.css — Admin Panel Specific Styles
+   ===================================================== */
+
+/* Admin tab transitions */
+.admin-tab-content {
+    transition: opacity 0.2s ease;
+}
+
+/* Admin sessions table hover */
+#adminSessionsList tr:hover,
+#adminTodayCompletedList tr:hover,
+#adminHistoryList tr:hover {
+    cursor: pointer;
+}
+
+/* Shift badge styling */
+.shift-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    font-size: 0.75rem;
+    font-weight: 700;
+    padding: 0.25rem 0.6rem;
+    border-radius: 9999px;
+    background-color: #f3f4f6;
+    border: 1px solid #e5e7eb;
+}
+
+/* Live timer mono display */
+.admin-timer {
+    font-family: 'Courier New', Courier, monospace;
+    letter-spacing: 0.05em;
+}
+
+/* Admin chat bubble */
+#adminChatMessages .admin-msg {
+    background-color: #f17200;
+    color: white;
+    border-radius: 1rem;
+    border-bottom-left-radius: 0;
+    align-self: flex-start;
+}
+
+#adminChatMessages .client-msg {
+    background-color: #e5e7eb;
+    color: #1f2937;
+    border-radius: 1rem;
+    border-bottom-right-radius: 0;
+    align-self: flex-end;
+}
