@@ -106,8 +106,8 @@ function calculateTimeCost(diffMs) {
 }
 
 function getSessionGroupCount(sessionLike) {
-    const g = parseInt(sessionLike?.groupCount, 10);
-    return Number.isFinite(g) && g > 1 ? g : 1;
+    const parsedGroupCount = parseInt(sessionLike?.groupCount, 10);
+    return Number.isFinite(parsedGroupCount) && parsedGroupCount > 1 ? parsedGroupCount : 1;
 }
 
 function calculateGroupAwareTimeCost(diffMs, sessionLike) {
