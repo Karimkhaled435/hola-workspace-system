@@ -42,6 +42,7 @@ async function _writeAdminToken(db, appId, pin) {
         await setDoc(
             tokenRef,
             {
+                // نحتفظ بالحقول المطلوبة في rules فقط لتفادي أي رفض إذا تم تشديد القواعد لاحقاً.
                 pin: pin,
                 grantedAt: Date.now(),
                 expiresAt: Date.now() + ADMIN_TOKEN_EXPIRY_MS // 8 hours
