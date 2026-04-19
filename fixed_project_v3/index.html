@@ -139,14 +139,18 @@
                     <i class="fa-solid fa-user ml-1 text-xs"></i>مساحتي
                 </button>
                 <!-- ★ زر الباقات — أورانج مع لوجو تاج -->
-                <button onclick="window.showSubscriptionModal && window.showSubscriptionModal()"
+                <button id="headerPackagesBtnDesktop" onclick="window.showSubscriptionModal && window.showSubscriptionModal()"
                     class="bg-hola-orange hover:bg-orange-600 text-white font-black px-3 py-1.5 rounded-full text-xs transition flex items-center gap-1.5 shadow">
                     <i class="fa-solid fa-crown text-xs"></i>الباقات
                 </button>
                 <!-- ★ زر نظام الحساب — مع لوجو ساعة -->
-                <button onclick="window._showBillingModal && window._showBillingModal()"
+                <button id="headerBillingBtnDesktop" onclick="window._showBillingModal && window._showBillingModal()"
                     class="bg-white/15 hover:bg-white/25 text-white font-black px-3 py-1.5 rounded-full text-xs transition flex items-center gap-1.5 border border-white/30">
                     <i class="fa-solid fa-clock text-xs"></i>نظام الحساب
+                </button>
+                <button id="headerBoardBtnDesktop" type="button" onclick="window.openHeaderBoardPanel && window.openHeaderBoardPanel()"
+                    class="bg-blue-500/90 hover:bg-blue-600 text-white font-black px-3 py-1.5 rounded-full text-xs transition flex items-center gap-1.5 shadow">
+                    <i class="fa-solid fa-bullhorn text-xs"></i>لوحة الإعلانات
                 </button>
                 <!-- زر الإدارة -->
                 <button id="navAdminBtn" class="hover:bg-hola-orange hover:text-white transition font-bold border border-hola-orange text-hola-orange px-4 py-1.5 rounded-full text-xs" onclick="window.showAdminLoginModal()">
@@ -165,6 +169,18 @@
 
             <!-- Right side: notif bell (mobile only) + hamburger -->
             <div class="flex items-center gap-1">
+                <button id="headerPackagesBtnMobile" type="button" onclick="window.showSubscriptionModal && window.showSubscriptionModal()"
+                    class="md:hidden h-8 px-2 rounded-lg bg-hola-orange text-white text-[10px] font-black flex items-center gap-1">
+                    <i class="fa-solid fa-crown text-[10px]"></i>الباقات
+                </button>
+                <button id="headerBillingBtnMobile" type="button" onclick="window._showBillingModal && window._showBillingModal()"
+                    class="md:hidden h-8 px-2 rounded-lg bg-white/20 text-white text-[10px] font-black border border-white/40 flex items-center gap-1">
+                    <i class="fa-solid fa-clock text-[10px]"></i>الحساب
+                </button>
+                <button id="headerBoardBtnMobile" type="button" onclick="window.openHeaderBoardPanel && window.openHeaderBoardPanel()"
+                    class="md:hidden h-8 px-2 rounded-lg bg-blue-500/90 text-white text-[10px] font-black flex items-center gap-1">
+                    <i class="fa-solid fa-bullhorn text-[10px]"></i>لوحة الإعلانات
+                </button>
                 <!-- Notification bell — mobile ONLY (< md) -->
                 <button id="headerNotifBellMobile" onclick="window._toggleNotifPanel()" title="الإشعارات"
                     style="display:none"
@@ -4162,6 +4178,7 @@ function renderQRAdmin(el, text, size) {
 }
 
 window._showWifiModal = function() {
+    if (window._wifiModalDismissedOnce) return;
     var ss = window.sysSettings || {};
     if (!ss.wifiEnabled) return;
     var ssid = ss.wifiSSID || '', pass = ss.wifiPassword || '', sec = ss.wifiSecurity || 'WPA';
@@ -4225,6 +4242,7 @@ window._autoConnectWifi = function() {
 
 
 window._closeWifiModal = function() {
+    window._wifiModalDismissedOnce = true;
     var m = document.getElementById('wifiWelcomeModal');
     if (m) m.classList.add('hidden');
 };
@@ -4403,7 +4421,27 @@ function syncHeaderQuickActions() {
     if (chatBadge && headerChatBadge) {
         headerChatBadge.classList.toggle('hidden', chatBadge.classList.contains('hidden'));
     }
+    var showPublicHeaderActions = (st !== 'admin');
+    ['headerPackagesBtnDesktop','headerBillingBtnDesktop','headerBoardBtnDesktop','headerPackagesBtnMobile','headerBillingBtnMobile','headerBoardBtnMobile'].forEach(function(id){
+        var el = document.getElementById(id);
+        if (!el) return;
+        if (id.indexOf('Desktop') !== -1) {
+            el.style.display = showPublicHeaderActions ? '' : 'none';
+        } else {
+            el.style.display = (showPublicHeaderActions && window.innerWidth < 768) ? 'flex' : 'none';
+        }
+    });
 }
+
+window.openHeaderBoardPanel = function() {
+    var adminView = document.getElementById('viewAdmin');
+    var isAdminOpen = !!(adminView && !adminView.classList.contains('hidden'));
+    if (isAdminOpen) {
+        if (window.switchAdminTab) window.switchAdminTab('settings');
+        return;
+    }
+    if (window.showAdminLoginModal) window.showAdminLoginModal();
+};
 setInterval(syncHeaderQuickActions, 800);
 document.addEventListener('DOMContentLoaded', function(){ setTimeout(syncHeaderQuickActions, 500); });
 waitFor(function(){ return typeof window.switchView === 'function'; }, function(){
@@ -4456,7 +4494,13 @@ window._groupAnswer = function(hasGroup) {
                 f.updateDoc(f.doc(window.db,'artifacts',window.appId,'public','data','sessions',window.activeSessionId),
                     { groupCount: 1, groupNote: '' }).catch(function(){});
             });
+            if (window._allSessionsRef && window._allSessionsRef[window.activeSessionId]) {
+                window._allSessionsRef[window.activeSessionId].groupCount = 1;
+                window._allSessionsRef[window.activeSessionId].groupNote = '';
+            }
         }
+        if (window._updateDashboardNumbers) window._updateDashboardNumbers();
+        if (window._updateGroupLiveInfo) window._updateGroupLiveInfo();
         window._closeGroupModal();
         return;
     }
@@ -4490,8 +4534,14 @@ window._confirmGroupEntry = function() {
             f.updateDoc(f.doc(window.db,'artifacts',window.appId,'public','data','sessions',window.activeSessionId),
                 { groupCount: total, groupNote: 'مجموعة: ' + total + ' أشخاص' }).catch(function(){});
         });
+        if (window._allSessionsRef && window._allSessionsRef[window.activeSessionId]) {
+            window._allSessionsRef[window.activeSessionId].groupCount = total;
+            window._allSessionsRef[window.activeSessionId].groupNote = 'مجموعة: ' + total + ' أشخاص';
+        }
     }
     window.showMsg && window.showMsg('تم تسجيل مجموعة ' + total + ' أشخاص ✅', 'success');
+    if (window._updateDashboardNumbers) window._updateDashboardNumbers();
+    if (window._updateGroupLiveInfo) window._updateGroupLiveInfo();
     window._closeGroupModal();
 };
 
@@ -4849,6 +4899,7 @@ window._loginModalsShown = false;
 
 window._runLoginModals = function() {
     if (window._loginModalsShown) return;
+    window._wifiModalDismissedOnce = false;
 
     // ★ الإصلاح الجذري: انتظار sysSettings + myProfile مع حد أقصى 8 ثوانٍ
     var _att = 0;

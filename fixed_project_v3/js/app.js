@@ -98,6 +98,15 @@ function calculateTimeCost(diffMs) {
     return cost;
 }
 
+function getSessionGroupCount(sessionLike) {
+    const g = parseInt(sessionLike?.groupCount, 10);
+    return Number.isFinite(g) && g > 1 ? g : 1;
+}
+
+function calculateGroupAwareTimeCost(diffMs, sessionLike) {
+    return calculateTimeCost(diffMs) * getSessionGroupCount(sessionLike);
+}
+
 // ─── Timer & Dashboard ────────────────────────────────────────────────────────
 function updateDashboardNumbers() {
     const now = Date.now();
@@ -108,7 +117,8 @@ function updateDashboardNumbers() {
         const s = (diffSecs % 60).toString().padStart(2, '0');
         const elElapsed = document.getElementById('clientElapsedTime');
         if (elElapsed) elElapsed.innerHTML = `${h}:${m}<span class="text-xl text-gray-400 ml-1 font-bold">:${s}</span>`;
-        const timeCost = calculateTimeCost(diffSecs * 1000);
+        const curSession = activeSessionId ? _sessions[activeSessionId] : null;
+        const timeCost = calculateGroupAwareTimeCost(diffSecs * 1000, curSession);
         const itemsCost = sessionItems.reduce((sum, item) => sum + item.price, 0);
         safeSet('clientTimeCost', 'innerText', `${timeCost} ج`);
         safeSet('clientItemsCost', 'innerText', `${itemsCost} ج`);
@@ -132,6 +142,7 @@ function updateDashboardNumbers() {
         const s = Math.floor((d % 60000) / 1000).toString().padStart(2, '0');
         lElapsed.innerText = `${h}:${m}:${s}`;
     }
+    if (typeof window._updateGroupLiveInfo === 'function') window._updateGroupLiveInfo();
 }
 window._updateDashboardNumbers = updateDashboardNumbers;
 
@@ -332,7 +343,7 @@ function populateDetailedReceipt(prefix, sessionData) {
     const durMs = sessionData.durationMs || (sessionData.endTime ? sessionData.endTime - sessionData.startTime : 0);
     const durH = Math.floor(durMs / 3600000); const durM = Math.floor((durMs % 3600000) / 60000);
     safeSet(`${prefix}Duration`, 'innerText', `${durH}س و ${durM}د`);
-    const tCost = calculateTimeCost(durMs); const itemsCost = (sessionData.items || []).reduce((a, b) => a + b.price, 0);
+    const tCost = calculateGroupAwareTimeCost(durMs, sessionData); const itemsCost = (sessionData.items || []).reduce((a, b) => a + b.price, 0);
     const finalCost = sessionData.finalCost ?? (tCost + itemsCost);
     const totalBefore = tCost + itemsCost; const disc = Math.max(0, totalBefore - finalCost);
     safeSet(`${prefix}Discount`, 'innerText', `${disc} ج`); safeSet(`${prefix}FinalCost`, 'innerText', `${finalCost} ج`);
@@ -671,7 +682,7 @@ window.openAdminLiveSession = (id) => {
             </div>`
         ).join('');
     }
-    const dMs = Date.now() - s.startTime; const tC = calculateTimeCost(dMs); const iC = (s.items || []).reduce((su, i) => su + i.price, 0);
+        const dMs = Date.now() - s.startTime; const tC = calculateGroupAwareTimeCost(dMs, s); const iC = (s.items || []).reduce((su, i) => su + i.price, 0);
     safeSet('liveSesTimeCost', 'innerText', `${tC} ج`); safeSet('liveSesItemsCost', 'innerText', `${iC} ج`); safeSet('liveSesTotal', 'innerText', `${tC + iC} ج`);
     const btn = document.getElementById('liveSesEndBtn'); if (btn) btn.onclick = () => window.adminEndSession(id);
     document.getElementById('adminLiveSessionModal')?.classList.remove('hidden');
@@ -703,7 +714,7 @@ window.removeSessionItem = async (sid, idx) => {
 window.adminEndSession = async (sid) => {
     if (!db) return;
     const s = _sessions[sid]; if (!s) return;
-    const dMs = Date.now() - s.startTime; const tC = calculateTimeCost(dMs); const iC = (s.items || []).reduce((su, i) => su + i.price, 0); const sub = tC + iC;
+    const dMs = Date.now() - s.startTime; const tC = calculateGroupAwareTimeCost(dMs, s); const iC = (s.items || []).reduce((su, i) => su + i.price, 0); const sub = tC + iC;
     const prof = _profiles[s.phone]; let ded = 0; if (prof && prof.walletBalance > 0) ded = Math.min(prof.walletBalance, sub);
     const fin = sub - ded;
     window.lastAdminCompletedSessionId = sid; window.currentPaymentSessionId = sid;
@@ -4027,7 +4038,7 @@ window.refreshNotificationsPanel = function() {
     }
 };
 
-// Override client checkout: request the bill without performing admin-only settlement writes.
+// Client checkout finalization (single source of truth at end of file to avoid accidental override bugs).
 window.confirmCheckout = async function() {
     try {
         if (!db) return showMsg("غير متصل بقاعدة البيانات", "error");
@@ -4037,7 +4048,23 @@ window.confirmCheckout = async function() {
         if (!session) return showMsg("خطأ في بيانات الجلسة", "error");
 
         const reqEl = document.getElementById('modalFinalRequired');
+        const ded = reqEl ? parseInt(reqEl.dataset.deduction, 10) || 0 : 0;
         const fin = reqEl ? parseInt(reqEl.innerText, 10) || 0 : 0;
+        const endNow = Date.now();
+        const dMs = endNow - (session.startTime || endNow);
+        const groupCount = getSessionGroupCount(session);
+
+        window.lastCompletedSessionId = activeSessionId;
+        window._lastReceiptPhone = session.phone;
+        window._lastReceiptName = session.name;
+
+        await updateDoc(doc(db, 'artifacts', appId, 'public', 'data', 'sessions', activeSessionId), {
+            status: 'completed',
+            endTime: endNow,
+            finalCost: fin,
+            durationMs: dMs,
+            shiftAdmin: currentShiftAdmin || 'عميل'
+        });
 
         await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'orders'), {
             phone: session.phone,
@@ -4046,13 +4073,53 @@ window.confirmCheckout = async function() {
             requestedTotal: fin,
             itemName: `طلب الحساب (مطلوب: ${fin} ج)`,
             status: 'pending',
-            timestamp: Date.now()
+            timestamp: endNow
         });
 
+        const prof = _profiles[session.phone];
+        if (prof && ded > 0) {
+            await updateDoc(doc(db, 'artifacts', appId, 'public', 'data', 'profiles', session.phone), {
+                walletBalance: (prof.walletBalance || 0) - ded
+            });
+        }
+
+        const discEl = document.getElementById('discountCode');
+        const aId = discEl?.dataset.appliedId;
+        const aCode = discEl?.value?.trim() || discEl?.dataset.appliedCode || '';
+        if (aId) {
+            await updateDoc(doc(db, 'artifacts', appId, 'public', 'data', 'discounts', aId), {
+                isUsed: true, usedBy: session.phone, usedAt: endNow
+            });
+            await updateDoc(doc(db, 'artifacts', appId, 'public', 'data', 'sessions', activeSessionId), { discountCode: aCode });
+        }
+
+        await window.deductSubscriptionDay(session.phone);
+
+        const recData = {
+            status: 'completed',
+            endTime: endNow,
+            finalCost: fin,
+            durationMs: dMs,
+            shiftAdmin: currentShiftAdmin || 'عميل',
+            items: sessionItems || session.items || [],
+            startTime: session.startTime,
+            name: session.name,
+            phone: session.phone,
+            id: activeSessionId,
+            groupCount: groupCount,
+            groupNote: groupCount > 1 ? `مجموعة: ${groupCount} أشخاص` : ''
+        };
+
+        clearInterval(timerInterval);
+        setActiveSessionId(null);
+        setSessionItems([]);
         window.closeCheckoutModal();
-        showMsg("تم إرسال طلب الحساب للإدارة", "success");
+        safeSet('receiptTitle', 'innerText', 'تم إنهاء الجلسة بنجاح');
+        populateDetailedReceipt('receipt', recData);
+        document.getElementById('clientReceiptModal')?.classList.remove('hidden');
+        showMsg("تم إنهاء الجلسة وإظهار الفاتورة", "success");
     } catch (e) {
         console.error("Checkout Error:", e);
-        showMsg("خطأ أثناء إرسال طلب الحساب. حاول مرة أخرى.", "error");
+        showMsg("خطأ أثناء إنهاء الجلسة. حاول مرة أخرى.", "error");
     }
 };
