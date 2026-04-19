@@ -73,6 +73,16 @@ function _stopAdminListeners() {
     _clearAdminOnlyState();
 }
 
+export function teardownListeners() {
+    if (_adminTokenUnsub) {
+        try { _adminTokenUnsub(); } catch (e) {}
+        _adminTokenUnsub = null;
+    }
+    _stopAdminListeners();
+    _listenersBootstrapped = false;
+    _listenersUid = null;
+}
+
 function _watchAdminCollection(ref, onNext, label) {
     return onSnapshot(
         ref,
@@ -308,6 +318,11 @@ function _renderAdminSessions_multi() {
 
 // ─── Setup all Firestore Listeners ───────────────────────────────────────────
 export function setupListeners(db, appId, uid) {
+    if (!db || !appId || !uid) {
+        teardownListeners();
+        return;
+    }
+
     if (_listenersBootstrapped && _listenersUid === uid) {
         return;
     }

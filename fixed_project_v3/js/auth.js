@@ -22,25 +22,35 @@ import { renderClientLoyalty, renderClientHistory, renderShiftManagers } from ".
 // الـ Firestore Rules بتتحقق من وجوده قبل أي write حساس
 async function _writeAdminToken(db, appId, pin) {
     try {
-        const { auth } = await import("./firebase.js");
-        const uid = auth?.currentUser?.uid;
-        if (!uid || !db || !pin) return;
+        const { auth, waitForAuthReady } = await import("./firebase.js");
+        const user = auth?.currentUser || await waitForAuthReady(8000).catch(() => null);
+        const uid = user?.uid;
+        if (!uid || !db || !pin) {
+            console.error('[AdminToken] ❌ Auth not ready or missing params');
+            return false;
+        }
+
+        const tokenRef = doc(db, 'artifacts', appId, 'admin_tokens', uid);
+        // قواعد Firestore الحالية تسمح create فقط، لذلك نحذف أولاً ثم نعيد create
+        try { await deleteDoc(tokenRef); } catch (e) {}
+
         // ✅ SECURITY: بنبعت الـ PIN في الـ token
         // الـ Rules بتتحقق إنه يساوي adminPin في settings
         // + expiresAt بعد 8 ساعات (shift طويل)
         await setDoc(
-            doc(db, 'artifacts', appId, 'admin_tokens', uid),
+            tokenRef,
             {
                 pin: pin,
                 grantedAt: Date.now(),
-                expiresAt: Date.now() + (8 * 60 * 60 * 1000), // 8 hours
-                deviceId: window._getDeviceId?.() || 'unknown'
+                expiresAt: Date.now() + (8 * 60 * 60 * 1000) // 8 hours
             }
         );
         window._adminUid = uid;
         console.log('[AdminToken] ✅ Token written for uid:', uid, '| expires in 8h');
+        return true;
     } catch(e) {
         console.error('[AdminToken] ❌ Failed to write token — PIN mismatch or Rules blocked:', e);
+        return false;
     }
 }
 
@@ -410,7 +420,7 @@ export async function handleLogin(db, appId, _profiles, _sessions, sysSettings) 
 // ─── Admin Auth ───────────────────────────────────────────────────────────────
 export function showAdminLoginModal() { document.getElementById('adminLoginModal')?.classList.remove('hidden'); }
 
-export function verifyAdminPin(db, appId, sysSettings, activeSessionId) {
+export async function verifyAdminPin(db, appId, sysSettings, activeSessionId) {
     const pass = document.getElementById('adminPinInput')?.value;
     const sName = document.getElementById('adminShiftName')?.value || "مدير النظام";
     const correctPin = sysSettings?.adminPin;
@@ -429,7 +439,11 @@ export function verifyAdminPin(db, appId, sysSettings, activeSessionId) {
     if (pass === correctPin) {
         window._adminPinAttempts = { count: 0, lockedUntil: 0 }; // reset on success
         // ✅ SECURITY: كتابة admin token في Firestore — الـ Rules بتتحقق من PIN + expiry
-        _writeAdminToken(db, appId, pass);
+        const tokenOk = await _writeAdminToken(db, appId, pass);
+        if (!tokenOk) {
+            showMsg("تعذر تفعيل صلاحيات الإدارة الآن. تأكد من الاتصال ثم أعد المحاولة.", "error");
+            return;
+        }
         setCurrentShiftAdmin(sName);
         const label = document.getElementById('currentAdminNameLabel');
         if (label) label.innerText = sName;
